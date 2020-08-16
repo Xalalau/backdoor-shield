@@ -3,7 +3,7 @@
     [  Backdoor Shield  ]
     -- --------------- --
     
-    Protected the listed functions as long as the scanner is running
+	Protect your Garry's Mod server against backdoors.
 
     ©2020 Xalalau Xubilozo. All Rights Reserved.
     https://tldrlegal.com/license/all-rights-served#summary
@@ -17,7 +17,7 @@ local backup = {
 	["somegame.function"] = {
 		original = function original function,
 		replacement = function replacement function - indexed by somegame.function
-		filter = function to scan string contents
+		filter = function to run validations
 	},
 	]]
 	["debug.getinfo"] = {  -- Must be the first of the list
