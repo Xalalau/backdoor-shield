@@ -492,7 +492,7 @@ function BS:ScanFolders(args)
 
 	for _,folder in pairs(folders) do
 		if file.Exists(folder .. "/", "GAME") then
-			BS:ScanFolder(folder .. "/", ".vcd" )
+			ScanFolder(folder .. "/", ".vcd" )
 		end
 	end
 
