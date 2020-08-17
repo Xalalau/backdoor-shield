@@ -43,7 +43,7 @@ local lowRiskFiles = {
 -- Whitelist TRACE ERRORS
 -- Note: it's safer to whitelist trace errors than the files theirselfs.
 -- Note2: this list is locked into this file for security reasons
-local whitelist = {
+local whitelistTraceErrors = {
 	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
 	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:507", -- DarkRP
 	"lua/ulib/shared/plugin.lua:186", -- ULib
@@ -411,7 +411,7 @@ function BS:ScanString(trace, str, blocked, warning)
 	local function CheckWhitelist(str)
 		local found = true
 
-		for _,allowed in pairs(whitelist)do
+		for _,allowed in pairs(whitelistTraceErrors)do
 			if string.find(trace, allowed, nil, true) then
 				found = false
 
