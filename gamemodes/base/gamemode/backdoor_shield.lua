@@ -225,7 +225,7 @@ function BS:ReportFile(infoIn)
 	end
 end
 
-function BS:ReportFile(results)
+function BS:ReportFolder(results)
 	local Timestamp = os.time()
 	local date = os.date("%m-%d-%Y", Timestamp)
 	local time = os.date("%Hh %Mm %Ss", Timestamp)
@@ -494,7 +494,7 @@ function BS:ScanFolders(args)
 
 	for _,folder in pairs(folders) do
 		if file.Exists(folder .. "/", "GAME") then
-			ScanFolder(folder .. "/", ".vcd" )
+			BS:ScanFolder(folder .. "/", ".vcd" )
 		end
 	end
 
