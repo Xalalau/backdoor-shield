@@ -526,9 +526,11 @@ function BS:Initialize()
 	███████║██║  ██║██║███████╗███████╗██████╔╝
 	╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝
 
-	You can set custom black and white lists directly in the main file.
+	The protection runs automatically, but you can also:
 
-	# Commands:
+	1) Set custom black and white lists directly in the main file.
+
+	2) Use the commands:
 	|--> "bs_scan": Recursively scan GMod and all the mounted contents
 	|--> "bs_scan <folder>": Recursively scan the seleceted folder
 
