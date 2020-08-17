@@ -38,6 +38,13 @@ local lowRiskFiles = {
 	"lua/wire/wireshared.lua",
 }
 
+-- Whitelist urls
+-- Ignore these urls and their contents. They aren't going to be scanned at all.
+-- Note: insert a url starting with http or https and ending with a "/", like https://google.com/
+local whitelistUrls = {
+	"http://www.geoplugin.net/",
+}
+
 -- Whitelist TRACE ERRORS
 -- By default, I do this instead of whitelisting files because the traces cannot be
 -- replicated without many counterpoints
@@ -327,6 +334,14 @@ function BS:ValidateHttpFetch(trace, funcName, args)
 		local blocked = {{}, {}}
 		local warning = {}
 		local detected
+
+		for k,v in pairs(whitelistUrls) do
+			local urlStart, urlEnd = string.find(url, v)
+
+			if urlStart and urlStart == 1 then
+				return control[funcName].original(unpack(args))
+			end
+		end
 
 		BS:ScanString(trace, url, blocked, warning)
 
