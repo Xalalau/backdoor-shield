@@ -530,8 +530,9 @@ function BS:Initialize()
 
 	You can set custom black and white lists directly in the main file.
 
-	|--> Command "scan": Scan GMod and all the mounted contents
-	|--> Command "scan <folder>": Scan the seleceted folder
+	# Commands:
+	|--> "bs_scan": Recursively scan GMod and all the mounted contents
+	|--> "bs_scan <folder>": Recursively scan the seleceted folder
 
 	Version: ]] .. BS_VERSION .. [[
 
@@ -577,6 +578,6 @@ end
 
 BS:Initialize()
 
-concommand.Add("scan", function(ply, cmd, args)
+concommand.Add("bs_scan", function(ply, cmd, args)
     BS:ScanFolders(args)
 end)
