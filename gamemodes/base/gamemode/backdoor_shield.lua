@@ -11,10 +11,8 @@
 --]]
 
 -- SCAN LISTS
---   These lists are used to check urls or codes passed as argument
---      both blacklist results will be blocked and suspect results will be logged and run
---   The lists are also used as patterns when we scan all the files
---      Results will only be logged and users have to manually read and check them
+-- These lists are used to check urls, files and codes passed as argument
+-- Note: these lists are locked here for proper security
 -- -----------------------------------------------------------------------------------
 
 -- Low risk files
@@ -41,8 +39,8 @@ local lowRiskFiles = {
 }
 
 -- Whitelist TRACE ERRORS
--- Note: it's safer to whitelist trace errors than the files theirselfs.
--- Note2: this list is locked into this file for security reasons
+-- By default, I do this instead of whitelisting files because the traces cannot be
+-- replicated without many counterpoints
 local whitelistTraceErrors = {
 	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
 	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:507", -- DarkRP
