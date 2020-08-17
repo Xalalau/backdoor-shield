@@ -485,7 +485,7 @@ function BS:Initialize()
 	|--> Command "scan <folder>": scan the seleceted folder
 
 	©2020 Xalalau Xubilozo. All Rights Reserved.
-	------------------------------------------------------------V1.0---
+	-------------------------------------------------------V.git.1.0+--
 	]]
 
 	print(logo)
