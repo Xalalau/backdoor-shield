@@ -219,7 +219,7 @@ function BS:ValidateFunction(name, controlInfo, trace)
 	return true
 end
 
-function BS:SetupReplacement(funcName, customFilter)
+function BS:SetReplacementFunction(funcName, customFilter)
 	function Replacement(...)
 		local args = {...} 
 
@@ -507,7 +507,7 @@ function BS:Initialize()
 	control["debug.getfenv"].filter = BS.ProtectEnv
 
 	for k,v in pairs(control) do
-		BS:SetupReplacement(k, v.filter)
+		BS:SetReplacementFunction(k, v.filter)
 	end
 
 	if not GetConVar("sv_hibernate_think"):GetBool() then
