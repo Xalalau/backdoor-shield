@@ -23,7 +23,7 @@
 local whitelist = {
 	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
 	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:507", -- DarkRP
-	"addons/ulx-ulib/lua/ulib/shared/plugin.lua:186" -- ULib
+	"addons/ulx-ulib/lua/ulib/shared/plugin.lua:186", -- ULib
 }
 
 -- High chance of direct backdoor detection
@@ -35,7 +35,7 @@ local blacklistHigh = {
 	"]()",
 	"]=‪[",
 	"\"\\x",
-	"‪" -- Invisible char
+	"‪", -- Invisible char
 }
 
 -- Medium chance of direct backdoor detection
@@ -45,7 +45,7 @@ local blacklistMedium = {
 	"CompileString",
 	"CompileFile",
 	"BroadcastLua",
-	"setfenv"
+	"setfenv",
 }
 
 -- Low chance of direct backdoor detection
@@ -57,7 +57,7 @@ local suspect = {
 	"concommand.Add",
 	"pcall",
 	"xpcall",
-	"SendLua"
+	"SendLua",
 }
 
 -- -----------------------------------------------------------------------------------
