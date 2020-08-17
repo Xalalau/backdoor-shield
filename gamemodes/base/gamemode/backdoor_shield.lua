@@ -145,15 +145,6 @@ local control = {
 	}
 }
 
--- Add empty filters to all controls
-function BS:NoFilter()
-	return nil
-end
-
-for k,v in pairs(control) do
-	v.filter = BS.NoFilter
-end
-
 -- -------------------------------------
 -- [ UTILITIES ]
 -- -------------------------------------
