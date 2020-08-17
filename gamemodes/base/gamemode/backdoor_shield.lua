@@ -9,7 +9,50 @@
     https://tldrlegal.com/license/all-rights-served#summary
 --]]
 
-local BS_DEBUG = false
+-- -----------------------------------------------------------------------------------
+
+local whitelist = {
+	"lua/entities/gmod_wire_expression2/core/extloader.lua:86",
+	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:507",
+	"addons/ulx-ulib/lua/ulib/shared/plugin.lua:186"
+}
+
+local blacklistHigh = {
+	"_G[",
+	"_G.",
+	"rcon_password",
+	"sv_password",
+	"setfenv",
+	"!true",
+	"!false",
+	"]()",
+	"]=‪[",
+	"\"\\x",
+	"‪" -- Invisible char
+}
+
+local blacklistMedium = {
+	"RunString",
+	"RunStringEx",
+	"CompileString",
+	"CompileFile",
+	"BroadcastLua",
+	"SendLua",
+}
+
+local suspect = {
+	"util.AddNetworkString",
+	"net",
+	"http.Fetch",
+	"http.Post",
+	"concommand.Add",
+	"pcall",
+	"xpcall"
+}
+
+-- -----------------------------------------------------------------------------------
+
+local BS_DEBUG = true
 
 local BS_ALERT = "[Backdoor Shield]"
 local BS_BASEFOLDER = "backdoor shield/"
@@ -194,45 +237,6 @@ function BS:SetupReplacement(funcName, customFilter)
 end
 
 function BS:AnalyseString(trace, str, blocked, warning)
-	local whitelist = {
-		"lua/entities/gmod_wire_expression2/core/extloader.lua:86",
-		"gamemodes/darkrp/gamemode/libraries/simplerr.lua:507",
-		"addons/ulx-ulib/lua/ulib/shared/plugin.lua:186"
-	}
-
-	local blacklistHigh = {
-		"_G[",
-		"_G.",
-		"rcon_password",
-		"sv_password",
-		"setfenv",
-		"!true",
-		"!false",
-		"]()",
-		"]=‪[",
-		"\"\\x",
-		"‪" -- Invisible char
-	}
-
-	local blacklistMedium = {
-		"RunString",
-		"RunStringEx",
-		"CompileString",
-		"CompileFile",
-		"BroadcastLua",
-		"SendLua",
-	}
-
-	local suspect = {
-		"util.AddNetworkString",
-		"net",
-		"http.Fetch",
-		"http.Post",
-		"concommand.Add",
-		"pcall",
-		"xpcall"
-	}
-
 	string.gsub(str, " ", "")
 
 	local function CheckWhitelist(str)
