@@ -20,9 +20,6 @@ local whitelist = {
 local blacklistHigh = {
 	"_G[",
 	"_G.",
-	"rcon_password",
-	"sv_password",
-	"setfenv",
 	"!true",
 	"!false",
 	"]()",
@@ -32,12 +29,12 @@ local blacklistHigh = {
 }
 
 local blacklistMedium = {
+	"setfenv",
 	"RunString",
 	"RunStringEx",
 	"CompileString",
 	"CompileFile",
-	"BroadcastLua",
-	"SendLua",
+	"BroadcastLua"
 }
 
 local suspect = {
@@ -47,7 +44,8 @@ local suspect = {
 	"http.Post",
 	"concommand.Add",
 	"pcall",
-	"xpcall"
+	"xpcall",
+	"SendLua"
 }
 
 -- -----------------------------------------------------------------------------------
@@ -489,7 +487,7 @@ function BS:Initialize()
 	|--> Command "scan <folder>": scan the seleceted folder
 
 	©2020 Xalalau Xubilozo. All Rights Reserved.
-	-------------------------------------------------------V.git.1.0+--
+	------------------------------------------------------------V1.0---
 	]]
 
 	print(logo)
