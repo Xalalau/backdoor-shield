@@ -39,8 +39,10 @@ local lowRiskFiles = {
 }
 
 -- Whitelist urls
--- Ignore these urls and their contents. They aren't going to be scanned at all.
--- Note: insert a url starting with http or https and ending with a "/", like https://google.com/
+-- Don't scan the downloaded string!
+-- Note: protected functions overriding will still be detected and undone
+-- Note2: any protected functions called will still be scanned
+-- Note3: insert a url starting with http or https and ending with a "/", like https://google.com/
 local whitelistUrls = {
 	"http://www.geoplugin.net/",
 }
