@@ -9,8 +9,11 @@
     https://tldrlegal.com/license/all-rights-served#summary
 --]]
 
+local BS_DEBUG = false
+
 local BS_ALERT = "[Backdoor Shield]"
 local BS_BASEFOLDER = "backdoor shield/"
+local BS_FILENAME = "backdoor_shield.lua"
 local __G = _G
 local __G_SAFE = table.Copy(_G)
 
@@ -82,8 +85,14 @@ function BS:Report(infoIn)
 
 	local detected = ""
 	if infoIn.detected then
-		for k,v in pairs(infoIn.detected) do
-			detected = detected .. "\n        " .. v
+		for _,v1 in pairs(infoIn.detected) do
+			if isstring(v1) then
+				detected = detected .. "\n        " .. v1
+			elseif istable(v1) then
+				for _,v2 in pairs(v1) do
+					detected = detected .. "\n        " .. v2
+				end
+			end
 		end
 	end
 
@@ -95,8 +104,8 @@ function BS:Report(infoIn)
 		"\n    Log: data/" .. logFile,
 		contentLogFile and "\n    Content Log: data/" .. contentLogFile or "",
 		infoIn.url and "\n    Url: " .. infoIn.url or "",
-		infoIn.detected and "\n    Detected:" .. detected,
-		infoIn.trace and "\n    Trying to locate: " .. infoIn.trace .. "\n" or ""
+		BS_DEBUG and infoIn.detected and "\n    Detected:" .. detected or "",
+		infoIn.trace and "\n    Location: " .. infoIn.trace or ""
 	}
 
 	local fullMsg = ""
@@ -105,6 +114,8 @@ function BS:Report(infoIn)
 	for _,v in ipairs(info) do
 		fullMsg = fullMsg .. v
 	end
+
+	fullMsg = fullMsg .. "\n"
 
 	if infoIn.suffix == "warning" then
 		-- Func .. Function .. Log .. Content log
@@ -124,7 +135,7 @@ function BS:Report(infoIn)
 		end
 
 		local separator = "-----------------------------------------------------------------------------------\n"
-		local contentMsg = "[ALERT]\n" .. separator .. msg .. "\n\n[CONTENT]\n" .. separator .. "\n" .. infoIn.content
+		local contentMsg = "[ALERT]\n" .. separator .. fullMsg .. "\n\n[CONTENT]\n" .. separator .. "\n" .. infoIn.content
 
 		file.Write(contentLogFile, contentMsg)
 	end
@@ -182,29 +193,34 @@ function BS:SetupReplacement(funcName, customFilter)
 	control[funcName].replacement = Replacement
 end
 
-local whitelist = {}
-
 function BS:AnalyseString(trace, str, blocked, warning)
-	local blacklist = {
+	local whitelist = {
+		"lua/entities/gmod_wire_expression2/core/extloader.lua:86",
+		"gamemodes/darkrp/gamemode/libraries/simplerr.lua:507",
+		"addons/ulx-ulib/lua/ulib/shared/plugin.lua:186"
+	}
+
+	local blacklistHigh = {
 		"_G[",
 		"_G.",
 		"rcon_password",
 		"sv_password",
+		"setfenv",
+		"!true",
+		"!false",
+		"]()",
+		"]=‪[",
+		"\"\\x",
+		"‪" -- Invisible char
+	}
+
+	local blacklistMedium = {
 		"RunString",
 		"RunStringEx",
 		"CompileString",
 		"CompileFile",
 		"BroadcastLua",
-		"setfenv",
 		"SendLua",
-		")()",
-		"!true",
-		"!false",
-		"()[",
-		"]()",
-		"]=‪[",
-		"\"\\x",
-		"‪" -- Invisible char
 	}
 
 	local suspect = {
@@ -222,15 +238,11 @@ function BS:AnalyseString(trace, str, blocked, warning)
 	local function CheckWhitelist(str)
 		local found = true
 
-		if table.Count(whitelist) > 0 then
-			for _,addon in pairs(whitelist)do
-				for _,allowed in pairs(addon)do
-					if string.find(trace, allowed, nil, true) then
-						found = false
+		for _,allowed in pairs(whitelist)do
+			if string.find(trace, allowed, nil, true) then
+				found = false
 
-						break
-					end
-				end
+				break
 			end
 		end
 
@@ -239,35 +251,27 @@ function BS:AnalyseString(trace, str, blocked, warning)
 
 	local function ProcessLists(list, list2)
 		for k,v in pairs(list) do
-			if string.find(str, v, nil, true) and CheckWhitelist(str) then
+			if string.find(str, v, nil, true) and (not trace or CheckWhitelist(str)) then
 				table.insert(list2, v)
 			end
 		end
 	end
 
-	ProcessLists(blacklist, blocked)
-	ProcessLists(suspect, warning)
+	if blocked then
+		if blocked[1] then
+			ProcessLists(blacklistHigh, blocked[1])
+		end
 
-	return blocked, warning
-end
-
-function BS:SetTraceWhitelist()
-	local addons = engine.GetAddons()
-
-	local traceWhitelist = {
-		["Wiremod"] = {
-			"lua/entities/gmod_wire_expression2/core/extloader.lua:86"
-		},
-		["DarkRP"] = {
-			"gamemodes/darkrp/gamemode/libraries/simplerr.lua:507"
-		}
-	}
-
-	for k,v in pairs(addons) do
-		if traceWhitelist[v.title] then
-			whitelist[v.title] = traceWhitelist[v.title]
+		if blocked[2] then
+			ProcessLists(blacklistMedium, blocked[2])
 		end
 	end
+
+	if warning then
+		ProcessLists(suspect, warning)
+	end
+
+	return blocked, warning
 end
 
 function BS:ValidateHttpFetch(trace, funcName, args)
@@ -275,7 +279,7 @@ function BS:ValidateHttpFetch(trace, funcName, args)
 
 	http.Fetch(url, function(...)
 		local args = { ... }
-		local blocked = {}
+		local blocked = {{}, {}}
 		local warning = {}
 		local detected
 
@@ -292,7 +296,7 @@ function BS:ValidateHttpFetch(trace, funcName, args)
 			end
 		end
 
-		local detected = #blocked > 0 and { "blocked", "Blocked", blocked } or #warning > 0 and { "warning", "Suspect", warning }
+		local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Blocked", blocked } or #warning > 0 and { "warning", "Suspect", warning }
 
 		if detected then
 			local info = {
@@ -309,7 +313,7 @@ function BS:ValidateHttpFetch(trace, funcName, args)
 			BS:Report(info)
 		end
 
-		return #blocked == 0 and control[funcName].original(unpack(args))
+		return #blocked[1] == 0 and #blocked[2] == 0 and control[funcName].original(unpack(args))
 	end)
 
 	return true
@@ -317,12 +321,12 @@ end
 
 function BS:ValidateCompileOrRunString(trace, funcName, args)
 	local code = args[1]
-	local blocked = {}
+	local blocked = {{}, {}}
 	local warning = {}
 
 	BS:AnalyseString(trace, code, blocked, warning)
 
-	local detected = #blocked > 0 and { "blocked", "Blocked", blocked } or #warning > 0 and { "warning", "Suspect", warning }
+	local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Blocked", blocked } or #warning > 0 and { "warning", "Suspect", warning }
 
 	if detected then
 		local info = {
@@ -338,7 +342,7 @@ function BS:ValidateCompileOrRunString(trace, funcName, args)
 		BS:Report(info)
 	end
 
-	return #blocked == 0 and control[funcName].original(unpack(args))
+	return #blocked[1] == 0 and #blocked[2] == 0 and control[funcName].original(unpack(args))
 end
 
 function BS:GenerateRandomName()
@@ -366,11 +370,94 @@ function BS:ProtectEnv(funcName, ...)
 	return result == __G_SAFE and __G or result
 end
 
-function BS:ScanFunctions()
-	for k,v in pairs(control) do
-		BS:ValidateFunction(k, v)
+function BS:Scan(args)
+	local result = {}
+	local folders = #args > 0 and args or {
+		"data",
+		"lua"
+	}
+
+	for k,v in pairs(folders) do
+		folders[k] = string.gsub(v, "\\", "/")
+		if string.sub(folders[k], -1) == "/" then
+			folders[k] = folders[k]:sub(1, #v - 1)
+		end
 	end
+
+	local function ProcessFolders(dir)
+		if dir == "data/" .. BS_BASEFOLDER then
+			return
+		end
+
+		local files, dirs = file.Find( dir.."*", "GAME" )
+
+		for _, fdir in pairs(dirs) do
+			ProcessFolders(dir .. fdir .. "/", ext)
+		end
+
+		for k,v in pairs(files) do
+			local ext = string.GetExtensionFromFilename(v)
+
+			if ext == "lua" or ext == "vmt" or ext == "txt" then
+				local blocked = {{}, {}}
+				local arq = dir .. v
+
+				if v == BS_FILENAME then
+					return 
+				end
+
+				BS:AnalyseString(nil, file.Read(arq, "GAME"), blocked)
+
+				local localResult = ""
+
+				if #blocked[1] > 0 or #blocked[2] > 0 then
+					localResult = arq
+				end
+
+				if #blocked[1] > 0 then
+					for k,v in pairs(blocked[1]) do
+						localResult = localResult .. "\n     [!!] " .. v
+					end
+				end
+
+				if #blocked[2] > 0 then
+					for k,v in pairs(blocked[2]) do
+						localResult = localResult .. "\n     [!] " .. v
+					end
+				end
+
+				if #blocked[1] > 0 or #blocked[2] > 0 then
+					localResult = localResult .. "\n"
+					print(localResult)
+					table.insert(result, localResult)
+				end
+			end
+		end 
+	end
+
+	print("\n\n -------------------------------------------------------------------")
+	print(BS_ALERT .. " Scanning GMod and all the mounted contents...\n")
+
+	for _,folder in pairs(folders) do
+		if file.Exists(folder .. "/", "GAME") then
+			ProcessFolders(folder .. "/", ".vcd" )
+		end
+	end
+
+	local Timestamp = os.time()
+	local date = os.date("%m-%d-%Y", Timestamp)
+	local time = os.date("%Hh %Mm %Ss", Timestamp)
+	local scanFile = BS_BASEFOLDER .. "Scan_" .. date .. "_(" .. time .. ").txt"
+
+	file.Write(scanFile, table.ToString(result, "Results", true))
+
+	print("\n" .. BS_ALERT .. " Scan saved as \"data/" .. scanFile .. "\"")
+	print("------------------------------------------------------------------- \n")
 end
+
+concommand.Add("scan", function(ply, cmd, args)
+    BS:Scan(args)
+end)
 
 function BS:Initialize()
 	-- https://manytools.org/hacker-tools/ascii-banner/
@@ -394,8 +481,11 @@ function BS:Initialize()
 	███████║██║  ██║██║███████╗███████╗██████╔╝
 	╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝
 
+	|--> Command "scan": scan GMod and all the mounted contents
+	|--> Command "scan <folder>": scan the seleceted folder
+
 	©2020 Xalalau Xubilozo. All Rights Reserved.
-	----------------------------------------------------Pre-Alpha-1---
+	------------------------------------------------------------V1.0---
 	]]
 
 	print(logo)
@@ -405,8 +495,6 @@ function BS:Initialize()
 	if not file.Exists(BS_BASEFOLDER, "DATA") then
 		file.CreateDir(BS_BASEFOLDER)
 	end
-
-	BS:SetTraceWhitelist()
 
 	control["http.Fetch"].filter = BS.ValidateHttpFetch
 	control["CompileString"].filter = BS.ValidateCompileOrRunString
