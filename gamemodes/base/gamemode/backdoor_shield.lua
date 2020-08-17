@@ -215,7 +215,7 @@ function BS:ReportFile(infoIn)
 	-- Don't flood the console with too much warnings information
 	if infoIn.suffix == "warning" then
 		-- Alert .. Log .. Content log .. trace
-		msg = info[1] .. info[5] .. info[6] .. infor[9] .. "\n"
+		msg = info[1] .. info[5] .. info[6] .. info[9] .. "\n"
 	end
 
 	print(msg or fullMsg)
