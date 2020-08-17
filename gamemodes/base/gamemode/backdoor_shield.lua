@@ -125,6 +125,7 @@ local control = {
 	["http.Fetch"] = {}, -- Protected, scanned
 	["CompileString"] = {}, -- Protected, scanned
 	["RunString"] = {}, -- Protected, scanned
+	["RunStringEx"] = {}, -- Protected, scanned
 	["getfenv"] = {}, -- Protected (isolate our environment)
 	["debug.getfenv"] = {}, -- Protected (isolate our environment)
 }
@@ -363,10 +364,14 @@ function BS:ValidateHttpFetch(trace, funcName, args)
 end
 
 -- Check Compile and RunString calls
-function BS:ValidateCompileOrRunString(trace, funcName, args)
+function BS:ValidateCompileOrRunString_Ex(trace, funcName, args)
 	local code = args[1]
 	local blocked = {{}, {}}
 	local warning = {}
+
+	if not __G_SAFE[funcName] then -- RunStringEx is deprecated
+		return ""
+	end
 
 	BS:ScanString(trace, code, blocked, warning)
 
@@ -612,8 +617,9 @@ function BS:Initialize()
 	end
 
 	control["http.Fetch"].filter = BS.ValidateHttpFetch
-	control["CompileString"].filter = BS.ValidateCompileOrRunString
-	control["RunString"].filter = BS.ValidateCompileOrRunString
+	control["CompileString"].filter = BS.ValidateCompileOrRunString_Ex
+	control["RunString"].filter = BS.ValidateCompileOrRunString_Ex
+	control["RunStringEx"].filter = BS.ValidateCompileOrRunString_Ex
 	control["getfenv"].filter = BS.ProtectEnv
 	control["debug.getfenv"].filter = BS.ProtectEnv
 
