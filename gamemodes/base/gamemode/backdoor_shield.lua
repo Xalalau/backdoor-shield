@@ -56,6 +56,13 @@ local whitelistTraceErrors = {
 	"lua/ulib/shared/plugin.lua:186", -- ULib
 }
 
+-- Whitelist files
+-- Ignore these files and their contents, so they won't going to be scanned at all!
+-- Note: protected functions overriding will still be detected and undone
+-- Note2: only whitelist files if you trust them completely! Even protected functions will be disarmed
+local whitelistFiles = {
+}
+
 -- High chance of direct backdoor detection
 local blacklistHigh = {
 	"_G[", -- !! Important, don't remove! Used to start hiding function names.
@@ -419,27 +426,48 @@ end
 -- [ SCANNING ]
 -- -------------------------------------
 
--- Process a string according to our white, black and suspect lists
-function BS:ScanString(trace, str, blocked, warning)
-	string.gsub(str, " ", "")
+function BS:CheckTraceWhitelist(trace)
+	local found = false
 
-	local function CheckWhitelist(str)
-		local found = true
-
+	if trace then
 		for _,allowed in pairs(whitelistTraceErrors)do
 			if string.find(trace, allowed, nil, true) then
-				found = false
+				found = true
 
 				break
 			end
 		end
-
-		return found
 	end
+
+	return found
+end
+
+function BS:CheckFilesWhitelist(str)
+	local found = false
+
+	if str and #whitelistFiles > 0 then
+		for _,allowed in pairs(whitelistFiles)do
+			if string.find(str, allowed, nil, true) then
+				found = true
+
+				break
+			end
+		end
+	end
+
+	return found
+end
+
+-- Process a string according to our white, black and suspect lists
+function BS:ScanString(trace, str, blocked, warning)
+	string.gsub(str, " ", "")
 
 	local function ProcessLists(list, list2)
 		for k,v in pairs(list) do
-			if string.find(str, v, nil, true) and (not trace or CheckWhitelist(str)) then
+			if string.find(str, v, nil, true) and
+			   not BS:CheckTraceWhitelist(trace) and
+			   not BS:CheckFilesWhitelist(trace) then
+
 				table.insert(list2, v)
 			end
 		end
@@ -497,7 +525,7 @@ function BS:ScanFolders(args)
 				local blocked = {{}, {}}
 				local arq = dir .. v
 
-				if v == BS_FILENAME then
+				if v == BS_FILENAME or BS:CheckFilesWhitelist(arq) then
 					return 
 				end
 
