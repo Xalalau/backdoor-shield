@@ -110,7 +110,7 @@ local __G_SAFE = table.Copy(_G) -- Our custom environment
 local BS = {}
 BS.__index = BS
 
--- Functions that need to be scanned or/and protected
+-- Functions that need to be protected (some are scanned)
 local control = {
 	--[[
 	["somegame.function"] = {
@@ -119,30 +119,14 @@ local control = {
 		filter = function to scan string contents
 	},
 	]]
-	["debug.getinfo"] = { -- Protected
-		original = debug.getinfo
-	},
-	["HTTP"] = { -- Protected
-		original = HTTP
-	},
-	["http.Post"] = { -- Protected, scanned
-		original = http.Post
-	},
-	["http.Fetch"] = { -- Protected, scanned
-		original = http.Fetch
-	},
-	["CompileString"] = { -- Protected, scanned
-		original = CompileString
-	},
-	["RunString"] = { -- Protected, scanned
-		original = RunString
-	},
-	["getfenv"] = { -- Protected, isolate our environment
-		original = getfenv
-	},
-	["debug.getfenv"] = { -- Protected, isolate our environment
-		original = debug.getfenv
-	}
+	["debug.getinfo"] = {}, -- Protected
+	["HTTP"] = {}, -- Protected
+	["http.Post"] = {}, -- Protected, scanned
+	["http.Fetch"] = {}, -- Protected, scanned
+	["CompileString"] = {}, -- Protected, scanned
+	["RunString"] = {}, -- Protected, scanned
+	["getfenv"] = {}, -- Protected (isolate our environment)
+	["debug.getfenv"] = {}, -- Protected (isolate our environment)
 }
 
 -- -------------------------------------
@@ -634,6 +618,7 @@ function BS:Initialize()
 	control["debug.getfenv"].filter = BS.ProtectEnv
 
 	for k,v in pairs(control) do
+		control[k].original = BS:GetCurrentFunction(unpack(string.Explode(".", k)))
 		BS:SetReplacementFunction(k, v.filter)
 	end
 
