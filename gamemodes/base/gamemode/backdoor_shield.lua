@@ -85,7 +85,7 @@ local suspect = {
 
 -- -----------------------------------------------------------------------------------
 
-local BS_VERSION = "V.git.1.0+"
+local BS_VERSION = "V.1.1"
 
 local BS_ALERT = "[Backdoor Shield]"
 local BS_BASEFOLDER = "backdoor shield/"
