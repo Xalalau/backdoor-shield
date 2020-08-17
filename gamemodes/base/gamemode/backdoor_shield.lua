@@ -392,7 +392,7 @@ function BS:ValidateCompileOrRunString(trace, funcName, args)
 end
 
 -- Protect our custom environment
-function BS:ProtectEnv(nil, funcName, ...)
+function BS:ProtectEnv(null, funcName, ...)
 	local result = control[funcName].original(...)
 
 	return result == __G_SAFE and __G or result
