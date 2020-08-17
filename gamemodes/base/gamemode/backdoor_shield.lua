@@ -17,6 +17,29 @@
 --      Results will only be logged and users have to manually read and check them
 -- -----------------------------------------------------------------------------------
 
+-- Low risk files
+-- When scanning folders, these files will be considered low risk, so they won't flood the
+-- console with warnings (but the total will be shown and they'll normally be reported in
+-- the logs)
+local lowRisk = {
+	"lua/derma/derma.lua",
+	"lua/derma/derma_example.lua",
+	"lua/entities/gmod_wire_expression2/core/debug.lua",
+	"lua/entities/gmod_wire_expression2/core/e2lib.lua",
+	"lua/entities/gmod_wire_expression2/core/extloader.lua",
+	"lua/entities/gmod_wire_expression2/core/init.lua",
+	"lua/entities/gmod_wire_expression2/core/player.lua",
+	"lua/entities/gmod_wire_keyboard/init.lua",
+	"lua/entities/info_wiremapinterface/init.lua",
+	"lua/includes/modules/constraint.lua",
+	"lua/includes/util/javascript_util.lua",
+	"lua/includes/util.lua",
+	"lua/vgui/dhtml.lua",
+	"lua/wire/client/text_editor/texteditor.lua",
+	"lua/wire/zvm/zvm_core.lua",
+	"lua/wire/wireshared.lua",
+}
+
 -- Whitelist TRACE ERRORS
 -- Note: it's safer to whitelist trace errors than the files theirselfs.
 -- Note2: this list is locked into this file for security reasons
@@ -223,15 +246,18 @@ function BS:ReportFile(infoIn)
 	end
 end
 
-function BS:ReportFolder(results)
+function BS:ReportFolder(resultsHighRisk, resultsLowRisk)
 	local Timestamp = os.time()
 	local date = os.date("%m-%d-%Y", Timestamp)
 	local time = os.date("%Hh %Mm %Ss", Timestamp)
 	local logFile = BS_BASEFOLDER .. "Scan_" .. date .. "_(" .. time .. ").txt"
 
-	file.Write(logFile, table.ToString(results, "Results", true))
+	file.Append(logFile, "[HIGH RISK DETECTIONS]\n\n")
+	file.Append(logFile, table.ToString(resultsHighRisk, "Results", true))
+	file.Append(logFile, "\n\n\n\n\n[LOW RISK DETECTIONS]\n\n")
+	file.Append(logFile, table.ToString(resultsLowRisk, "Results", true))
 
-	print("\n" .. BS_ALERT .. " Scan saved as \"data/" .. logFile .. "\"")
+	print("\nScan saved as \"data/" .. logFile .. "\"")
 end
 
 -- -------------------------------------
@@ -422,8 +448,10 @@ function BS:ScanString(trace, str, blocked, warning)
 end
 
 -- Process recusively the files inside the aimed folders according to our white, black and suspect lists
+-- Low risk files will be reported in the logs as well, but they won't flood the console with warnings
 function BS:ScanFolders(args)
-	local results = {}
+	local resultsHighRisk = {}
+	local resultsLowRisk = {}
 	local folders = #args > 0 and args or {
 		"data",
 		"lua"
@@ -458,6 +486,18 @@ function BS:ScanFolders(args)
 					return 
 				end
 
+				local results
+
+				for _,lowRiskFile in pairs(lowRisk) do
+					if arq == lowRiskFile then
+						results = resultsLowRisk
+					end
+				end
+
+				if not results then
+					results = resultsHighRisk
+				end
+
 				BS:ScanString(nil, file.Read(arq, "GAME"), blocked)
 
 				local localResult = ""
@@ -480,8 +520,10 @@ function BS:ScanFolders(args)
 
 				if #blocked[1] > 0 or #blocked[2] > 0 then
 					localResult = localResult .. "\n"
-					print(localResult)
 					table.insert(results, localResult)
+					if results == resultsHighRisk then
+						print(localResult)
+					end
 				end
 			end
 		end 
@@ -496,7 +538,10 @@ function BS:ScanFolders(args)
 		end
 	end
 
-	BS:ReportFolder(results)
+	BS:ReportFolder(resultsHighRisk, resultsLowRisk)
+
+	print("\nLow risk results: ", tostring(#resultsLowRisk))
+	print("Check the log for more informations.\n")
 	print("------------------------------------------------------------------- \n")
 end
 
