@@ -1,25 +1,35 @@
 --[[
-    -- --------------- --
+	-- --------------- --
     [  Backdoor Shield  ]
     -- --------------- --
     
-    Protected the listed functions as long as the scanner is running
+    Protect your Garry's Mod server against backdoors.
 
-    ©2020 Xalalau Xubilozo. All Rights Reserved.
+	©2020 Xalalau Xubilozo. All Rights Reserved.
     https://tldrlegal.com/license/all-rights-served#summary
+
 --]]
 
+-- SCAN LISTS
+--   These lists are used to check urls or codes passed as argument
+--      both blacklist results will be blocked and suspect results will be logged and run
+--   The lists are also used as patterns when we scan all the files
+--      Results will only be logged and users have to manually read and check them
 -- -----------------------------------------------------------------------------------
 
+-- Whitelist TRACE ERRORS
+-- Note: it's safer to whitelist trace errors than the files theirselfs.
+-- Note2: this list is locked into this file for security reasons
 local whitelist = {
-	"lua/entities/gmod_wire_expression2/core/extloader.lua:86",
-	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:507",
-	"addons/ulx-ulib/lua/ulib/shared/plugin.lua:186"
+	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
+	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:507", -- DarkRP
+	"addons/ulx-ulib/lua/ulib/shared/plugin.lua:186" -- ULib
 }
 
+-- High chance of direct backdoor detection
 local blacklistHigh = {
-	"_G[",
-	"_G.",
+	"_G[", -- !! Important, don't remove! Used to start hiding function names.
+	"_G.", -- !! Important, don't remove! Used to start hiding function names.
 	"!true",
 	"!false",
 	"]()",
@@ -28,15 +38,17 @@ local blacklistHigh = {
 	"‪" -- Invisible char
 }
 
+-- Medium chance of direct backdoor detection
 local blacklistMedium = {
-	"setfenv",
 	"RunString",
 	"RunStringEx",
 	"CompileString",
 	"CompileFile",
-	"BroadcastLua"
+	"BroadcastLua",
+	"setfenv"
 }
 
+-- Low chance of direct backdoor detection
 local suspect = {
 	"util.AddNetworkString",
 	"net",
@@ -55,13 +67,13 @@ local BS_DEBUG = true
 local BS_ALERT = "[Backdoor Shield]"
 local BS_BASEFOLDER = "backdoor shield/"
 local BS_FILENAME = "backdoor_shield.lua"
-local __G = _G
-local __G_SAFE = table.Copy(_G)
+local __G = _G -- Access the global table inside our custom environment
+local __G_SAFE = table.Copy(_G) -- Our custom environment
 
 local BS = {}
 BS.__index = BS
 
--- Functions that backdoors like to modify globally or that need to be scanned/protected
+-- Functions that need to be scanned or/and protected
 local control = {
 	--[[
 	["somegame.function"] = {
@@ -70,32 +82,33 @@ local control = {
 		filter = function to scan string contents
 	},
 	]]
-	["debug.getinfo"] = {
+	["debug.getinfo"] = { -- Protected
 		original = debug.getinfo
 	},
-	["HTTP"] = {
+	["HTTP"] = { -- Protected
 		original = HTTP
 	},
-	["http.Post"] = { 
+	["http.Post"] = { -- Protected, scanned
 		original = http.Post
 	},
-	["http.Fetch"] = { 
+	["http.Fetch"] = { -- Protected, scanned
 		original = http.Fetch
 	},
-	["CompileString"] = {
+	["CompileString"] = { -- Protected, scanned
 		original = CompileString
 	},
-	["RunString"] = {
+	["RunString"] = { -- Protected, scanned
 		original = RunString
 	},
-	["getfenv"] = {
+	["getfenv"] = { -- Protected, isolate our environment
 		original = getfenv
 	},
-	["debug.getfenv"] = {
+	["debug.getfenv"] = { -- Protected, isolate our environment
 		original = debug.getfenv
 	}
 }
 
+-- Add empty filters to all controls
 function BS:NoFilter()
 	return nil
 end
@@ -104,7 +117,34 @@ for k,v in pairs(control) do
 	v.filter = BS.NoFilter
 end
 
-function BS:Report(infoIn)
+-- -------------------------------------
+-- [ UTILITIES ]
+-- -------------------------------------
+
+function BS:GenerateRandomName()
+    local name = string.ToTable("qwertyuiopsdfghjklzxcvbnm1234567890QWERTYUIOPASDFGHJKLZXCVBNM")
+	local newName = ""
+	local aux, rand
+    
+	for i = 1, #name do
+		rand = math.random(#name)
+		aux = name[i]
+		name[i] = name[rand]
+		name[rand] = aux
+    end
+
+    for i = 1, #name do
+        newName = newName .. name[i]
+    end
+
+    return newName
+end
+
+-- -------------------------------------
+-- [ REPORTING ]
+-- -------------------------------------
+
+function BS:ReportFile(infoIn)
 	local Timestamp = os.time()
 	local date = os.date("%m-%d-%Y", Timestamp)
 	local time = os.date("%Hh %Mm %Ss", Timestamp)
@@ -158,6 +198,7 @@ function BS:Report(infoIn)
 
 	fullMsg = fullMsg .. "\n"
 
+	-- Don't flood the console with warnings information
 	if infoIn.suffix == "warning" then
 		-- Func .. Function .. Log .. Content log
 		msg = info[1] .. info[2] .. info[5] .. info[6]
@@ -182,6 +223,27 @@ function BS:Report(infoIn)
 	end
 end
 
+function BS:ReportFile(results)
+	local Timestamp = os.time()
+	local date = os.date("%m-%d-%Y", Timestamp)
+	local time = os.date("%Hh %Mm %Ss", Timestamp)
+	local file = BS_BASEFOLDER .. "Scan_" .. date .. "_(" .. time .. ").txt"
+
+	file.Write(file, table.ToString(results, "Results", true))
+
+	print("\n" .. BS_ALERT .. " Scan saved as \"data/" .. file .. "\"")
+end
+
+-- -------------------------------------
+-- [ MANAGE CONTROLLED FUNCTIONS ]
+-- -------------------------------------
+
+-- Get a global GMod function
+function BS:GetCurrentFunction(f1, f2)
+	return f2 and __G[f1][f2] or __G[f1]
+end
+
+-- Set a global GMod function
 function BS:SetCurrentFunction(func, f1, f2)
 	if f2 then
 		__G[f1][f2] = func
@@ -190,33 +252,7 @@ function BS:SetCurrentFunction(func, f1, f2)
 	end
 end
 
-function BS:GetCurrentFunction(f1, f2)
-	return f2 and __G[f1][f2] or __G[f1]
-end
-
-function BS:ValidateFunction(name, controlInfo, trace)
-	local f1, f2 = unpack(string.Explode(".", name))
-	local currentAddress = BS:GetCurrentFunction(f1, f2)
-	local originalAddress = controlInfo.replacement or controlInfo.original
-
-	if originalAddress ~= currentAddress then
-		local info = {
-			suffix = "override",
-			alert = "Function overriding captured and undone!",
-			func = name,
-			trace = trace or debug.getinfo(currentAddress, "S").source
-		}
-
-		BS:Report(info)
-
-		BS:SetCurrentFunction(originalAddress, f1, f2)
-
-		return false
-	end
-
-	return true
-end
-
+-- Replace a global GMod function with our custom ones
 function BS:SetReplacementFunction(funcName, customFilter)
 	function Replacement(...)
 		local args = {...} 
@@ -234,7 +270,116 @@ function BS:SetReplacementFunction(funcName, customFilter)
 	control[funcName].replacement = Replacement
 end
 
-function BS:AnalyseString(trace, str, blocked, warning)
+-- Check if our custom replaced global GMod function was overridden
+function BS:ValidateFunction(name, controlInfo, trace)
+	local f1, f2 = unpack(string.Explode(".", name))
+	local currentAddress = BS:GetCurrentFunction(f1, f2)
+	local originalAddress = controlInfo.replacement or controlInfo.original
+
+	if originalAddress ~= currentAddress then
+		local info = {
+			suffix = "override",
+			alert = "Function overriding captured and undone!",
+			func = name,
+			trace = trace or debug.getinfo(currentAddress, "S").source
+		}
+
+		BS:ReportFile(info)
+
+		BS:SetCurrentFunction(originalAddress, f1, f2)
+
+		return false
+	end
+
+	return true
+end
+
+-- Check http.fetch calls
+function BS:ValidateHttpFetch(trace, funcName, args)
+	local url = args[1]
+
+	http.Fetch(url, function(...)
+		local args = { ... }
+		local blocked = {{}, {}}
+		local warning = {}
+		local detected
+
+		BS:ScanString(trace, url, blocked, warning)
+
+		for _,arg in pairs(args) do
+			if isstring(arg) then
+				BS:ScanString(trace, arg, blocked, warning)
+			elseif istable(arg) then
+				for k,v in pairs(arg) do
+					BS:ScanString(trace, k, blocked, warning)
+					BS:ScanString(trace, v, blocked, warning)
+				end
+			end
+		end
+
+		local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Blocked", blocked } or #warning > 0 and { "warning", "Suspect", warning }
+
+		if detected then
+			local info = {
+				suffix = detected[1],
+				folder = funcName,
+				alert = detected[2] .. " execution!",
+				func = funcName,
+				trace = trace,
+				url = url,
+				detected = detected[3],
+				content = table.ToString(args, "arguments", true)
+			}
+
+			BS:ReportFile(info)
+		end
+
+		return #blocked[1] == 0 and #blocked[2] == 0 and control[funcName].original(unpack(args))
+	end)
+
+	return true
+end
+
+-- Check Compile and RunString calls
+function BS:ValidateCompileOrRunString(trace, funcName, args)
+	local code = args[1]
+	local blocked = {{}, {}}
+	local warning = {}
+
+	BS:ScanString(trace, code, blocked, warning)
+
+	local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Blocked", blocked } or #warning > 0 and { "warning", "Suspect", warning }
+
+	if detected then
+		local info = {
+			suffix = detected[1],
+			folder = funcName,
+			alert = detected[2] .. " execution!",
+			func = funcName,
+			trace = trace,
+			detected = detected[3],
+			content = code
+		}
+
+		BS:ReportFile(info)
+	end
+
+	return #blocked[1] == 0 and #blocked[2] == 0 and control[funcName].original(unpack(args))
+end
+
+-- Protect our custom environment
+function BS:ProtectEnv(funcName, ...)
+	local result = control[funcName].original(...)
+
+	return result == __G_SAFE and __G or result
+end
+
+-- -------------------------------------
+-- [ SCANNING ]
+-- -------------------------------------
+
+-- Process a string according to our white, black and suspect lists
+function BS:ScanString(trace, str, blocked, warning)
 	string.gsub(str, " ", "")
 
 	local function CheckWhitelist(str)
@@ -276,104 +421,9 @@ function BS:AnalyseString(trace, str, blocked, warning)
 	return blocked, warning
 end
 
-function BS:ValidateHttpFetch(trace, funcName, args)
-	local url = args[1]
-
-	http.Fetch(url, function(...)
-		local args = { ... }
-		local blocked = {{}, {}}
-		local warning = {}
-		local detected
-
-		BS:AnalyseString(trace, url, blocked, warning)
-
-		for _,arg in pairs(args) do
-			if isstring(arg) then
-				BS:AnalyseString(trace, arg, blocked, warning)
-			elseif istable(arg) then
-				for k,v in pairs(arg) do
-					BS:AnalyseString(trace, k, blocked, warning)
-					BS:AnalyseString(trace, v, blocked, warning)
-				end
-			end
-		end
-
-		local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Blocked", blocked } or #warning > 0 and { "warning", "Suspect", warning }
-
-		if detected then
-			local info = {
-				suffix = detected[1],
-				folder = funcName,
-				alert = detected[2] .. " execution!",
-				func = funcName,
-				trace = trace,
-				url = url,
-				detected = detected[3],
-				content = table.ToString(args, "arguments", true)
-			}
-
-			BS:Report(info)
-		end
-
-		return #blocked[1] == 0 and #blocked[2] == 0 and control[funcName].original(unpack(args))
-	end)
-
-	return true
-end
-
-function BS:ValidateCompileOrRunString(trace, funcName, args)
-	local code = args[1]
-	local blocked = {{}, {}}
-	local warning = {}
-
-	BS:AnalyseString(trace, code, blocked, warning)
-
-	local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Blocked", blocked } or #warning > 0 and { "warning", "Suspect", warning }
-
-	if detected then
-		local info = {
-			suffix = detected[1],
-			folder = funcName,
-			alert = detected[2] .. " execution!",
-			func = funcName,
-			trace = trace,
-			detected = detected[3],
-			content = code
-		}
-
-		BS:Report(info)
-	end
-
-	return #blocked[1] == 0 and #blocked[2] == 0 and control[funcName].original(unpack(args))
-end
-
-function BS:GenerateRandomName()
-    local name = string.ToTable("qwertyuiopsdfghjklzxcvbnm1234567890QWERTYUIOPASDFGHJKLZXCVBNM")
-	local newName = ""
-	local aux, rand
-    
-	for i = 1, #name do
-		rand = math.random(#name)
-		aux = name[i]
-		name[i] = name[rand]
-		name[rand] = aux
-    end
-
-    for i = 1, #name do
-        newName = newName .. name[i]
-    end
-
-    return newName
-end
-
-function BS:ProtectEnv(funcName, ...)
-	local result = control[funcName].original(...)
-
-	return result == __G_SAFE and __G or result
-end
-
-function BS:Scan(args)
-	local result = {}
+-- Process recusively the files inside the aimed folders according to our white, black and suspect lists
+function BS:ScanFolders(args)
+	local results = {}
 	local folders = #args > 0 and args or {
 		"data",
 		"lua"
@@ -386,7 +436,7 @@ function BS:Scan(args)
 		end
 	end
 
-	local function ProcessFolders(dir)
+	local function ScanFolder(dir)
 		if dir == "data/" .. BS_BASEFOLDER then
 			return
 		end
@@ -394,7 +444,7 @@ function BS:Scan(args)
 		local files, dirs = file.Find( dir.."*", "GAME" )
 
 		for _, fdir in pairs(dirs) do
-			ProcessFolders(dir .. fdir .. "/", ext)
+			ScanFolder(dir .. fdir .. "/", ext)
 		end
 
 		for k,v in pairs(files) do
@@ -408,7 +458,7 @@ function BS:Scan(args)
 					return 
 				end
 
-				BS:AnalyseString(nil, file.Read(arq, "GAME"), blocked)
+				BS:ScanString(nil, file.Read(arq, "GAME"), blocked)
 
 				local localResult = ""
 
@@ -431,7 +481,7 @@ function BS:Scan(args)
 				if #blocked[1] > 0 or #blocked[2] > 0 then
 					localResult = localResult .. "\n"
 					print(localResult)
-					table.insert(result, localResult)
+					table.insert(results, localResult)
 				end
 			end
 		end 
@@ -442,28 +492,21 @@ function BS:Scan(args)
 
 	for _,folder in pairs(folders) do
 		if file.Exists(folder .. "/", "GAME") then
-			ProcessFolders(folder .. "/", ".vcd" )
+			ScanFolder(folder .. "/", ".vcd" )
 		end
 	end
 
-	local Timestamp = os.time()
-	local date = os.date("%m-%d-%Y", Timestamp)
-	local time = os.date("%Hh %Mm %Ss", Timestamp)
-	local scanFile = BS_BASEFOLDER .. "Scan_" .. date .. "_(" .. time .. ").txt"
-
-	file.Write(scanFile, table.ToString(result, "Results", true))
-
-	print("\n" .. BS_ALERT .. " Scan saved as \"data/" .. scanFile .. "\"")
+	BS:ReportFolder(results)
 	print("------------------------------------------------------------------- \n")
 end
 
-concommand.Add("scan", function(ply, cmd, args)
-    BS:Scan(args)
-end)
+-- -------------------------------------
+-- [ INITIALIZATION ]
+-- -------------------------------------
 
 function BS:Initialize()
 	-- https://manytools.org/hacker-tools/ascii-banner/
-	-- ANSI Shadow
+	-- Font: ANSI Shadow
 	local logo = [[
 	----------------------- Server Protected By -----------------------
 
@@ -483,11 +526,13 @@ function BS:Initialize()
 	███████║██║  ██║██║███████╗███████╗██████╔╝
 	╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝
 
-	|--> Command "scan": scan GMod and all the mounted contents
-	|--> Command "scan <folder>": scan the seleceted folder
+	You can set custom black and white lists directly in the main file.
+
+	|--> Command "scan": Scan GMod and all the mounted contents
+	|--> Command "scan <folder>": Scan the seleceted folder
 
 	©2020 Xalalau Xubilozo. All Rights Reserved.
-	------------------------------------------------------------V1.0---
+	-------------------------------------------------------V.git.1.0+--
 	]]
 
 	print(logo)
@@ -526,3 +571,7 @@ for k,v in pairs(BS)do
 end
 
 BS:Initialize()
+
+concommand.Add("scan", function(ply, cmd, args)
+    BS:ScanFolders(args)
+end)
