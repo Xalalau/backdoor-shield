@@ -62,6 +62,8 @@ local suspect = {
 
 -- -----------------------------------------------------------------------------------
 
+local BS_VERSION = "V.git.1.0+"
+
 local BS_DEBUG = true
 
 local BS_ALERT = "[Backdoor Shield]"
@@ -531,8 +533,11 @@ function BS:Initialize()
 	|--> Command "scan": Scan GMod and all the mounted contents
 	|--> Command "scan <folder>": Scan the seleceted folder
 
+	Version: ]] .. BS_VERSION .. [[
+
+
 	©2020 Xalalau Xubilozo. All Rights Reserved.
-	-------------------------------------------------------V.git.1.0+--
+	-------------------------------------------------------------------
 	]]
 
 	print(logo)
