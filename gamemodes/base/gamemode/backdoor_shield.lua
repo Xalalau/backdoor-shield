@@ -229,11 +229,11 @@ function BS:ReportFile(results)
 	local Timestamp = os.time()
 	local date = os.date("%m-%d-%Y", Timestamp)
 	local time = os.date("%Hh %Mm %Ss", Timestamp)
-	local file = BS_BASEFOLDER .. "Scan_" .. date .. "_(" .. time .. ").txt"
+	local logFile = BS_BASEFOLDER .. "Scan_" .. date .. "_(" .. time .. ").txt"
 
-	file.Write(file, table.ToString(results, "Results", true))
+	file.Write(logFile, table.ToString(results, "Results", true))
 
-	print("\n" .. BS_ALERT .. " Scan saved as \"data/" .. file .. "\"")
+	print("\n" .. BS_ALERT .. " Scan saved as \"data/" .. logFile .. "\"")
 end
 
 -- -------------------------------------
