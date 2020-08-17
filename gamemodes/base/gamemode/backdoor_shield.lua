@@ -64,8 +64,6 @@ local suspect = {
 
 local BS_VERSION = "V.git.1.0+"
 
-local BS_DEBUG = true
-
 local BS_ALERT = "[Backdoor Shield]"
 local BS_BASEFOLDER = "backdoor shield/"
 local BS_FILENAME = "backdoor_shield.lua"
@@ -187,7 +185,7 @@ function BS:ReportFile(infoIn)
 		"\n    Log: data/" .. logFile,
 		contentLogFile and "\n    Content Log: data/" .. contentLogFile or "",
 		infoIn.url and "\n    Url: " .. infoIn.url or "",
-		BS_DEBUG and infoIn.detected and "\n    Detected:" .. detected or "",
+		infoIn.detected and "\n    Detected:" .. detected or "",
 		infoIn.trace and "\n    Location: " .. infoIn.trace or ""
 	}
 
