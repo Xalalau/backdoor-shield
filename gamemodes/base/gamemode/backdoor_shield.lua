@@ -338,8 +338,7 @@ end
 function BS:ValidateHttpFetch(trace, funcName, args)
 	local url = args[1]
 
-	http.Fetch(url, function(...)
-		local args = { ... }
+	http.Fetch(url, function()
 		local blocked = {{}, {}}
 		local warning = {}
 		local detected
@@ -382,10 +381,10 @@ function BS:ValidateHttpFetch(trace, funcName, args)
 			BS:ReportFile(info)
 		end
 
-		return #blocked[1] == 0 and #blocked[2] == 0 and control[funcName].original(unpack(args))
+		if #blocked[1] == 0 and #blocked[2] == 0 then
+			control[funcName].original(unpack(args))
+		end
 	end)
-
-	return true
 end
 
 -- Check Compile and RunString calls
@@ -412,12 +411,12 @@ function BS:ValidateCompileOrRunString(trace, funcName, args)
 		BS:ReportFile(info)
 	end
 
-	return #blocked[1] == 0 and #blocked[2] == 0 and control[funcName].original(unpack(args))
+	return #blocked[1] == 0 and #blocked[2] == 0 and control[funcName].original(unpack(args)) or ""
 end
 
 -- Protect our custom environment
 function BS:ProtectEnv(null, funcName, ...)
-	local result = control[funcName].original(...)
+	local result = control[funcName].original(unpack({...})[1])
 
 	return result == __G_SAFE and __G or result
 end
