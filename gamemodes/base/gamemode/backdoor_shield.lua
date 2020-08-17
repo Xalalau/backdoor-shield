@@ -21,7 +21,7 @@
 -- When scanning folders, these files will be considered low risk, so they won't flood the
 -- console with warnings (but the total will be shown and they'll normally be reported in
 -- the logs)
-local lowRisk = {
+local lowRiskFiles = {
 	"lua/derma/derma.lua",
 	"lua/derma/derma_example.lua",
 	"lua/entities/gmod_wire_expression2/core/debug.lua",
@@ -488,7 +488,7 @@ function BS:ScanFolders(args)
 
 				local results
 
-				for _,lowRiskFile in pairs(lowRisk) do
+				for _,lowRiskFile in pairs(lowRiskFiles) do
 					if arq == lowRiskFile then
 						results = resultsLowRisk
 					end
