@@ -46,7 +46,7 @@ local lowRisk = {
 local whitelist = {
 	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
 	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:507", -- DarkRP
-	"addons/ulx-ulib/lua/ulib/shared/plugin.lua:186", -- ULib
+	"lua/ulib/shared/plugin.lua:186", -- ULib
 }
 
 -- High chance of direct backdoor detection
@@ -85,7 +85,7 @@ local suspect = {
 
 -- -----------------------------------------------------------------------------------
 
-local BS_VERSION = "V.1.1"
+local BS_VERSION = "V.git.1.1+"
 
 local BS_ALERT = "[Backdoor Shield]"
 local BS_BASEFOLDER = "backdoor shield/"
