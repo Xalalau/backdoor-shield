@@ -124,6 +124,7 @@ local control = {
 	["http.Post"] = {}, -- Protected, scanned
 	["http.Fetch"] = {}, -- Protected, scanned
 	["CompileString"] = {}, -- Protected, scanned
+	["CompileFile"] = {}, -- Protected, scanned
 	["RunString"] = {}, -- Protected, scanned
 	["RunStringEx"] = {}, -- Protected, scanned
 	["getfenv"] = {}, -- Protected (isolate our environment)
@@ -363,7 +364,7 @@ function BS:ValidateHttpFetch(trace, funcName, args)
 	end)
 end
 
--- Check Compile and RunString calls
+-- Check CompileString and RunString(EX) calls
 function BS:ValidateCompileOrRunString_Ex(trace, funcName, args)
 	local code = args[1]
 	local blocked = {{}, {}}
@@ -392,6 +393,34 @@ function BS:ValidateCompileOrRunString_Ex(trace, funcName, args)
 	end
 
 	return #blocked[1] == 0 and #blocked[2] == 0 and control[funcName].original(unpack(args)) or ""
+end
+
+-- Check CompileFile calls
+function BS:ValidateCompileFile(trace, funcName, args)
+	local path = args[1]
+	local content = file.Open(path, "r", "LUA")
+	local blocked = {{}, {}}
+	local warning = {}
+
+	BS:ScanString(trace, content, blocked, warning)
+
+	local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Blocked", blocked } or #warning > 0 and { "warning", "Suspect", warning }
+
+	if detected then
+		local info = {
+			suffix = detected[1],
+			folder = funcName,
+			alert = detected[2] .. " execution!",
+			func = funcName,
+			trace = trace,
+			detected = detected[3],
+			content = content
+		}
+
+		BS:ReportFile(info)
+	end
+
+	return #blocked[1] == 0 and #blocked[2] == 0 and control[funcName].original(unpack(args))
 end
 
 -- Protect our custom environment
@@ -617,12 +646,13 @@ function BS:Initialize()
 	end
 
 	control["http.Fetch"].filter = BS.ValidateHttpFetch
+	control["CompileFile"].filter = BS.ValidateCompileFile
 	control["CompileString"].filter = BS.ValidateCompileOrRunString_Ex
 	control["RunString"].filter = BS.ValidateCompileOrRunString_Ex
 	control["RunStringEx"].filter = BS.ValidateCompileOrRunString_Ex
 	control["getfenv"].filter = BS.ProtectEnv
 	control["debug.getfenv"].filter = BS.ProtectEnv
-
+	
 	for k,v in pairs(control) do
 		control[k].original = BS:GetCurrentFunction(unpack(string.Explode(".", k)))
 		BS:SetReplacementFunction(k, v.filter)
