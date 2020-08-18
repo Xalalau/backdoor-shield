@@ -398,9 +398,13 @@ end
 -- Check CompileFile calls
 function BS:ValidateCompileFile(trace, funcName, args)
 	local path = args[1]
-	local content = file.Open(path, "r", "LUA")
+	local content = file.Read(path, "LUA")
 	local blocked = {{}, {}}
 	local warning = {}
+
+	if not isstring(content) then
+		return
+	end
 
 	BS:ScanString(trace, content, blocked, warning)
 
