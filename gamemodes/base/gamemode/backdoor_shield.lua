@@ -124,7 +124,8 @@ local control = {
 		filter = function to scan string contents
 	},
 	]]
-	["debug.getinfo"] = {}, -- Protected
+	["debug.getinfo"] = {}, -- Protected (isolate our environment)
+	["jit.util.funcinfo"] = {}, -- Protected (isolate our environment)
 	["HTTP"] = {}, -- Protected
 	["http.Post"] = {}, -- Protected, scanned
 	["http.Fetch"] = {}, -- Protected, scanned
@@ -261,13 +262,15 @@ end
 -- -------------------------------------
 
 -- Get a global GMod function
-function BS:GetCurrentFunction(f1, f2)
-	return f2 and __G[f1][f2] or __G[f1]
+function BS:GetCurrentFunction(f1, f2, f3)
+	return f3 and __G[f1][f2][f3] or f2 and __G[f1][f2] or __G[f1]
 end
 
 -- Set a global GMod function
-function BS:SetCurrentFunction(func, f1, f2)
-	if f2 then
+function BS:SetCurrentFunction(func, f1, f2, f3)
+	if f3 then
+		__G[f1][f2][f3] = func
+	elseif f2 then
 		__G[f1][f2] = func
 	elseif f1 then
 		__G[f1] = func
@@ -294,8 +297,8 @@ end
 
 -- Check if our custom replaced global GMod function was overridden
 function BS:ValidateFunction(name, controlInfo, trace)
-	local f1, f2 = unpack(string.Explode(".", name))
-	local currentAddress = BS:GetCurrentFunction(f1, f2)
+	local f1, f2, f3 = unpack(string.Explode(".", name))
+	local currentAddress = BS:GetCurrentFunction(f1, f2, f3)
 	local originalAddress = controlInfo.replacement or controlInfo.original
 
 	if originalAddress ~= currentAddress then
@@ -308,7 +311,7 @@ function BS:ValidateFunction(name, controlInfo, trace)
 
 		BS:ReportFile(info)
 
-		BS:SetCurrentFunction(originalAddress, f1, f2)
+		BS:SetCurrentFunction(originalAddress, f1, f2, f3)
 
 		return false
 	end
@@ -433,10 +436,46 @@ function BS:ValidateCompileFile(trace, funcName, args)
 end
 
 -- Protect our custom environment
-function BS:ProtectEnv(null, funcName, ...)
-	local result = control[funcName].original(unpack({...})[1])
+function BS:ProtectEnv(trace, funcName, args)
+	local result = control[funcName].original(unpack(args))
 
 	return result == __G_SAFE and __G or result
+end
+
+-- Mask our function replacements
+function BS:MaskDebugGetInfo(trace, funcName, args)
+	local result = control[funcName].original(unpack(args))
+
+	if result.short_src or result.source then
+		for k,v in pairs(control) do
+			local replacementFunction = BS:GetCurrentFunction(unpack(string.Explode(".", k)))
+
+			if args[1] == replacementFunction then
+				if result.short_src then
+					result.short_src = v.short_src
+				end
+
+				if result.source then
+					result.source = v.source
+				end
+			end
+		end
+	end
+
+	return result
+end
+
+-- Mask our function replacements
+function BS:MaskJitUtilFuncinfo(trace, funcName, args)
+	for k,v in pairs(control) do
+		local replacementFunction = BS:GetCurrentFunction(unpack(string.Explode(".", k)))
+
+		if args[1] == replacementFunction then
+			return control[funcName].jit_util_funcinfo
+		end
+	end
+
+	return control[funcName].original(unpack(args))
 end
 
 -- -------------------------------------
@@ -661,9 +700,14 @@ function BS:Initialize()
 	control["RunStringEx"].filter = BS.ValidateCompileOrRunString_Ex
 	control["getfenv"].filter = BS.ProtectEnv
 	control["debug.getfenv"].filter = BS.ProtectEnv
-	
+	control["debug.getinfo"].filter = BS.MaskDebugGetInfo
+	control["jit.util.funcinfo"].filter = BS.MaskJitUtilFuncinfo
+
 	for k,v in pairs(control) do
 		control[k].original = BS:GetCurrentFunction(unpack(string.Explode(".", k)))
+		control[k].short_src = debug.getinfo(control[k].original).short_src
+		control[k].source = debug.getinfo(control[k].original).source
+		control[k].jit_util_funcinfo = jit.util.funcinfo(control[k].original)
 		BS:SetReplacementFunction(k, v.filter)
 	end
 
