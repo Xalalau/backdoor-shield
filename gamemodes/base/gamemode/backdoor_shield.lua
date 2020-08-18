@@ -51,9 +51,14 @@ local whitelistUrls = {
 -- By default, I do this instead of whitelisting files because the traces cannot be
 -- replicated without many counterpoints
 local whitelistTraceErrors = {
+	"lua/vcmod/server/load.lua:28", -- VCMod
 	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
-	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:507", -- DarkRP
+	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:", -- DarkRP
+	"lua/autorun/streamradio_loader.lua:254", -- 3D Stream Radio
 	"lua/ulib/shared/plugin.lua:186", -- ULib
+	"lua/dlib/sh_init.lua:105", -- DLib
+	"lua/dlib/core/loader.lua:32", -- DLib
+	"lua/dlib/modules/i18n/sh_loader.lua:66", -- DLib
 }
 
 -- Whitelist files
