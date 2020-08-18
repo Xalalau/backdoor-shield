@@ -267,7 +267,7 @@ function BS:GetCurrentFunction(f1, f2, f3)
 end
 
 -- Set a global GMod function
-function BS:SetCurrentFunction(func, f1, f2, f3)
+function BS:SetDetouring_Aux(func, f1, f2, f3)
 	if f3 then
 		__G[f1][f2][f3] = func
 	elseif f2 then
@@ -278,7 +278,7 @@ function BS:SetCurrentFunction(func, f1, f2, f3)
 end
 
 -- Replace a global GMod function with our custom ones
-function BS:SetReplacementFunction(funcName, customFilter)
+function BS:SetDetouring(funcName, customFilter)
 	function Replacement(...)
 		local args = {...} 
 
@@ -291,7 +291,7 @@ function BS:SetReplacementFunction(funcName, customFilter)
 		end
 	end
 
-	BS:SetCurrentFunction(Replacement, unpack(string.Explode(".", funcName)))
+	BS:SetDetouring_Aux(Replacement, unpack(string.Explode(".", funcName)))
 	control[funcName].replacement = Replacement
 end
 
@@ -311,7 +311,7 @@ function BS:ValidateFunction(name, controlInfo, trace)
 
 		BS:ReportFile(info)
 
-		BS:SetCurrentFunction(originalAddress, f1, f2, f3)
+		BS:SetDetouring_Aux(originalAddress, f1, f2, f3)
 
 		return false
 	end
@@ -708,7 +708,7 @@ function BS:Initialize()
 		control[k].short_src = debug.getinfo(control[k].original).short_src
 		control[k].source = debug.getinfo(control[k].original).source
 		control[k].jit_util_funcinfo = jit.util.funcinfo(control[k].original)
-		BS:SetReplacementFunction(k, v.filter)
+		BS:SetDetouring(k, v.filter)
 	end
 
 	if not GetConVar("sv_hibernate_think"):GetBool() then
