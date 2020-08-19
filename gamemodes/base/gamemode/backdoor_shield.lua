@@ -334,7 +334,7 @@ function BS:ValidateHttpFetch(trace, funcName, args)
 			local urlStart, urlEnd = string.find(url, v)
 
 			if urlStart and urlStart == 1 then
-				return control[funcName].original(unpack(args2))
+				return control[funcName].original(unpack(args))
 			end
 		end
 
@@ -369,9 +369,9 @@ function BS:ValidateHttpFetch(trace, funcName, args)
 		end
 
 		if #blocked[1] == 0 and #blocked[2] == 0 then
-			control[funcName].original(unpack(args2))
+			control[funcName].original(unpack(args))
 		end
-	end)
+	end, args[3], args[4])
 end
 
 -- Check CompileString and RunString(EX) calls
