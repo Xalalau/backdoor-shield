@@ -1,5 +1,6 @@
 --[[
-	-- --------------- --
+
+    -- --------------- --
     [  Backdoor Shield  ]
     -- --------------- --
     
@@ -9,7 +10,6 @@
     https://tldrlegal.com/license/all-rights-served#summary
 
 --]]
-
 
 -- SCAN LISTS
 -- These lists are used to check urls, files and codes passed as argument
