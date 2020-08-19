@@ -18,8 +18,7 @@
 
 -- Low risk files
 -- When scanning folders, these files will be considered low risk, so they won't flood the
--- console with warnings (but the total will be shown and they'll normally be reported in
--- the logs)
+-- console with warnings (but they'll normally be reported in the logs)
 local lowRiskFiles = {
 	"lua/derma/derma.lua",
 	"lua/derma/derma_example.lua",
@@ -62,7 +61,7 @@ local whitelistTraceErrors = {
 }
 
 -- Whitelist files
--- Ignore these files and their contents, so they won't going to be scanned at all!
+-- Ignore these files and all their contents, so they won't going to be scanned at all!
 -- Note: protected functions overriding will still be detected and undone
 -- Note2: only whitelist files if you trust them completely! Even protected functions will be disarmed
 local whitelistFiles = {
@@ -70,8 +69,8 @@ local whitelistFiles = {
 
 -- High chance of direct backdoor detection
 local blacklistHigh = {
-	"_G[", -- !! Important, don't remove! Used to start hiding function names.
-	"_G.", -- !! Important, don't remove! Used to start hiding function names.
+	"_G[", -- !! Important, don't remove! Used by backdoors to start hiding function names.
+	"_G.", -- !! Important, don't remove! Used by backdoors to start hiding function names.
 	"!true",
 	"!1",
 	"!false",
@@ -126,17 +125,17 @@ local control = {
 		filter = function to scan string contents
 	},
 	]]
-	["debug.getinfo"] = {}, -- Protected (isolate our environment)
-	["jit.util.funcinfo"] = {}, -- Protected (isolate our environment)
-	["HTTP"] = {}, -- Protected
-	["http.Post"] = {}, -- Protected, scanned
-	["http.Fetch"] = {}, -- Protected, scanned
-	["CompileString"] = {}, -- Protected, scanned
-	["CompileFile"] = {}, -- Protected, scanned
-	["RunString"] = {}, -- Protected, scanned
-	["RunStringEx"] = {}, -- Protected, scanned
-	["getfenv"] = {}, -- Protected (isolate our environment)
-	["debug.getfenv"] = {}, -- Protected (isolate our environment)
+	["debug.getinfo"] = {}, -- Protected to isolate our environment
+	["jit.util.funcinfo"] = {}, -- Protected to isolate our environment
+	["getfenv"] = {}, -- Protected to isolate our environment
+	["debug.getfenv"] = {}, -- Protected to isolate our environment
+	["HTTP"] = {},
+	["http.Post"] = {}, -- scanned
+	["http.Fetch"] = {}, -- scanned
+	["CompileString"] = {}, -- scanned
+	["CompileFile"] = {}, -- scanned
+	["RunString"] = {}, -- scanned
+	["RunStringEx"] = {}, -- scanned
 }
 
 -- -------------------------------------
@@ -263,12 +262,10 @@ end
 -- [ MANAGE CONTROLLED FUNCTIONS ]
 -- -------------------------------------
 
--- Get a global GMod function
 function BS:GetCurrentFunction(f1, f2, f3)
 	return f3 and __G[f1][f2][f3] or f2 and __G[f1][f2] or __G[f1]
 end
 
--- Set a global GMod function
 function BS:SetDetouring_Aux(func, f1, f2, f3)
 	if f3 then
 		__G[f1][f2][f3] = func
@@ -279,7 +276,6 @@ function BS:SetDetouring_Aux(func, f1, f2, f3)
 	end
 end
 
--- Replace a global GMod function with our custom ones
 function BS:SetDetouring(funcName, customFilter)
 	function Replacement(...)
 		local args = {...} 
@@ -298,7 +294,6 @@ function BS:SetDetouring(funcName, customFilter)
 	control[funcName].replacement = Replacement
 end
 
--- Check if our custom replaced global GMod function was overridden
 function BS:ValidateDetouring(name, controlInfo, trace)
 	local f1, f2, f3 = unpack(string.Explode(".", name))
 	local currentAddress = BS:GetCurrentFunction(f1, f2, f3)
@@ -656,6 +651,7 @@ function BS:Initialize()
 	-- https://manytools.org/hacker-tools/ascii-banner/
 	-- Font: ANSI Shadow
 	local logo = [[
+
 	----------------------- Server Protected By -----------------------
 
 	██████╗  █████╗  ██████╗██╗  ██╗██████╗  ██████╗  ██████╗ ██████╗ 
@@ -674,15 +670,22 @@ function BS:Initialize()
 	███████║██║  ██║██║███████╗███████╗██████╔╝
 	╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝
 
-	The protection runs automatically, but you can also:
+	The security is performed by automatically blocking executions,
+	correcting some	changes and warning about suspicious activity,
+	but you may also:
 
 	1) Set custom black and white lists directly in the main file.
+	Don't leave warnings circulating on the console and make exceptions
+	whenever you want.
 
-	2) Use the commands:
+	2) Scan your addons and investigate the results:
 	|--> "bs_scan": Recursively scan GMod and all the mounted contents
 	|--> "bs_scan <folder>": Recursively scan the seleceted folder
 
-	Version: ]] .. BS_VERSION .. [[
+	All logs are located in: "garrysmod/data/]] .. BS_BASEFOLDER .. [["
+
+
+	|---------> Version: ]] .. BS_VERSION .. [[
 
 
 	©2020 Xalalau Xubilozo. All Rights Reserved.
@@ -726,14 +729,17 @@ function BS:Initialize()
 	end
 end
 
+-- Isolate our enironment
 for k,v in pairs(BS)do
 	if isfunction(v) then
 		setfenv(v, __G_SAFE)
 	end
 end
 
-BS:Initialize()
-
+-- Command to scan folders
 concommand.Add("bs_scan", function(ply, cmd, args)
     BS:ScanFolders(args)
 end)
+
+-- Protection started
+BS:Initialize()
