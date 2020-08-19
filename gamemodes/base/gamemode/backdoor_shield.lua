@@ -281,11 +281,12 @@ end
 function BS:SetDetouring(funcName, customFilter)
 	function Replacement(...)
 		local args = {...} 
+		local trace = debug.traceback()
 
-		BS:ValidateFunction(funcName, control[funcName], debug.traceback())
+		BS:ValidateFunction(funcName, control[funcName], trace)
 
 		if customFilter then
-			return customFilter(nil, debug.traceback(), funcName, args)
+			return customFilter(nil, trace, funcName, args)
 		else
 			return control[funcName].original(unpack(args))
 		end
@@ -306,7 +307,7 @@ function BS:ValidateFunction(name, controlInfo, trace)
 			suffix = "override",
 			alert = "Function overriding captured and undone!",
 			func = name,
-			trace = trace or debug.getinfo(currentAddress, "S").source
+			trace = trace
 		}
 
 		BS:ReportFile(info)
