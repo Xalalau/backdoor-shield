@@ -323,7 +323,8 @@ end
 function BS:ValidateHttpFetch(trace, funcName, args)
 	local url = args[1]
 
-	http.Fetch(url, function()
+	http.Fetch(url, function(...)
+		local args2 = { ... }
 		local blocked = {{}, {}}
 		local warning = {}
 		local detected
@@ -332,13 +333,13 @@ function BS:ValidateHttpFetch(trace, funcName, args)
 			local urlStart, urlEnd = string.find(url, v)
 
 			if urlStart and urlStart == 1 then
-				return control[funcName].original(unpack(args))
+				return control[funcName].original(unpack(args2))
 			end
 		end
 
 		BS:ScanString(trace, url, blocked, warning)
 
-		for _,arg in pairs(args) do
+		for _,arg in pairs(args2) do
 			if isstring(arg) then
 				BS:ScanString(trace, arg, blocked, warning)
 			elseif istable(arg) then
@@ -360,14 +361,14 @@ function BS:ValidateHttpFetch(trace, funcName, args)
 				trace = trace,
 				url = url,
 				detected = detected[3],
-				content = table.ToString(args, "arguments", true)
+				content = table.ToString(args2, "arguments", true)
 			}
 
 			BS:ReportFile(info)
 		end
 
 		if #blocked[1] == 0 and #blocked[2] == 0 then
-			control[funcName].original(unpack(args))
+			control[funcName].original(unpack(args2))
 		end
 	end)
 end
@@ -378,7 +379,7 @@ function BS:ValidateCompileOrRunString_Ex(trace, funcName, args)
 	local blocked = {{}, {}}
 	local warning = {}
 
-	if not __G_SAFE[funcName] then -- RunStringEx is deprecated
+	if not __G_SAFE[funcName] then -- RunStringEx exists but is deprecated
 		return ""
 	end
 
