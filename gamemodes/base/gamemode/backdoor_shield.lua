@@ -11,6 +11,8 @@
 
 --]]
 
+-- Note: the source code isn't divided into files because we need to isolate it.
+
 -- SCAN LISTS
 -- These lists are used to check urls, files and codes passed as argument
 -- Note: these lists are locked here for proper security
