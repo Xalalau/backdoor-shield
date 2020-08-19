@@ -10,6 +10,88 @@
 
 --]]
 
+
+
+
+-- debug.getinfo
+-- jit.util.funcinfo
+-- etc: se der erro, apareço (me esconder nos traces):
+--[[
+
+	Podemos ser detecatados em trace de erro, incluindo interno, e pelo args[99]
+
+[fakedoor] gamemodes/base/gamemode/backdoor_shield.lua:477: bad argument #1 to 'original' (function or level expected)
+	1. original - [C]:-1
+	 2. getinfo - gamemodes/base/gamemode/backdoor_shield.lua:477
+	  3. PrintFunctionParameters - addons/fakedoor/lua/autorun/server/test.lua:61
+	   4. onsuccess - addons/fakedoor/lua/autorun/server/test.lua:70
+		5. unknown - lua/includes/modules/http.lua:29
+
+
+bytecodes       =       36
+children        =       false
+currentline     =       282
+gcconsts        =       5
+isvararg        =       true
+lastlinedefined =       292
+linedefined     =       282
+loc     =       backdoor_shield.lua:282
+nconsts =       1
+params  =       0
+source  =       @gamemodes/base/gamemode/backdoor_shield.lua
+stackslots      =       6
+upvalues        =       4
+
+
+]]
+
+--[[
+Boquear a criação de metatables e metamethod
+
+    t = {}
+    print(getmetatable(t))   --> nil
+
+We can use setmetatable to set or change the metatable of any table:
+
+    t1 = {}
+    setmetatable(t, t1)
+    assert(getmetatable(t) == t1)
+
+
+	Xalalau XubilozoHoje às 15:52
+Tô com essa ideia, vou tentar:
+
+
+Http.fetch chamado, mas ele é um detour (modificado por mim)(argumentos vêm normais mas a execução não é imediata. Continuo com o trace correto e vou fazer o scan)
+
+Local trace = trace_correto
+
+Resultado válido
+
+Chamo a função original repassando os valores mas inserindo o trace no argumento 99
+
+O http.fetch desconecta do código e perde o trace, mas existe o meu argumento 99 secreto
+
+Se ocorrer a execução da função normal ela não pega o meu argumento de trace
+
+MAS se chamar outra função minha com detour, recebo o trace verdadeiro no argumento 99
+
+Se a função não validar, exibo a linha de chamada.
+Xalalau XubilozoHoje às 16:03
+Chamada: 
+
+O http.fetch chamando um runstring é assim:
+
+Http.fetch no jogo (verdadeiro) -> RunString (verdadeiro) -> coisas (qualquer coisa, não validado)
+
+O meu é assim:
+
+Http.fetch no jogo (falso) -> minhas funções (incluindo o trace correto) q escaneiam a entrada e chamam o http.fetch (verdadeiro) incluindo qualquer argumento extra que eu queira-> Runstring(falso) -> minhas funções que podem ler argumentos além do normal, incluindo algo que eu tenha inserido, como um trace, e que vão escanear e chamar o Runstring (verdadeiro) -> coisas (válidas)
+]]
+
+
+
+
 -- SCAN LISTS
 -- These lists are used to check urls, files and codes passed as argument
 -- Note: these lists are locked here for proper security
@@ -45,6 +127,7 @@ local lowRiskFiles = {
 -- Note3: insert a url starting with http or https and ending with a "/", like https://google.com/
 local whitelistUrls = {
 	"http://www.geoplugin.net/",
+	"https://vcmod.org/",
 }
 
 -- Whitelist TRACE ERRORS
@@ -283,7 +366,7 @@ function BS:SetDetouring(funcName, customFilter)
 		local args = {...} 
 		local trace = debug.traceback()
 
-		BS:ValidateFunction(funcName, control[funcName], trace)
+		BS:ValidateDetouring(funcName, control[funcName], trace)
 
 		if customFilter then
 			return customFilter(nil, trace, funcName, args)
@@ -297,7 +380,7 @@ function BS:SetDetouring(funcName, customFilter)
 end
 
 -- Check if our custom replaced global GMod function was overridden
-function BS:ValidateFunction(name, controlInfo, trace)
+function BS:ValidateDetouring(name, controlInfo, trace)
 	local f1, f2, f3 = unpack(string.Explode(".", name))
 	local currentAddress = BS:GetCurrentFunction(f1, f2, f3)
 	local originalAddress = controlInfo.replacement or controlInfo.original
