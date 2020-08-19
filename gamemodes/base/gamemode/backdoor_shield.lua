@@ -448,7 +448,7 @@ end
 function BS:MaskDebugGetInfo(trace, funcName, args)
 	local result = control[funcName].original(unpack(args))
 
-	if result.short_src or result.source then
+	if result and (result.short_src or result.source) then
 		for k,v in pairs(control) do
 			local replacementFunction = BS:GetCurrentFunction(unpack(string.Explode(".", k)))
 
