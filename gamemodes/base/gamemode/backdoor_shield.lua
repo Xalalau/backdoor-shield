@@ -10,10 +10,6 @@
 
 --]]
 
-]]
-
-
-
 
 -- SCAN LISTS
 -- These lists are used to check urls, files and codes passed as argument
@@ -56,7 +52,6 @@ local whitelistUrls = {
 -- By default, I do this instead of whitelisting files because the traces cannot be
 -- replicated without many counterpoints
 local whitelistTraceErrors = {
-	"lua/vcmod/server/load.lua:28", -- VCMod
 	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
 	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:", -- DarkRP
 	"lua/autorun/streamradio_loader.lua:254", -- 3D Stream Radio
