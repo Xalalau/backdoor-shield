@@ -259,7 +259,7 @@ function BS:ReportFile(infoIn)
 	end
 end
 
-function BS:ReportFolder(resultsHighRisk, resultsLowRisk)
+function BS:ReportFolder(resultsHighRisk, resultsMediumRisk, resultsLowRisk)
 	local Timestamp = os.time()
 	local date = os.date("%m-%d-%Y", Timestamp)
 	local time = os.date("%Hh %Mm %Ss", Timestamp)
@@ -267,6 +267,8 @@ function BS:ReportFolder(resultsHighRisk, resultsLowRisk)
 
 	file.Append(logFile, "[HIGH RISK DETECTIONS]\n\n")
 	file.Append(logFile, table.ToString(resultsHighRisk, "Results", true))
+	file.Append(logFile, "\n\n\n\n\n[MEDIUM RISK DETECTIONS]\n\n")
+	file.Append(logFile, table.ToString(resultsMediumRisk, "Results", true))
 	file.Append(logFile, "\n\n\n\n\n[LOW RISK DETECTIONS]\n\n")
 	file.Append(logFile, table.ToString(resultsLowRisk, "Results", true))
 
@@ -564,6 +566,7 @@ end
 -- Low risk files will be reported in the logs as well, but they won't flood the console with warnings
 function BS:ScanFolders(args)
 	local resultsHighRisk = {}
+	local resultsMediumRisk = {}
 	local resultsLowRisk = {}
 	local folders = #args > 0 and args or {
 		"data",
@@ -578,6 +581,28 @@ function BS:ScanFolders(args)
 	end
 
 	local function ScanFolder(dir)
+		local function JoinResults(tab)
+			local resultString = ""
+
+			if #tab > 0 then
+				for k,v in pairs(tab) do
+					resultString = resultString .. "\n     [!] " .. v
+
+					if v == "‪" then
+						resultString = resultString .. " Invisible Character"
+					end
+				end
+			end
+
+			return resultString
+		end
+
+		local lowRiskFiles_Aux = {}
+
+		for _,v in pairs(lowRiskFiles) do
+			lowRiskFiles_Aux[v] = true
+		end
+
 		if dir == "data/" .. BS_BASEFOLDER then
 			return
 		end
@@ -593,49 +618,39 @@ function BS:ScanFolders(args)
 
 			if ext == "lua" or ext == "vmt" or ext == "txt" then
 				local blocked = {{}, {}}
+				local warning = {}
 				local arq = dir .. v
 
 				if v == BS_FILENAME or BS:CheckFilesWhitelist(arq) then
 					return 
 				end
 
+				BS:ScanString(nil, file.Read(arq, "GAME"), blocked, warning)
+
+				local resultString = ""
+				local resultTable
 				local results
 
-				for _,lowRiskFile in pairs(lowRiskFiles) do
-					if arq == lowRiskFile then
+				if #blocked[1] > 0 or #blocked[2] > 0 or #warning > 0 then
+					resultString = arq
+
+					if #blocked[1] > 0 then results = resultsHighRisk end
+					if not results and #blocked[2] > 0 then results = resultsMediumRisk end
+					if not results and #warning > 0 then results = resultsLowRisk end
+
+					if lowRiskFiles_Aux[arq] then
 						results = resultsLowRisk
 					end
-				end
 
-				if not results then
-					results = resultsHighRisk
-				end
+					resultString = resultString .. JoinResults(blocked[1])
+					resultString = resultString .. JoinResults(blocked[2])
+					resultString = resultString .. JoinResults(warning)
+					resultString = resultString .. "\n"
 
-				BS:ScanString(nil, file.Read(arq, "GAME"), blocked)
+					table.insert(results, resultString)
 
-				local localResult = ""
-
-				if #blocked[1] > 0 or #blocked[2] > 0 then
-					localResult = arq
-				end
-
-				if #blocked[1] > 0 then
-					for k,v in pairs(blocked[1]) do
-						localResult = localResult .. "\n     [!!] " .. v
-					end
-				end
-
-				if #blocked[2] > 0 then
-					for k,v in pairs(blocked[2]) do
-						localResult = localResult .. "\n     [!] " .. v
-					end
-				end
-
-				if #blocked[1] > 0 or #blocked[2] > 0 then
-					localResult = localResult .. "\n"
-					table.insert(results, localResult)
-					if results == resultsHighRisk then
-						print(localResult)
+					if results ~= resultsLowRisk then
+						print(resultString)
 					end
 				end
 			end
@@ -647,11 +662,11 @@ function BS:ScanFolders(args)
 
 	for _,folder in pairs(folders) do
 		if file.Exists(folder .. "/", "GAME") then
-			ScanFolder(folder .. "/", ".vcd" )
+			ScanFolder(folder .. "/")
 		end
 	end
 
-	BS:ReportFolder(resultsHighRisk, resultsLowRisk)
+	BS:ReportFolder(resultsHighRisk, resultsMediumRisk, resultsLowRisk)
 
 	print("\nLow risk results: ", tostring(#resultsLowRisk))
 	print("Check the log for more informations.\n")
