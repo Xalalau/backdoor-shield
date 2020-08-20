@@ -16,6 +16,7 @@
 -- SCAN LISTS
 -- These lists are used to check urls, files and codes passed as argument
 -- Note: these lists are locked here for proper security
+-- Note2: I'm not using patterns
 -- -----------------------------------------------------------------------------------
 
 -- Low risk files
@@ -24,6 +25,7 @@
 local lowRiskFiles = {
 	"lua/derma/derma.lua",
 	"lua/derma/derma_example.lua",
+	"lua/entities/gmod_wire_expression2/core/http.lua",
 	"lua/entities/gmod_wire_expression2/core/debug.lua",
 	"lua/entities/gmod_wire_expression2/core/e2lib.lua",
 	"lua/entities/gmod_wire_expression2/core/extloader.lua",
@@ -79,7 +81,14 @@ local blacklistHigh = {
 	"!0",
 	"]()",
 	"]=‪[",
+	"\"0x", -- Regex didn't work with reading some backdoors
+	"\'0x",
+	"\"0X",
+	"\'0X",
 	"\"\\x",
+	"\'\\x",
+	"\"\\X",
+	"\'\\X",
 	"‪", -- Invisible char
 }
 
@@ -91,14 +100,16 @@ local blacklistMedium = {
 	"CompileFile",
 	"BroadcastLua",
 	"setfenv",
+	"http.Fetch",
+	"http.Post",
 }
 
 -- Low chance of direct backdoor detection
 local suspect = {
+	"file.Read",
+	"file.Delete",
 	"util.AddNetworkString",
 	"net",
-	"http.Fetch",
-	"http.Post",
 	"concommand.Add",
 	"pcall",
 	"xpcall",
