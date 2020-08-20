@@ -90,7 +90,6 @@ local blacklistHigh = {
 	"!1",
 	"!false",
 	"!0",
-	"]()",
 	"]=‪[",
 	"\"0x", -- Regex didn't work with reading some backdoors
 	"\'0x",
@@ -105,6 +104,7 @@ local blacklistHigh = {
 
 -- Medium chance of direct backdoor detection
 local blacklistMedium = {
+	"]()",
 	"RunString",
 	"RunStringEx",
 	"CompileString",
