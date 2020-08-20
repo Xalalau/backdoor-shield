@@ -280,7 +280,7 @@ end
 -- -------------------------------------
 
 function BS:GetCurrentFunction(f1, f2, f3)
-	return f3 and __G[f1][f2][f3] or f2 and __G[f1][f2] or __G[f1]
+	return f3 and __G[f1][f2][f3] or f2 and __G[f1][f2] or f1 and __G[f1]
 end
 
 function BS:SetDetouring_Aux(func, f1, f2, f3)
