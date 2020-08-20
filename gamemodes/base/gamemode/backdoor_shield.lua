@@ -640,6 +640,10 @@ function BS:ScanFolders(args)
 
 		local files, dirs = file.Find( dir.."*", "GAME" )
 
+		if not dirs then
+			return
+		end
+
 		for _, fdir in pairs(dirs) do
 			if fdir ~= "/" then -- We can get a / if the start from the root
 				ScanFolder(dir .. fdir .. "/")
