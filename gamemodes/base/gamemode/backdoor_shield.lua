@@ -23,10 +23,16 @@
 
 -- Low risk files
 -- When scanning folders, these files will be considered low risk, so they won't flood the
--- console with warnings (but they'll normally be reported in the logs)
+-- console with warnings (but they'll be normally reported in the logs)
 local lowRiskFiles = {
+	"gamemodes/darkrp/gamemode/modules/workarounds/sh_workarounds.lua",
+	"gamemodes/darkrp/gamemode/modules/darkrpmessages/cl_darkrpmessage.lua",
+	"gamemodes/darkrp/gamemode/libraries/simplerr.lua",
+	"gamemodes/darkrp/gamemode/libraries/fn.lua",
+	"gamemodes/darkrp/gamemode/libraries/mysqlite/mysqlite.lua",
 	"lua/derma/derma.lua",
 	"lua/derma/derma_example.lua",
+	"lua/entities/gmod_wire_target_finder.lua",
 	"lua/entities/gmod_wire_expression2/core/http.lua",
 	"lua/entities/gmod_wire_expression2/core/debug.lua",
 	"lua/entities/gmod_wire_expression2/core/e2lib.lua",
@@ -35,12 +41,14 @@ local lowRiskFiles = {
 	"lua/entities/gmod_wire_expression2/core/player.lua",
 	"lua/entities/gmod_wire_keyboard/init.lua",
 	"lua/entities/info_wiremapinterface/init.lua",
+	"lua/includes/extensions/debug.lua",
 	"lua/includes/modules/constraint.lua",
 	"lua/includes/util/javascript_util.lua",
 	"lua/includes/util.lua",
 	"lua/vgui/dhtml.lua",
 	"lua/wire/client/text_editor/texteditor.lua",
 	"lua/wire/zvm/zvm_core.lua",
+	"lua/wire/tool_loader.lua",
 	"lua/wire/wireshared.lua",
 }
 
@@ -75,8 +83,9 @@ local whitelistFiles = {
 
 -- High chance of direct backdoor detection
 local blacklistHigh = {
-	"_G[", -- !! Important, don't remove! Used by backdoors to start hiding function names.
-	"_G.", -- !! Important, don't remove! Used by backdoors to start hiding function names.
+	"=_G", -- !! Important, don't remove! Used by backdoors to start hiding function names.
+	"_G[", 
+	"_G.",
 	"!true",
 	"!1",
 	"!false",
@@ -104,15 +113,16 @@ local blacklistMedium = {
 	"setfenv",
 	"http.Fetch",
 	"http.Post",
+	"debug.getinfo",
 }
 
 -- Low chance of direct backdoor detection
 local suspect = {
-	"file.Read",
-	"file.Delete",
-	"util.AddNetworkString",
-	"net",
-	"concommand.Add",
+	--"util.AddNetworkString",
+	--"net",
+	--"file.Read",
+	--"file.Delete",
+	--"concommand.Add",
 	"pcall",
 	"xpcall",
 	"SendLua",
@@ -532,7 +542,7 @@ end
 
 -- Process a string according to our white, black and suspect lists
 function BS:ScanString(trace, str, blocked, warning)
-	string.gsub(str, " ", "")
+	str = string.gsub(str, " ", "")
 
 	local function ProcessLists(list, list2)
 		for k,v in pairs(list) do
@@ -568,9 +578,15 @@ function BS:ScanFolders(args)
 	local highRisk = {}
 	local mediumRisk = {}
 	local lowRisk = {}
-	local folders = #args > 0 and args or {
+
+	-- Results from addons folder take precedence
+	-- The addons folder will not be scanned if args is set
+	local addonsFolder = {} 
+	local addonsFolderScan = #args == 0 and true
+
+	local folders = not addonsFolderScan and args or {
+		"lua",
 		"data",
-		"lua"
 	}
 
 	for k,v in pairs(folders) do
@@ -580,23 +596,23 @@ function BS:ScanFolders(args)
 		end
 	end
 
-	local function ScanFolder(dir)
-		local function JoinResults(tab, alert)
-			local resultString = ""
+	local function JoinResults(tab, alert)
+		local resultString = ""
 
-			if #tab > 0 then
-				for k,v in pairs(tab) do
-					resultString = resultString .. "\n     " .. alert .. " " .. v
+		if #tab > 0 then
+			for k,v in pairs(tab) do
+				resultString = resultString .. "\n     " .. alert .. " " .. v
 
-					if v == "‪" then
-						resultString = resultString .. " Invisible Character"
-					end
+				if v == "‪" then
+					resultString = resultString .. " Invisible Character"
 				end
 			end
-
-			return resultString
 		end
 
+		return resultString
+	end
+
+	local function ScanFolder(dir)
 		local lowRiskFiles_Aux = {}
 
 		for _,v in pairs(lowRiskFiles) do
@@ -610,36 +626,59 @@ function BS:ScanFolders(args)
 		local files, dirs = file.Find( dir.."*", "GAME" )
 
 		for _, fdir in pairs(dirs) do
-			ScanFolder(dir .. fdir .. "/", ext)
+			if fdir ~= "/" then
+				ScanFolder(dir .. fdir .. "/")
+			end
 		end
 
 		for k,v in pairs(files) do
 			local ext = string.GetExtensionFromFilename(v)
+			local path = dir .. v
 
-			if ext == "lua" or ext == "vmt" or ext == "txt" then
+			if (ext == "lua" or ext == "vmt" or ext == "txt") and not addonsFolder[path] then
 				local blocked = {{}, {}}
 				local warning = {}
-				local arq = dir .. v
+				local pathAux = path
 
-				if v == BS_FILENAME or BS:CheckFilesWhitelist(arq) then
+				if v == BS_FILENAME then
 					return 
 				end
 
-				BS:ScanString(nil, file.Read(arq, "GAME"), blocked, warning)
+				if addonsFolderScan then
+					local correctPath = ""
+
+					for k,v in pairs(string.Explode("/", path)) do
+						if k > 2 then
+							correctPath = correctPath .. "/" .. v
+						end
+					end
+
+					correctPath = string.sub(correctPath, 2, string.len(correctPath))
+					pathAux = correctPath
+					addonsFolder[correctPath] = true
+				end
+
+				if BS:CheckFilesWhitelist(pathAux) then
+					return 
+				end
+
+				BS:ScanString(nil, file.Read(path, "GAME"), blocked, warning)
 
 				local resultString = ""
 				local resultTable
 				local results
 
 				if #blocked[1] > 0 or #blocked[2] > 0 or #warning > 0 then
-					resultString = arq
+					resultString = path
 
-					if #blocked[1] > 0 then results = highRisk end
-					if not results and #blocked[2] > 0 then results = mediumRisk end
-					if not results and #warning > 0 then results = lowRisk end
-
-					if lowRiskFiles_Aux[arq] then
+					if ext ~= "lua" then
+						results = highRisk
+					elseif lowRiskFiles_Aux[pathAux] then
 						results = lowRisk
+					else
+						if #blocked[1] > 0 then results = highRisk end
+						if not results and #blocked[2] > 0 then results = mediumRisk end
+						if not results and #warning > 0 then results = lowRisk end
 					end
 
 					resultString = resultString .. JoinResults(blocked[1], "[!!]")
@@ -660,9 +699,14 @@ function BS:ScanFolders(args)
 	print("\n\n -------------------------------------------------------------------")
 	print(BS_ALERT .. " Scanning GMod and all the mounted contents...\n")
 
+	if addonsFolderScan then
+		ScanFolder("addons/")
+		addonsFolderScan = false
+	end
+
 	for _,folder in pairs(folders) do
-		if file.Exists(folder .. "/", "GAME") then
-			ScanFolder(folder .. "/")
+		if folder == "" or file.Exists(folder .. "/", "GAME") then
+			ScanFolder(folder == "" and folder or folder .. "/")
 		end
 	end
 
