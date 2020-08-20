@@ -599,6 +599,7 @@ function BS:ScanFolders(args)
 
 	local folders = not addonsFolderScan and args or {
 		"lua",
+		"gamemode",
 		"data",
 	}
 
