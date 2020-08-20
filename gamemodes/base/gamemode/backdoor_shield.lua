@@ -80,6 +80,7 @@ local whitelistFiles = {
 -- High chance of direct backdoor detection
 local blacklistHigh = {
 	"=_G", -- !! Used by backdoors to start hiding names. Also, there is an extra check in the code to avoid incorrect results.
+	"(_G)",
 	"!true",
 	"!false",
 	"]=‪[",
@@ -546,12 +547,16 @@ function BS:ScanString(trace, str, blocked, warning)
 			   not BS:CheckTraceWhitelist(trace) and
 			   not BS:CheckFilesWhitelist(trace) then
 
-				if v == "=_G" then -- Hack: recheck _G with spaces
-					strAux = string.gsub(str, "%s+", " ")
+				if v == "=_G" then -- Hack: recheck _G with some spaces
+					local check = string.gsub(str, "%s+", " ")
+					local strStart, strEnd = string.find(check, "=_G", nil, true)
+					if not strStart then
+						strStart, strEnd = string.find(check, "= _G", nil, true)
+					end
 
-					if string.find(str, "=_G ", nil, true) or
-					   string.find(str, "= _G ", nil, true) then
+					local nextChar = check[strEnd + 1] or "-"
 
+					if nextChar == " " or nextChar == "\n" or nextChar == "\r\n" then
 						table.insert(list2, v)
 					end
 				else
