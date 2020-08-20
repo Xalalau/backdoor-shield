@@ -3,7 +3,7 @@
     -- --------------- --
     [  Backdoor Shield  ]
     -- --------------- --
-    
+
     Protect your Garry's Mod server against backdoors.
 
 	©2020 Xalalau Xubilozo. All Rights Reserved.
@@ -21,24 +21,22 @@
 -- Note2: I'm not using patterns
 -- -----------------------------------------------------------------------------------
 
--- Low risk files
--- When scanning folders, these files will be considered low risk, so they won't flood the
--- console with warnings (but they'll be normally reported in the logs)
+-- Low risk files and folders
+-- When scanning the game, these limes will be considered low risk, so they won't flood
+-- the console with warnings (but they'll be normally reported in the logs)
+local lowRiskFolders = {
+	"gamemodes/darkrp/",
+	"lua/entities/gmod_wire_expression2/",
+	"lua/wire/",
+	"lua/ulx/",
+	"lua/ulib/",
+	"lua/dlib/",
+}
+
 local lowRiskFiles = {
-	"gamemodes/darkrp/gamemode/modules/workarounds/sh_workarounds.lua",
-	"gamemodes/darkrp/gamemode/modules/darkrpmessages/cl_darkrpmessage.lua",
-	"gamemodes/darkrp/gamemode/libraries/simplerr.lua",
-	"gamemodes/darkrp/gamemode/libraries/fn.lua",
-	"gamemodes/darkrp/gamemode/libraries/mysqlite/mysqlite.lua",
 	"lua/derma/derma.lua",
 	"lua/derma/derma_example.lua",
 	"lua/entities/gmod_wire_target_finder.lua",
-	"lua/entities/gmod_wire_expression2/core/http.lua",
-	"lua/entities/gmod_wire_expression2/core/debug.lua",
-	"lua/entities/gmod_wire_expression2/core/e2lib.lua",
-	"lua/entities/gmod_wire_expression2/core/extloader.lua",
-	"lua/entities/gmod_wire_expression2/core/init.lua",
-	"lua/entities/gmod_wire_expression2/core/player.lua",
 	"lua/entities/gmod_wire_keyboard/init.lua",
 	"lua/entities/info_wiremapinterface/init.lua",
 	"lua/includes/extensions/debug.lua",
@@ -46,10 +44,8 @@ local lowRiskFiles = {
 	"lua/includes/util/javascript_util.lua",
 	"lua/includes/util.lua",
 	"lua/vgui/dhtml.lua",
-	"lua/wire/client/text_editor/texteditor.lua",
-	"lua/wire/zvm/zvm_core.lua",
-	"lua/wire/tool_loader.lua",
-	"lua/wire/wireshared.lua",
+	"lua/autorun/cb-lib.lua",
+	"lua/autorun/!sh_dlib.lua",
 }
 
 -- Whitelist urls
@@ -84,12 +80,8 @@ local whitelistFiles = {
 -- High chance of direct backdoor detection
 local blacklistHigh = {
 	"=_G", -- !! Important, don't remove! Used by backdoors to start hiding function names.
-	"_G[", 
-	"_G.",
 	"!true",
-	"!1",
 	"!false",
-	"!0",
 	"]=‪[",
 	"\"0x", -- Regex didn't work with reading some backdoors
 	"\'0x",
@@ -104,6 +96,8 @@ local blacklistHigh = {
 
 -- Medium chance of direct backdoor detection
 local blacklistMedium = {
+	"_G[", 
+	"_G.",
 	"]()",
 	"RunString",
 	"RunStringEx",
@@ -130,7 +124,7 @@ local suspect = {
 
 -- -----------------------------------------------------------------------------------
 
-local BS_VERSION = "V.git.1.2+"
+local BS_VERSION = "V.1.3"
 
 local BS_ALERT = "[Backdoor Shield]"
 local BS_BASEFOLDER = "backdoor shield/"
@@ -542,15 +536,27 @@ end
 
 -- Process a string according to our white, black and suspect lists
 function BS:ScanString(trace, str, blocked, warning)
-	str = string.gsub(str, " ", "")
+	if not str then return end
+
+	local strAux = string.gsub(str, " ", "")
 
 	local function ProcessLists(list, list2)
 		for k,v in pairs(list) do
-			if string.find(str, v, nil, true) and
+			if string.find(strAux, v, nil, true) and
 			   not BS:CheckTraceWhitelist(trace) and
 			   not BS:CheckFilesWhitelist(trace) then
 
-				table.insert(list2, v)
+				if v == "=_G" then -- Hack: recheck _G with spaces
+					strAux = string.gsub(str, "%s+", " ")
+
+					if string.find(str, "=_G ", nil, true) or
+					   string.find(str, "= _G ", nil, true) then
+
+						table.insert(list2, v)
+					end
+				else
+					table.insert(list2, v)
+				end
 			end
 		end
 	end
@@ -579,6 +585,8 @@ function BS:ScanFolders(args)
 	local mediumRisk = {}
 	local lowRisk = {}
 
+	local lowRiskFiles_Aux = {}
+
 	-- Results from addons folder take precedence
 	-- The addons folder will not be scanned if args is set
 	local addonsFolder = {} 
@@ -594,6 +602,10 @@ function BS:ScanFolders(args)
 		if string.sub(folders[k], -1) == "/" then
 			folders[k] = folders[k]:sub(1, #v - 1)
 		end
+	end
+
+	for _,v in pairs(lowRiskFiles) do
+		lowRiskFiles_Aux[v] = true
 	end
 
 	local function JoinResults(tab, alert)
@@ -613,12 +625,6 @@ function BS:ScanFolders(args)
 	end
 
 	local function ScanFolder(dir)
-		local lowRiskFiles_Aux = {}
-
-		for _,v in pairs(lowRiskFiles) do
-			lowRiskFiles_Aux[v] = true
-		end
-
 		if dir == "data/" .. BS_BASEFOLDER then
 			return
 		end
@@ -671,14 +677,29 @@ function BS:ScanFolders(args)
 				if #blocked[1] > 0 or #blocked[2] > 0 or #warning > 0 then
 					resultString = path
 
-					if ext ~= "lua" then
-						results = highRisk
-					elseif lowRiskFiles_Aux[pathAux] then
-						results = lowRisk
-					else
-						if #blocked[1] > 0 then results = highRisk end
-						if not results and #blocked[2] > 0 then results = mediumRisk end
-						if not results and #warning > 0 then results = lowRisk end
+					for _,v in pairs(lowRiskFolders) do
+						start = string.find(pathAux, v, nil, true)
+						if start == 1 then
+							results = lowRisk
+
+							break
+						end
+					end
+
+					if not results then
+						if ext ~= "lua" then
+							results = highRisk
+						elseif lowRiskFiles_Aux[pathAux] then
+							results = lowRisk
+						else
+							if #blocked[1] > 0 then results = highRisk end
+							if not results and #blocked[2] > 0 then results = mediumRisk end
+							if not results and #warning > 0 then results = lowRisk end
+						end
+					end
+
+					if results == lowRisk and #blocked[1] >= 2 then
+						results = mediumRisk
 					end
 
 					resultString = resultString .. JoinResults(blocked[1], "[!!]")
@@ -689,6 +710,10 @@ function BS:ScanFolders(args)
 					table.insert(results, resultString)
 
 					if results ~= lowRisk then
+						if results == highRisk then
+							print("[[[ HIGH RISK ]]] ---------------------------------------------------------------------------- <<<")
+						end
+
 						print(resultString)
 					end
 				end
