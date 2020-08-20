@@ -7,7 +7,9 @@
     Protect your Garry's Mod server against backdoors.
 
 	©2020 Xalalau Xubilozo. All Rights Reserved.
-    https://tldrlegal.com/license/all-rights-served#summary
+	https://tldrlegal.com/license/all-rights-served#summary
+
+	http://xalalau.com/
 
 --]]
 
