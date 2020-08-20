@@ -79,11 +79,11 @@ local whitelistFiles = {
 
 -- High chance of direct backdoor detection
 local blacklistHigh = {
-	"=_G", -- !! Important, don't remove! Used by backdoors to start hiding function names.
+	"=_G", -- !! Used by backdoors to start hiding names. Also, there is an extra check in the code to avoid incorrect results.
 	"!true",
 	"!false",
 	"]=‪[",
-	"\"0x", -- Regex didn't work with reading some backdoors
+	"\"0x",
 	"\'0x",
 	"\"0X",
 	"\'0X",
@@ -597,6 +597,7 @@ function BS:ScanFolders(args)
 		"data",
 	}
 
+	-- Remove backslashes
 	for k,v in pairs(folders) do
 		folders[k] = string.gsub(v, "\\", "/")
 		if string.sub(folders[k], -1) == "/" then
@@ -604,10 +605,12 @@ function BS:ScanFolders(args)
 		end
 	end
 
+	-- Easy way to check low risk files (values as table indexes)
 	for _,v in pairs(lowRiskFiles) do
 		lowRiskFiles_Aux[v] = true
 	end
 
+	-- Build a message with the detections in a file
 	local function JoinResults(tab, alert)
 		local resultString = ""
 
@@ -624,6 +627,7 @@ function BS:ScanFolders(args)
 		return resultString
 	end
 
+	-- Scan a folder
 	local function ScanFolder(dir)
 		if dir == "data/" .. BS_BASEFOLDER then
 			return
@@ -632,7 +636,7 @@ function BS:ScanFolders(args)
 		local files, dirs = file.Find( dir.."*", "GAME" )
 
 		for _, fdir in pairs(dirs) do
-			if fdir ~= "/" then
+			if fdir ~= "/" then -- We can get a / if the start from the root
 				ScanFolder(dir .. fdir .. "/")
 			end
 		end
@@ -641,6 +645,7 @@ function BS:ScanFolders(args)
 			local ext = string.GetExtensionFromFilename(v)
 			local path = dir .. v
 
+			-- Most common infected files
 			if (ext == "lua" or ext == "vmt" or ext == "txt") and not addonsFolder[path] then
 				local blocked = {{}, {}}
 				local warning = {}
@@ -650,6 +655,8 @@ function BS:ScanFolders(args)
 					return 
 				end
 
+				-- Convert the path of a file in the addons folder to a game's mounted one.
+				-- I'll save it and prevent us from scanning twice.
 				if addonsFolderScan then
 					local correctPath = ""
 
@@ -664,19 +671,23 @@ function BS:ScanFolders(args)
 					addonsFolder[correctPath] = true
 				end
 
+				-- Ignore whitelisted files
 				if BS:CheckFilesWhitelist(pathAux) then
 					return 
 				end
 
+				-- Scanning
 				BS:ScanString(nil, file.Read(path, "GAME"), blocked, warning)
 
 				local resultString = ""
 				local resultTable
 				local results
 
+				-- If we have something: build the path, the message and store in the right table
 				if #blocked[1] > 0 or #blocked[2] > 0 or #warning > 0 then
 					resultString = path
 
+					-- Files inside low risk folders
 					for _,v in pairs(lowRiskFolders) do
 						start = string.find(pathAux, v, nil, true)
 						if start == 1 then
@@ -687,10 +698,13 @@ function BS:ScanFolders(args)
 					end
 
 					if not results then
+						-- Non lua files are unsafe
 						if ext ~= "lua" then
 							results = highRisk
+						-- Check if it's a low risk file
 						elseif lowRiskFiles_Aux[pathAux] then
 							results = lowRisk
+						-- Set the risk based on the detection precedence
 						else
 							if #blocked[1] > 0 then results = highRisk end
 							if not results and #blocked[2] > 0 then results = mediumRisk end
@@ -698,10 +712,13 @@ function BS:ScanFolders(args)
 						end
 					end
 
+					-- If we have a low risk table selected but there two or more high risk detections,
+					-- set it to medium risk state
 					if results == lowRisk and #blocked[1] >= 2 then
 						results = mediumRisk
 					end
 
+					-- Build, print and store the result
 					resultString = resultString .. JoinResults(blocked[1], "[!!]")
 					resultString = resultString .. JoinResults(blocked[2], "[!]")
 					resultString = resultString .. JoinResults(warning, "[.]")
@@ -724,11 +741,15 @@ function BS:ScanFolders(args)
 	print("\n\n -------------------------------------------------------------------")
 	print(BS_ALERT .. " Scanning GMod and all the mounted contents...\n")
 
+	-- Manually installed addons have a higher chance of infection. Scanning the addons folder
+	-- directly instead of the Lua mount gives me the full paths to the files. To avoid scanning
+	-- a file twice, I record what we're doing and compare it later.
 	if addonsFolderScan then
 		ScanFolder("addons/")
 		addonsFolderScan = false
 	end
 
+	-- Scan the other selected folders
 	for _,folder in pairs(folders) do
 		if folder == "" or file.Exists(folder .. "/", "GAME") then
 			ScanFolder(folder == "" and folder or folder .. "/")
