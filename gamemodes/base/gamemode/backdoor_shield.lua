@@ -259,18 +259,18 @@ function BS:ReportFile(infoIn)
 	end
 end
 
-function BS:ReportFolder(resultsHighRisk, resultsMediumRisk, resultsLowRisk)
+function BS:ReportFolder(highRisk, mediumRisk, lowRisk)
 	local Timestamp = os.time()
 	local date = os.date("%m-%d-%Y", Timestamp)
 	local time = os.date("%Hh %Mm %Ss", Timestamp)
 	local logFile = BS_BASEFOLDER .. "Scan_" .. date .. "_(" .. time .. ").txt"
 
 	file.Append(logFile, "[HIGH RISK DETECTIONS]\n\n")
-	file.Append(logFile, table.ToString(resultsHighRisk, "Results", true))
+	file.Append(logFile, table.ToString(highRisk, "Results", true))
 	file.Append(logFile, "\n\n\n\n\n[MEDIUM RISK DETECTIONS]\n\n")
-	file.Append(logFile, table.ToString(resultsMediumRisk, "Results", true))
+	file.Append(logFile, table.ToString(mediumRisk, "Results", true))
 	file.Append(logFile, "\n\n\n\n\n[LOW RISK DETECTIONS]\n\n")
-	file.Append(logFile, table.ToString(resultsLowRisk, "Results", true))
+	file.Append(logFile, table.ToString(lowRisk, "Results", true))
 
 	print("\nScan saved as \"data/" .. logFile .. "\"")
 end
@@ -565,9 +565,9 @@ end
 -- Process recusively the files inside the aimed folders according to our white, black and suspect lists
 -- Low risk files will be reported in the logs as well, but they won't flood the console with warnings
 function BS:ScanFolders(args)
-	local resultsHighRisk = {}
-	local resultsMediumRisk = {}
-	local resultsLowRisk = {}
+	local highRisk = {}
+	local mediumRisk = {}
+	local lowRisk = {}
 	local folders = #args > 0 and args or {
 		"data",
 		"lua"
@@ -581,12 +581,12 @@ function BS:ScanFolders(args)
 	end
 
 	local function ScanFolder(dir)
-		local function JoinResults(tab)
+		local function JoinResults(tab, alert)
 			local resultString = ""
 
 			if #tab > 0 then
 				for k,v in pairs(tab) do
-					resultString = resultString .. "\n     [!] " .. v
+					resultString = resultString .. "\n     " .. alert .. " " .. v
 
 					if v == "‪" then
 						resultString = resultString .. " Invisible Character"
@@ -634,22 +634,22 @@ function BS:ScanFolders(args)
 				if #blocked[1] > 0 or #blocked[2] > 0 or #warning > 0 then
 					resultString = arq
 
-					if #blocked[1] > 0 then results = resultsHighRisk end
-					if not results and #blocked[2] > 0 then results = resultsMediumRisk end
-					if not results and #warning > 0 then results = resultsLowRisk end
+					if #blocked[1] > 0 then results = highRisk end
+					if not results and #blocked[2] > 0 then results = mediumRisk end
+					if not results and #warning > 0 then results = lowRisk end
 
 					if lowRiskFiles_Aux[arq] then
-						results = resultsLowRisk
+						results = lowRisk
 					end
 
-					resultString = resultString .. JoinResults(blocked[1])
-					resultString = resultString .. JoinResults(blocked[2])
-					resultString = resultString .. JoinResults(warning)
+					resultString = resultString .. JoinResults(blocked[1], "[!!]")
+					resultString = resultString .. JoinResults(blocked[2], "[!]")
+					resultString = resultString .. JoinResults(warning, "[.]")
 					resultString = resultString .. "\n"
 
 					table.insert(results, resultString)
 
-					if results ~= resultsLowRisk then
+					if results ~= lowRisk then
 						print(resultString)
 					end
 				end
@@ -666,9 +666,9 @@ function BS:ScanFolders(args)
 		end
 	end
 
-	BS:ReportFolder(resultsHighRisk, resultsMediumRisk, resultsLowRisk)
+	BS:ReportFolder(highRisk, mediumRisk, lowRisk)
 
-	print("\nLow risk results: ", tostring(#resultsLowRisk))
+	print("\nLow risk results: ", tostring(#lowRisk))
 	print("Check the log for more informations.\n")
 	print("------------------------------------------------------------------- \n")
 end
