@@ -470,21 +470,20 @@ end
 -- Protect our custom environment
 function BS:ProtectEnv(trace, funcName, args)
 	local result = control[funcName].original(unpack(args))
+	result = result == __G_SAFE and __G or result
 
-	if result == __G_SAFE or result == __G then
+	if result == __G then
 		local info = {
-			suffix = "blocked",
-			alert = "Blocked function trying to get _G through getfenv!",
+			suffix = "warning",
+			alert = "A script got _G through " .. funcName .. "!",
 			func = funcName,
 			trace = trace,
 		}
 
 		BS:ReportFile(info)
-
-		result = nil
 	end
 
-	return result == __G_SAFE and __G or result
+	return result
 end
 
 -- Mask our function replacements
