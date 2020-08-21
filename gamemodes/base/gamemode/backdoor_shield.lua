@@ -756,7 +756,7 @@ function BS:ScanFolders(args)
 							results = lowRisk
 						-- or set the risk based on the detection precedence
 						else
-							if #blocked[1] > 0 or #blocked[2] > 2 or then results = highRisk end
+							if #blocked[1] > 0 or #blocked[2] > 2 then results = highRisk end
 							if not results and #blocked[2] > 0 then results = mediumRisk end
 							if not results and #warning > 0 then results = lowRisk end
 						end
