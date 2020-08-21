@@ -77,12 +77,21 @@ local whitelistTraceErrors = {
 local whitelistFiles = {
 }
 
--- High chance of direct backdoor detection
+-- Detections with these chars will be considered as not suspect at first
+local notSuspect = {
+	" ",
+}
+
+-- High chance of direct backdoor detection (all files)
 local blacklistHigh = {
 	"=_G", -- !! Used by backdoors to start hiding names. Also, there is an extra check in the code to avoid incorrect results.
 	"(_G)",
 	"!true",
 	"!false",
+}
+
+-- High chance of direct backdoor detection (suspect code only)
+local blacklistHigh_Suspect = {
 	"]=‪[",
 	"\"0x",
 	"\'0x",
@@ -95,11 +104,8 @@ local blacklistHigh = {
 	"‪", -- Invisible char
 }
 
--- Medium chance of direct backdoor detection
+-- Medium chance of direct backdoor detection (all files)
 local blacklistMedium = {
-	"_G[", 
-	"_G.",
-	"]()",
 	"RunString",
 	"RunStringEx",
 	"CompileString",
@@ -109,6 +115,13 @@ local blacklistMedium = {
 	"http.Fetch",
 	"http.Post",
 	"debug.getinfo",
+}
+
+-- Medium chance of direct backdoor detection (suspect code only)
+local blacklistMedium_Suspect = {
+	"_G[",
+	"_G.",
+	"]()",
 }
 
 -- Low chance of direct backdoor detection
@@ -503,6 +516,17 @@ end
 -- [ SCANNING ]
 -- -------------------------------------
 
+-- Check if a file isn't suspicious at first 
+function BS:IsSuspicious(str)
+	for k,v in pairs(notSuspect) do
+		if string.find(str, v, nil, true) then
+			return false
+		end
+	end
+
+	return true
+end
+
 function BS:CheckTraceWhitelist(trace)
 	local found = false
 
@@ -539,6 +563,8 @@ end
 function BS:ScanString(trace, str, blocked, warning)
 	if not str then return end
 
+	local IsSuspicious = BS:IsSuspicious(str)
+
 	local strAux = string.gsub(str, " ", "")
 
 	local function ProcessLists(list, list2)
@@ -557,26 +583,40 @@ function BS:ScanString(trace, str, blocked, warning)
 					local nextChar = check[strEnd + 1] or "-"
 
 					if nextChar == " " or nextChar == "\n" or nextChar == "\r\n" then
-						table.insert(list2, v)
+						if not IsSuspicious then
+							return true
+						else
+							table.insert(list2, v)
+						end
 					end
 				else
-					table.insert(list2, v)
+					if not IsSuspicious then
+						return true
+					else
+						table.insert(list2, v)
+					end
 				end
 			end
 		end
 	end
 
-	if blocked then
+	if not IsSuspicious then
+		IsSuspicious = ProcessLists(blacklistHigh) or ProcessLists(blacklistMedium) or ProcessLists(suspect)
+	end
+
+	if IsSuspicious and blocked then
 		if blocked[1] then
 			ProcessLists(blacklistHigh, blocked[1])
+			ProcessLists(blacklistHigh_Suspect, blocked[1])
 		end
 
 		if blocked[2] then
 			ProcessLists(blacklistMedium, blocked[2])
+			ProcessLists(blacklistMedium_Suspect, blocked[2])
 		end
 	end
 
-	if warning then
+	if IsSuspicious and warning then
 		ProcessLists(suspect, warning)
 	end
 
@@ -656,7 +696,7 @@ function BS:ScanFolders(args)
 			local path = dir .. v
 
 			-- Most common infected files
-			if (ext == "lua" or ext == "vmt" or ext == "txt") and not addonsFolder[path] then
+			if not addonsFolder[path] then
 				local blocked = {{}, {}}
 				local warning = {}
 				local pathAux = path
@@ -708,15 +748,15 @@ function BS:ScanFolders(args)
 					end
 
 					if not results then
-						-- Non lua files are unsafe
+						-- Detected non lua files are VERY unsafe
 						if ext ~= "lua" then
 							results = highRisk
-						-- Check if it's a low risk file
+						-- or check if it's a low risk file
 						elseif lowRiskFiles_Aux[pathAux] then
 							results = lowRisk
-						-- Set the risk based on the detection precedence
+						-- or set the risk based on the detection precedence
 						else
-							if #blocked[1] > 0 then results = highRisk end
+							if #blocked[1] > 0 or #blocked[2] > 2 or then results = highRisk end
 							if not results and #blocked[2] > 0 then results = mediumRisk end
 							if not results and #warning > 0 then results = lowRisk end
 						end
