@@ -50,7 +50,7 @@ local lowRiskFiles = {
 
 -- Whitelist urls
 -- Don't scan the downloaded string!
--- Note: protected functions overriding will still be detected and undone
+-- Note: protected functions detouring will still be detected and undone
 -- Note2: any protected functions called will still be scanned
 -- Note3: insert a url starting with http or https and ending with a "/", like https://google.com/
 local whitelistUrls = {
@@ -72,36 +72,34 @@ local whitelistTraceErrors = {
 
 -- Whitelist files
 -- Ignore these files and all their contents, so they won't going to be scanned at all!
--- Note: protected functions overriding will still be detected and undone
+-- Note: protected functions detouring will still be detected and undone
 -- Note2: only whitelist files if you trust them completely! Even protected functions will be disarmed
 local whitelistFiles = {
 }
 
 -- Detections with these chars will be considered as not suspect at first
+-- This lowers security a bit but eliminates a lot of false positives
 local notSuspect = {
-	" ",
+	"ÿ",
+	"", -- 000F
 }
 
 -- High chance of direct backdoor detection (all files)
 local blacklistHigh = {
 	"=_G", -- !! Used by backdoors to start hiding names. Also, there is an extra check in the code to avoid incorrect results.
 	"(_G)",
+	"_G,",
 	"!true",
 	"!false",
 }
 
 -- High chance of direct backdoor detection (suspect code only)
 local blacklistHigh_Suspect = {
-	"]=‪[",
-	"\"0x",
-	"\'0x",
-	"\"0X",
-	"\'0X",
-	"\"\\x",
-	"\'\\x",
-	"\"\\X",
-	"\'\\X",
-	"‪", -- Invisible char
+	"0x",
+	"\\x",
+	"\"\\",
+	"\'\\",
+	"‪", -- LEFT-TO-RIGHT EMBEDDING
 }
 
 -- Medium chance of direct backdoor detection (all files)
@@ -336,8 +334,8 @@ function BS:ValidateDetouring(name, controlInfo, trace)
 
 	if originalAddress ~= currentAddress then
 		local info = {
-			suffix = "override",
-			alert = "Function overriding captured and undone!",
+			suffix = "detour",
+			alert = "Function detouring captured and undone!",
 			func = name,
 			trace = trace
 		}
