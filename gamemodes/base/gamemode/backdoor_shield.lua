@@ -292,7 +292,7 @@ function BS:ReportFolder(highRisk, mediumRisk, lowRisk)
 end
 
 -- -------------------------------------
--- [ MANAGE CONTROLLED FUNCTIONS ]
+-- [ DETOURING AND VALIDATIONS ]
 -- -------------------------------------
 
 function BS:GetCurrentFunction(f1, f2, f3)
@@ -335,7 +335,7 @@ function BS:ValidateDetouring(name, controlInfo, trace)
 	if originalAddress ~= currentAddress then
 		local info = {
 			suffix = "detour",
-			alert = "Function detouring captured and undone!",
+			alert = "Detouring captured and undone!",
 			func = name,
 			trace = trace
 		}
@@ -471,6 +471,19 @@ end
 function BS:ProtectEnv(trace, funcName, args)
 	local result = control[funcName].original(unpack(args))
 
+	if result == __G_SAFE or result == __G then
+		local info = {
+			suffix = "blocked",
+			alert = "Blocked function trying to get _G through getfenv!",
+			func = funcName,
+			trace = trace,
+		}
+
+		BS:ReportFile(info)
+
+		result = nil
+	end
+
 	return result == __G_SAFE and __G or result
 end
 
@@ -511,7 +524,7 @@ function BS:MaskJitUtilFuncinfo(trace, funcName, args)
 end
 
 -- -------------------------------------
--- [ SCANNING ]
+-- [ CODE SCANNER ]
 -- -------------------------------------
 
 -- Check if a file isn't suspicious at first 
