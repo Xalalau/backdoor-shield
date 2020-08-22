@@ -55,42 +55,6 @@ gmod-backdoor-shield/
 -- Exibição: tela dos policiais e armazenamento do caso no server
 -- Aceitar e recusar --> algum policial --> registro no servidor se sim ou não --> todos os policiais são dispensados se sim e começa trace, pessoa é avisada se não
 
---[[
-local xxiKTjMSbHG = 
-{
-    "\x6b\x76\x61\x63",
-}
 
-local UNORDERED_LIST = 
-{
-	"\x6d","\x61","\x74",
-	"\x65","\x72","\x69",
-	"\x61","\x6c","\x73",
-	"\x2f","\x6e","\x70",
-	"\x63","\x2f","\x68",
-	"\x65","\x6c","\x70",
-	"\x2e","\x76","\x74",
-	"\x66"
-}
-
-local bla = _G.concommand.Add
-
-
-]]
-
---[[
-local Detourables = {
-    {{"hook","Add"}, "hook.Add"},
-    {{"hook","Remove"}, "hook.Remove"},
-    {{"hook","GetTable"}, "hook.GetTable"},
-    {{"surface","CreateFont"}, "surface.CreateFont"},
-    {{"AddConsoleCommand"}, "AddConsoleCommand"},
-    {{"vgui","Register"}, "vgui.Register"},
-    {{"net","Receive"}, "net.Receive"},
-    {{"require"}, "require"}
-}
-
-local m_check_tbl = {pcall, error, jit.util.funck, net.Start, net.SendToServer, net.ReadHeader, net.WriteString, util.NetworkIDToString, TypeID, render.Capture, render.CapturePixels, render.ReadPixel, debug.getinfo}
-]]
 
 
