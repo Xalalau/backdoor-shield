@@ -4,9 +4,6 @@
     https://xalalau.com/
 --]]
 
-BS.Functions = {}
-BS.Functions__index = BS.Functions
-
 function BS:Functions_GetCurrent(f1, f2, f3, env)
 	env = env or self.__G
 

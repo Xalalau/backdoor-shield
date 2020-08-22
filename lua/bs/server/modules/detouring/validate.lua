@@ -4,9 +4,6 @@
     https://xalalau.com/
 --]]
 
-BS.Validate = {}
-BS.Validate__index = BS.Validate
-
 -- Check a detour
 function BS:Validate_Detour(name, controlInfo, trace)
 	local f1, f2, f3 = unpack(string.Explode(".", name))
