@@ -34,12 +34,14 @@ end
 local function CheckFilesWhitelist(str, whitelistFiles)
 	local found = false
 
-	if str and #whitelistFiles > 0 then
-		for _,allowed in pairs(whitelistFiles)do
-			if string.find(str, allowed, nil, true) then
-				found = true
+	if trace then
+		if str and #whitelistFiles > 0 then
+			for _,allowed in pairs(whitelistFiles)do
+				if string.find(str, allowed, nil, true) then
+					found = true
 
-				break
+					break
+				end
 			end
 		end
 	end
@@ -47,11 +49,11 @@ local function CheckFilesWhitelist(str, whitelistFiles)
 	return found
 end
 
-local function ProcessList(list, list2, str, trace, whitelistTraceErrors, whitelistFiles)
+local function ProcessList(list, list2, str, trace, bs)
 	for k,v in pairs(list) do
 		if string.find(string.gsub(str, " ", ""), v, nil, true) and
-		   not CheckTraceWhitelist(trace, whitelistTraceErrors) and
-		   not CheckFilesWhitelist(trace, whitelistFiles) then
+		   not CheckTraceWhitelist(trace, bs.whitelistTraceErrors) and
+		   not CheckFilesWhitelist(trace, bs.whitelistFiles) then
 
 			if v == "=_G" then -- Hack: recheck _G with some spaces
 				local check = string.gsub(str, "%s+", " ")
@@ -84,35 +86,28 @@ end
 function BS:Scan_String(trace, str, blocked, warning)
 	if not str then return end
 
-	local commonArgs = unpack({
-		--str, -- upacked str breaks when reading some characters
-		trace,
-		self.whitelistTraceErrors,
-		self.whitelistFiles
-	})
-
 	local IsSuspicious = IsSuspicious(str, self.notSuspect)
 
 	if not IsSuspicious then
-		IsSuspicious = ProcessList(self.blacklistHigh, nil, str, commonArgs) or
-					   ProcessList(self.blacklistMedium, nil, str, commonArgs) or
-					   ProcessList(self.suspect, nil, str, commonArgs)
+		IsSuspicious = ProcessList(self.blacklistHigh, nil, str, trace, self) or
+					   ProcessList(self.blacklistMedium, nil, str, trace, self) or
+					   ProcessList(self.suspect, nil, str, trace, self)
 	end
 
 	if IsSuspicious and blocked then
 		if blocked[1] then
-			ProcessList(self.blacklistHigh, blocked[1], str, commonArgs)
-			ProcessList(self.blacklistHigh_Suspect, blocked[1], str, commonArgs)
+			ProcessList(self.blacklistHigh, blocked[1], str, trace, self)
+			ProcessList(self.blacklistHigh_Suspect, blocked[1], str, trace, self)
 		end
 
 		if blocked[2] then
-			ProcessList(self.blacklistMedium, blocked[2], str, commonArgs)
-			ProcessList(self.blacklistMedium_Suspect, blocked[2], str, commonArgs)
+			ProcessList(self.blacklistMedium, blocked[2], str, trace, self)
+			ProcessList(self.blacklistMedium_Suspect, blocked[2], str, trace, self)
 		end
 	end
 
 	if IsSuspicious and warning then
-		ProcessList(self.suspect, warning, str, commonArgs)
+		ProcessList(self.suspect, warning, str, trace, self)
 	end
 
 	return blocked, warning
