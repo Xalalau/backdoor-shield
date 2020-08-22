@@ -4,20 +4,30 @@
     https://xalalau.com/
 --]]
 
--- Auto check for detouring every 5s
+-- Auto check for detouring
+-- 	 First 5m running: check every 5s
+-- 	 Later: check every 60s
 function BS:Validate_AutoCheckDetouring()
+	local function SetAuto(name, delay)
+		timer.Create(name, delay, 0, function()
+			if self.RELOADED then
+				timer.Destroy(name)
+
+				return
+			end
+
+			for k,v in pairs(self.control) do
+				self:Validate_Detour(k, v)
+			end
+		end)
+	end
+
 	local name = self:Utils_GetRandomName()
 
-	timer.Create(name, 5, 0, function()
-		if self.RELOADED then
-			timer.Destroy(name)
+	SetAuto(name, 5)
 
-			return
-		end
-
-		for k,v in pairs(self.control) do
-			self:Validate_Detour(k, v)
-		end
+	timer.Simple(300, function()
+		SetAuto(name, 60)
 	end)
 end
 
