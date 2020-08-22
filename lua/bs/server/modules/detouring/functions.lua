@@ -4,6 +4,26 @@
     https://xalalau.com/
 --]]
 
+function BS:Functions_InitDetouring()
+	self.control["http.Fetch"].filter = self.Validate_HttpFetch
+	self.control["CompileFile"].filter = self.Validate_CompileFile
+	self.control["CompileString"].filter = self.Validate_CompileOrRunString_Ex
+	self.control["RunString"].filter = self.Validate_CompileOrRunString_Ex
+	self.control["RunStringEx"].filter = self.Validate_CompileOrRunString_Ex
+	self.control["getfenv"].filter = self.Validate_GetFEnv
+	self.control["debug.getfenv"].filter = self.Validate_GetFEnv
+	self.control["debug.getinfo"].filter = self.Validate_DebugGetInfo
+	self.control["jit.util.funcinfo"].filter = self.Validate_JitUtilFuncinfo
+
+	for k,v in pairs(self.control) do
+		self.control[k].original = self:Functions_GetCurrent(unpack(string.Explode(".", k)))
+		self.control[k].short_src = debug.getinfo(self.control[k].original).short_src
+		self.control[k].source = debug.getinfo(self.control[k].original).source
+		self.control[k].jit_util_funcinfo = jit.util.funcinfo(self.control[k].original)
+		self:Functions_SetDetour(k, v.filter)
+	end
+end
+
 function BS:Functions_GetCurrent(f1, f2, f3, env)
 	env = env or self.__G
 

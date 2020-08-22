@@ -100,7 +100,7 @@ local logo4 = [[
     |                                                                 |
     -------- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --------]]
 
-    if not _G.BS_RELOADING then
+    if not self.__G.BS_RELOADING then
         print(logo)
         print(logo2)
         print(logo3)
@@ -110,29 +110,13 @@ local logo4 = [[
         print()
     end
 
-    self:LiveReloading_Set()
-
     if not file.Exists(self.FOLDER.DATA, "DATA") then
         file.CreateDir(self.FOLDER.DATA)
     end
 
-    self.control["http.Fetch"].filter = self.Validate_HttpFetch
-    self.control["CompileFile"].filter = self.Validate_CompileFile
-    self.control["CompileString"].filter = self.Validate_CompileOrRunString_Ex
-    self.control["RunString"].filter = self.Validate_CompileOrRunString_Ex
-    self.control["RunStringEx"].filter = self.Validate_CompileOrRunString_Ex
-    self.control["getfenv"].filter = self.Validate_GetFEnv
-    self.control["debug.getfenv"].filter = self.Validate_GetFEnv
-    self.control["debug.getinfo"].filter = self.Validate_DebugGetInfo
-    self.control["jit.util.funcinfo"].filter = self.Validate_JitUtilFuncinfo
+    self:LiveReloading_Set()
 
-    for k,v in pairs(self.control) do
-        self.control[k].original = self:Functions_GetCurrent(unpack(string.Explode(".", k)))
-        self.control[k].short_src = debug.getinfo(self.control[k].original).short_src
-        self.control[k].source = debug.getinfo(self.control[k].original).source
-        self.control[k].jit_util_funcinfo = jit.util.funcinfo(self.control[k].original)
-        self:Functions_SetDetour(k, v.filter)
-    end
+    self:Functions_InitDetouring()
 
     if not GetConVar("sv_hibernate_think"):GetBool() then
         hook.Add("Initialize", self:Utils_GetRandomName(), function()
