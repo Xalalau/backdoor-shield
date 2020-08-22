@@ -4,8 +4,8 @@
     https://xalalau.com/
 --]]
 
--- Functions that need to be protected (some are scanned)
-
+-- Functions that need to be protected
+-- Some are scanned or serve some special purpose
 BS.control = {
 	--[[
 	["somegame.function"] = {
@@ -18,13 +18,33 @@ BS.control = {
 	["jit.util.funcinfo"] = {}, -- Isolate our environment
 	["getfenv"] = {}, -- Isolate our environment
 	["debug.getfenv"] = {}, -- Isolate our environment
-	["HTTP"] = {},
-	["http.Post"] = {}, -- scanned
+	["http.Post"] = {},
 	["http.Fetch"] = {}, -- scanned
 	["CompileString"] = {}, -- scanned
 	["CompileFile"] = {}, -- scanned
 	["RunString"] = {}, -- scanned
 	["RunStringEx"] = {}, -- scanned
+	["HTTP"] = {},
+	["hook.Add"] = {},
+	["hook.Remove"] = {},
+	["hook.GetTable"] = {},
+	["surface.CreateFont"] = {},
+	["vgui.Register"] = {},
+	["net.Receive"] = {},
+	["net.Start"] = {},
+	["net.SendToServer"] = {},
+	["net.ReadHeader"] = {},
+	["net.WriteString"] = {},
+	["require"] = {},
+	["pcall"] = {},
+	["xpcall"] = {},
+	["error"] = {},
+	["jit.util.funck"] = {},
+	["util.NetworkIDToString"] = {},
+	["TypeID"] = {},
+	["render.Capture"] = {},
+	["render.CapturePixels"] = {},
+	["render.ReadPixel"] = {},
 }
 
 -- SCAN LISTS
