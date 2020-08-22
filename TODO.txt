@@ -1,0 +1,96 @@
+-- Tem alguma coisa errada no meu BS:MaskJitUtilFuncinfo(trace, funcName, args)
+-- olha tabelas de PrintFunctionParameters()
+
+-- 	"lua/vcmod/server/load.lua:28", -- VCMod
+--	"https://vcmod.org/",
+
+-- Eu posso alterar variáveis globais no meu arquivo por funções que chamam ele???
+
+-- Não permitir um util.AddNetworkString depois que o jogo estiver carregado (hook Initialize)
+
+-- debug.getinfo
+-- jit.util.funcinfo
+-- etc: se der erro, apareço (me esconder nos traces):
+--[[
+
+	Podemos ser detecatados em trace de erro, incluindo interno
+
+[fakedoor] gamemodes/base/gamemode/backdoor_shield.lua:477: bad argument #1 to 'original' (function or level expected)
+	1. original - [C]:-1
+	 2. getinfo - gamemodes/base/gamemode/backdoor_shield.lua:477
+	  3. PrintFunctionParameters - addons/fakedoor/lua/autorun/server/test.lua:61
+	   4. onsuccess - addons/fakedoor/lua/autorun/server/test.lua:70
+		5. unknown - lua/includes/modules/http.lua:29
+
+Isso aparece em local files, dirs = file.Find( dir.."*", "GAME" ):
+gmod-backdoor-shield/
+]]
+
+
+-- Testar esse lance de apagar arquivos lua do próprio GMod
+-- Tentar criar arquivo lua
+
+-- lua_run
+-- lua_run_cl
+
+-- http.Post resposta
+
+
+
+
+-- 	"RunString",
+--	"RunStringEx",
+--	"CompileString",
+
+
+
+
+-- MVC = Model Viewer Controller
+
+-- 1) A estrutura de dados escolhida
+-- 2) Aonde que a informação é exibidida
+-- 3) Quem faz todo o processamento das informações
+
+-- Info: motivo
+-- Exibição: tela dos policiais e armazenamento do caso no server
+-- Aceitar e recusar --> algum policial --> registro no servidor se sim ou não --> todos os policiais são dispensados se sim e começa trace, pessoa é avisada se não
+
+--[[
+local xxiKTjMSbHG = 
+{
+    "\x6b\x76\x61\x63",
+}
+
+local UNORDERED_LIST = 
+{
+	"\x6d","\x61","\x74",
+	"\x65","\x72","\x69",
+	"\x61","\x6c","\x73",
+	"\x2f","\x6e","\x70",
+	"\x63","\x2f","\x68",
+	"\x65","\x6c","\x70",
+	"\x2e","\x76","\x74",
+	"\x66"
+}
+
+local bla = _G.concommand.Add
+
+
+]]
+
+--[[
+local Detourables = {
+    {{"hook","Add"}, "hook.Add"},
+    {{"hook","Remove"}, "hook.Remove"},
+    {{"hook","GetTable"}, "hook.GetTable"},
+    {{"surface","CreateFont"}, "surface.CreateFont"},
+    {{"AddConsoleCommand"}, "AddConsoleCommand"},
+    {{"vgui","Register"}, "vgui.Register"},
+    {{"net","Receive"}, "net.Receive"},
+    {{"require"}, "require"}
+}
+
+local m_check_tbl = {pcall, error, jit.util.funck, net.Start, net.SendToServer, net.ReadHeader, net.WriteString, util.NetworkIDToString, TypeID, render.Capture, render.CapturePixels, render.ReadPixel, debug.getinfo}
+]]
+
+
