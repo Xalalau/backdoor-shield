@@ -16,8 +16,8 @@ BS.control = {
 	]]
 	["debug.getinfo"] = {}, -- Isolate our environment
 	["jit.util.funcinfo"] = {}, -- Isolate our environment
-	["getfenv"] = {}, -- Isolate our environment
-	["debug.getfenv"] = {}, -- Isolate our environment
+	["getfenv"] = {}, -- Isolate our environment and alert the user
+	["debug.getfenv"] = {}, -- Isolate our environment and alert the user
 	["http.Post"] = {},
 	["http.Fetch"] = {}, -- scanned
 	["CompileString"] = {}, -- scanned
@@ -28,23 +28,17 @@ BS.control = {
 	["hook.Add"] = {},
 	["hook.Remove"] = {},
 	["hook.GetTable"] = {},
-	["surface.CreateFont"] = {},
-	["vgui.Register"] = {},
 	["net.Receive"] = {},
 	["net.Start"] = {},
-	["net.SendToServer"] = {},
 	["net.ReadHeader"] = {},
 	["net.WriteString"] = {},
 	["require"] = {},
 	["pcall"] = {},
 	["xpcall"] = {},
-	["error"] = {},
+	["Error"] = {},
 	["jit.util.funck"] = {},
 	["util.NetworkIDToString"] = {},
 	["TypeID"] = {},
-	["render.Capture"] = {},
-	["render.CapturePixels"] = {},
-	["render.ReadPixel"] = {},
 }
 
 -- SCAN LISTS
