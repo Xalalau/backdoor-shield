@@ -49,65 +49,65 @@ local function CheckFilesWhitelist(str, whitelistFiles)
 	return found
 end
 
-local function ProcessList(list, list2, str, trace, bs)
-	for k,v in pairs(list) do
-		if string.find(string.gsub(str, " ", ""), v, nil, true) and
-		   not CheckTraceWhitelist(trace, bs.whitelistTraceErrors) and
-		   not CheckFilesWhitelist(trace, bs.whitelistFiles) then
+-- Process a string according to our white, black and suspect lists
+function BS:Scan_String(trace, str, blocked, warning, notSuspect)
+	if not str then return end
 
-			if v == "=_G" then -- Hack: recheck _G with some spaces
-				local check = string.gsub(str, "%s+", " ")
-				local strStart, strEnd = string.find(check, "=_G", nil, true)
-				if not strStart then
-					strStart, strEnd = string.find(check, "= _G", nil, true)
-				end
+	local IsSuspicious = notSuspect or IsSuspicious(str, self.notSuspect)
 
-				local nextChar = check[strEnd + 1] or "-"
-
-				if nextChar == " " or nextChar == "\n" or nextChar == "\r\n" then
+	local function ProcessList(list, list2)
+		for k,v in pairs(list) do
+			if string.find(string.gsub(str, " ", ""), v, nil, true) and
+			   not CheckTraceWhitelist(trace, self.whitelistTraceErrors) and
+			   not CheckFilesWhitelist(trace, self.whitelistFiles) then
+	
+				if v == "=_G" then -- Hack: recheck _G with some spaces
+					local check = string.gsub(str, "%s+", " ")
+					local strStart, strEnd = string.find(check, "=_G", nil, true)
+					if not strStart then
+						strStart, strEnd = string.find(check, "= _G", nil, true)
+					end
+	
+					local nextChar = check[strEnd + 1] or "-"
+	
+					if nextChar == " " or nextChar == "\n" or nextChar == "\r\n" then
+						if not IsSuspicious then
+							return true
+						else
+							table.insert(list2, v)
+						end
+					end
+				else
 					if not IsSuspicious then
 						return true
 					else
 						table.insert(list2, v)
 					end
 				end
-			else
-				if not IsSuspicious then
-					return true
-				else
-					table.insert(list2, v)
-				end
 			end
 		end
 	end
-end
-
--- Process a string according to our white, black and suspect lists
-function BS:Scan_String(trace, str, blocked, warning)
-	if not str then return end
-
-	local IsSuspicious = IsSuspicious(str, self.notSuspect)
 
 	if not IsSuspicious then
-		IsSuspicious = ProcessList(self.blacklistHigh, nil, str, trace, self) or
-					   ProcessList(self.blacklistMedium, nil, str, trace, self) or
-					   ProcessList(self.suspect, nil, str, trace, self)
+		IsSuspicious = ProcessList(self.blacklistHigh) or
+					   ProcessList(self.blacklistMedium) or
+					   ProcessList(self.suspect)
 	end
 
 	if IsSuspicious and blocked then
 		if blocked[1] then
-			ProcessList(self.blacklistHigh, blocked[1], str, trace, self)
-			ProcessList(self.blacklistHigh_Suspect, blocked[1], str, trace, self)
+			ProcessList(self.blacklistHigh, blocked[1])
+			ProcessList(self.blacklistHigh_Suspect, blocked[1])
 		end
 
 		if blocked[2] then
-			ProcessList(self.blacklistMedium, blocked[2], str, trace, self)
-			ProcessList(self.blacklistMedium_Suspect, blocked[2], str, trace, self)
+			ProcessList(self.blacklistMedium, blocked[2])
+			ProcessList(self.blacklistMedium_Suspect, blocked[2])
 		end
 	end
 
 	if IsSuspicious and warning then
-		ProcessList(self.suspect, warning, str, trace, self)
+		ProcessList(self.suspect, warning)
 	end
 
 	return blocked, warning
@@ -169,8 +169,11 @@ function BS:Scan_Folders(args)
 		end
 
 		local files, dirs = file.Find( dir.."*", "GAME" )
+		
+		if not dirs or
+		   dir == "addons/" .. self.FOLDER.DATA or
+		   dir == "lua/" .. self.FOLDER.LUA  then
 
-		if not dirs then
 			return
 		end
 
@@ -188,10 +191,6 @@ function BS:Scan_Folders(args)
 				local blocked = {{}, {}}
 				local warning = {}
 				local pathAux = path
-
-				if v == self.FILENAME then
-					return
-				end
 
 				-- Convert the path of a file in the addons folder to a game's mounted one.
 				-- I'll save it and prevent us from scanning twice.
@@ -215,7 +214,7 @@ function BS:Scan_Folders(args)
 				end
 
 				-- Scanning
-				self:Scan_String(nil, file.Read(path, "GAME"), blocked, warning)
+				self:Scan_String(nil, file.Read(path, "GAME"), blocked, warning, ext ~= "lua" and true)
 
 				local resultString = ""
 				local resultTable
