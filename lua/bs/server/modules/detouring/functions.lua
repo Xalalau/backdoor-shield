@@ -20,7 +20,7 @@ function BS:Functions_InitDetouring()
 		self.control[k].short_src = debug.getinfo(self.control[k].original).short_src
 		self.control[k].source = debug.getinfo(self.control[k].original).source
 		self.control[k].jit_util_funcinfo = jit.util.funcinfo(self.control[k].original)
-		self:Functions_SetDetour(k, v.filter)
+		self:Functions_Detour(k, v.filter)
 	end
 end
 
@@ -30,7 +30,7 @@ function BS:Functions_GetCurrent(f1, f2, f3, env)
 	return f3 and env[f1][f2][f3] or f2 and env[f1][f2] or f1 and env[f1]
 end
 
-function BS:Functions_SetDetour_Aux(func, f1, f2, f3, env)
+function BS:Functions_Detour_Aux(func, f1, f2, f3, env)
 	env = env or self.__G
 
 	if f3 then
@@ -42,7 +42,7 @@ function BS:Functions_SetDetour_Aux(func, f1, f2, f3, env)
 	end
 end
 
-function BS:Functions_SetDetour(funcName, customFilter)
+function BS:Functions_Detour(funcName, customFilter)
 	function Replacement(...)
 		local args = {...} 
 		local trace = debug.traceback()
@@ -56,7 +56,7 @@ function BS:Functions_SetDetour(funcName, customFilter)
 		end
 	end
 
-	self:Functions_SetDetour_Aux(Replacement, unpack(string.Explode(".", funcName)))
+	self:Functions_Detour_Aux(Replacement, unpack(string.Explode(".", funcName)))
 	self.control[funcName].replacement = Replacement
 end
 
@@ -64,6 +64,6 @@ function BS:Functions_RemoveDetours()
 	for k,v in pairs(self.control) do
 		local f1, f2, f3 = unpack(string.Explode(".", k))
 
-		self:Functions_SetDetour_Aux(self:Functions_GetCurrent(f1, f2, f3, self.__G_SAFE), f1, f2, f3)
+		self:Functions_Detour_Aux(self:Functions_GetCurrent(f1, f2, f3, self.__G_SAFE), f1, f2, f3)
 	end
 end
