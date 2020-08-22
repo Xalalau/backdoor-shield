@@ -141,7 +141,7 @@ end
 
 -- Command to scan folders
 concommand.Add("bs_scan", function(ply, cmd, args)
-    if ply:IsAdmin() then
+    if not ply:IsValid() or ply:IsAdmin() then
         BS:Scan_Folders(args)
     end
 end)
