@@ -122,7 +122,7 @@ local logo4 = [[
         hook.Add("Initialize", self:Utils_GetRandomName(), function()
             RunConsoleCommand("sv_hibernate_think", "1")
 
-            timer.Simple(300, function()
+            timer.Simple(self.LIVERELOADING and 99999999 or 300, function()
                 RunConsoleCommand("sv_hibernate_think", "0")
             end)
         end)
