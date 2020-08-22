@@ -18,7 +18,7 @@ function BS:Validate_Detour(name, controlInfo, trace)
 			trace = trace
 		}
 
-		self:Report_File(info)
+		self:Report_Detection(info)
 
 		self:Functions_SetDetour_Aux(originalAddress, f1, f2, f3)
 
@@ -39,7 +39,7 @@ function BS:Validate_HttpFetch(trace, funcName, args)
 		local detected
 
 		for k,v in pairs(self.whitelistUrls) do
-			local urlStart, urlEnd = string.find(url, v)
+			local urlStart = string.find(url, v)
 
 			if urlStart and urlStart == 1 then
 				return self.control[funcName].original(unpack(args))
@@ -73,7 +73,7 @@ function BS:Validate_HttpFetch(trace, funcName, args)
 				content = table.ToString(args2, "arguments", true)
 			}
 
-			self:Report_File(info)
+			self:Report_Detection(info)
 		end
 
 		if #blocked[1] == 0 and #blocked[2] == 0 then
@@ -107,7 +107,7 @@ function BS:Validate_CompileOrRunString_Ex(trace, funcName, args)
 			content = code
 		}
 
-		self:Report_File(info)
+		self:Report_Detection(info)
 	end
 
 	return #blocked[1] == 0 and #blocked[2] == 0 and self.control[funcName].original(unpack(args)) or ""
@@ -139,7 +139,7 @@ function BS:Validate_CompileFile(trace, funcName, args)
 			content = content
 		}
 
-		self:Report_File(info)
+		self:Report_Detection(info)
 	end
 
 	return #blocked[1] == 0 and #blocked[2] == 0 and self.control[funcName].original(unpack(args))
@@ -158,7 +158,7 @@ function BS:Validate_GetFEnv(trace, funcName, args)
 			trace = trace,
 		}
 
-		self:Report_File(info)
+		self:Report_Detection(info)
 	end
 
 	return result
