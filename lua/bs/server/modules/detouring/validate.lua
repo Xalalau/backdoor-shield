@@ -9,7 +9,7 @@ function BS:Validate_AutoCheckDetouring()
 	local name = self:Utils_GetRandomName()
 
 	timer.Create(name, 5, 0, function()
-		if not self then
+		if self.RELOADED then
 			timer.Destroy(name)
 
 			return

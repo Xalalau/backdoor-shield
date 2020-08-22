@@ -26,7 +26,8 @@ BS.__index = BS
 BS.VERSION = "V.git.1.3+"
 
 BS.LIVERELOADING = true -- If true, will enable code live reloading (unsafe! Only used while developing)
--- It creates and uses _G.BS_RELOADING to globally control the state
+BS.RELOADED = false
+-- It also creates _G.BS_RELOADED to globally control the state
 
 BS.ALERT = "[Backdoor Shield]"
 
@@ -100,7 +101,7 @@ function BS:Initialize()
     |                                                                 |
     -------- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --------]]
 
-    if not self.__G.BS_RELOADING then
+    if not self.__G.BS_RELOADED then
         print(logo)
         print(logo2)
         print(logo3)
@@ -128,12 +129,6 @@ function BS:Initialize()
                 RunConsoleCommand("sv_hibernate_think", "0")
             end)
         end)
-    end
-end
-
-function BS:KillInstance()
-    if BS.LIVERELOADING then
-        BS = nil
     end
 end
 

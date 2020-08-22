@@ -10,7 +10,7 @@ function BS:LiveReloading_Set()
     local name = "BS_LiveReloading"
 
     if self.LIVERELOADING and not timer.Exists(name) then
-        self.__G.BS_RELOADING = false
+        self.__G.BS_RELOADED = false
 
         timer.Create(name, 0.2, 0, function()
             for k,v in pairs(self:Utils_GetFilesCreationTimes()) do
@@ -19,12 +19,11 @@ function BS:LiveReloading_Set()
 
                     self:Functions_RemoveDetours()
 
-                    self.__G.BS_RELOADING = true
+                    self.__G.BS_RELOADED = true
+                    self.RELOADED = true
 
                     timer.Simple(0.01, function()
                         include("bs/init.lua")
-
-                        self:KillInstance()
                     end)
 
                     timer.Destroy(name)
