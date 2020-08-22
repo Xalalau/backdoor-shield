@@ -1,11 +1,8 @@
 -- Initialize before all addons
 -- I chose this file because it's small and stable
 if SERVER then
-	if file.Exists("gamemodes/base/gamemode/backdoor_h.lua", "GAME") then
-		include('backdoor_h.lua') -- For testing
-	end
-	if file.Exists("gamemodes/base/gamemode/backdoor_shield.lua", "GAME") then
-		include('backdoor_shield.lua')
+	if file.Exists("lua/bs/init.lua", "GAME") then
+		include('bs/init.lua')
 	end
 end
 
