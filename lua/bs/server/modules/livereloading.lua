@@ -23,6 +23,8 @@ function BS:LiveReloading_Set()
 
                     timer.Simple(0.01, function()
                         include("bs/init.lua")
+
+                        self:KillInstance()
                     end)
 
                     timer.Destroy(name)

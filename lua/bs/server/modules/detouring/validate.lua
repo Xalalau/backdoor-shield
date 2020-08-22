@@ -4,6 +4,23 @@
     https://xalalau.com/
 --]]
 
+-- Auto check for detouring every 5s
+function BS:Validate_AutoCheckDetouring()
+	local name = self:Utils_GetRandomName()
+
+	timer.Create(name, 5, 0, function()
+		if not self then
+			timer.Destroy(name)
+
+			return
+		end
+
+		for k,v in pairs(self.control) do
+			self:Validate_Detour(k, v)
+		end
+	end)
+end
+
 -- Check a detour
 function BS:Validate_Detour(name, controlInfo, trace)
 	local f1, f2, f3 = unpack(string.Explode(".", name))

@@ -54,7 +54,7 @@ BS.FILETIMES = BS:Utils_GetFilesCreationTimes()
 function BS:Initialize()
     -- https://manytools.org/hacker-tools/ascii-banner/
     -- Font: ANSI Shadow
-local logo = [[
+    local logo = [[
 
     ----------------------- Server Protected By -----------------------
 
@@ -62,7 +62,7 @@ local logo = [[
     ██╔══██╗██╔══██╗██╔════╝██║ ██╔╝██╔══██╗██╔═══██╗██╔═══██╗██╔══██╗
     ██████╔╝███████║██║     █████╔╝ ██║  ██║██║   ██║██║   ██║██████╔╝
     ██╔══██╗██╔══██║██║     ██╔═██╗ ██║  ██║██║   ██║██║   ██║██╔══██╗]]
-local logo2 = [[
+    local logo2 = [[
     ██████╔╝██║  ██║╚██████╗██║  ██╗██████╔╝╚██████╔╝╚██████╔╝██║  ██║
     ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝
 
@@ -70,7 +70,7 @@ local logo2 = [[
     ██╔════╝██║  ██║██║██╔════╝██║     ██╔══██╗
     ███████╗███████║██║█████╗  ██║     ██║  ██║
     ╚════██║██╔══██║██║██╔══╝  ██║     ██║  ██║]]
-local logo3 = [[
+    local logo3 = [[
     ███████║██║  ██║██║███████╗███████╗██████╔╝
     ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝
 
@@ -94,7 +94,7 @@ local logo3 = [[
 
     ©2020 Xalalau Xubilozo. All Rights Reserved.
     -------------------------------------------------------------------]]
-local logo4 = [[
+    local logo4 = [[
     |                                                                 |
     |        Live reloading in turned on! The addon is unsafe!        |
     |                                                                 |
@@ -118,6 +118,8 @@ local logo4 = [[
 
     self:Functions_InitDetouring()
 
+    self:Validate_AutoCheckDetouring()
+
     if not GetConVar("sv_hibernate_think"):GetBool() then
         hook.Add("Initialize", self:Utils_GetRandomName(), function()
             RunConsoleCommand("sv_hibernate_think", "1")
@@ -126,6 +128,12 @@ local logo4 = [[
                 RunConsoleCommand("sv_hibernate_think", "0")
             end)
         end)
+    end
+end
+
+function BS:KillInstance()
+    if BS.LIVERELOADING then
+        BS = nil
     end
 end
 
