@@ -26,6 +26,7 @@ BS.__index = BS
 BS.VERSION = "V.git.1.3+"
 
 BS.LIVERELOADING = true -- If true, will enable code live reloading (unsafe! Only used while developing)
+-- It creates and uses _G.BS_RELOADING to globally control the state
 
 BS.ALERT = "[Backdoor Shield]"
 
@@ -99,13 +100,15 @@ local logo4 = [[
     |                                                                 |
     -------- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --------]]
 
-    print(logo)
-    print(logo2)
-    print(logo3)
-    if self.LIVERELOADING then
-        print(logo4)
+    if not _G.BS_RELOADING then
+        print(logo)
+        print(logo2)
+        print(logo3)
+        if self.LIVERELOADING then
+            print(logo4)
+        end
+        print()
     end
-    print()
 
     self:LiveReloading_Set()
 
