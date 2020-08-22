@@ -39,3 +39,11 @@ function BS:Functions_SetDetour(funcName, customFilter)
 	self:Functions_SetDetour_Aux(Replacement, unpack(string.Explode(".", funcName)))
 	self.control[funcName].replacement = Replacement
 end
+
+function BS:Functions_RemoveDetours()
+	for k,v in pairs(self.control) do
+		local f1, f2, f3 = unpack(string.Explode(".", k))
+
+		self:Functions_SetDetour_Aux(self:Functions_GetCurrent(f1, f2, f3, self.__G_SAFE), f1, f2, f3)
+	end
+end

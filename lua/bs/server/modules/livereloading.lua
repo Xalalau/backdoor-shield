@@ -17,11 +17,7 @@ function BS:LiveReloading_Set()
                 if v ~= self.FILETIMES[k] then
                     print(self.ALERT .. " Reloading...")
 
-                    for k,v in pairs(self.control) do
-                        local f1, f2, f3 = unpack(string.Explode(".", k))
-            
-                        self:Functions_SetDetour_Aux(self:Functions_GetCurrent(f1, f2, f3, self.__G_SAFE), f1, f2, f3)
-                    end
+                    self:Functions_RemoveDetours()
 
                     self.__G.BS_RELOADING = true
 
