@@ -42,7 +42,7 @@ function BS:Validate_Detour(name, controlInfo, trace)
 			suffix = "detour",
 			alert = "Detour captured and undone!",
 			func = name,
-			trace = trace
+			trace = trace or debug.getinfo(currentAddress, "S").source
 		}
 
 		self:Report_Detection(info)
