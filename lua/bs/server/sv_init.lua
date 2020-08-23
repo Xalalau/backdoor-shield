@@ -85,7 +85,7 @@ function BS:Initialize()
 
     2) Scan your addons and investigate the results:
     |--> "bs_scan": Recursively scan GMod and all the mounted contents
-    |--> "bs_scan <folder>": Recursively scan the seleceted folder
+    |--> "bs_scan <folder(s)>": Recursively scan the seleceted folder
 
     All logs are located in: "garrysmod/data/]] .. self.FOLDER.DATA .. [["
 
