@@ -55,6 +55,24 @@ function BS:Validate_Detour(name, controlInfo, trace)
 	return true
 end
 
+-- Scan higher function calls to see if there was a prohibited run.
+-- This detects functions with changed names.
+function BS:Validate_ReverseTrace(blocked, warning)
+	local i = 1
+
+	while true do
+		local func = debug.getinfo(i, "S")
+
+		if func == nil then
+			break
+		end
+
+		self:Scan_String(nil, func.short_src, blocked, warning, true)
+
+		i = i + 1
+	end
+end
+
 -- Check http.fetch calls
 function BS:Validate_HttpFetch(trace, funcName, args)
 	local url = args[1]
@@ -73,6 +91,7 @@ function BS:Validate_HttpFetch(trace, funcName, args)
 			end
 		end
 
+		self:Validate_ReverseTrace(blocked, warning)
 		self:Scan_String(trace, url, blocked, warning)
 
 		for _,arg in pairs(args2) do
@@ -119,6 +138,7 @@ function BS:Validate_CompileOrRunString_Ex(trace, funcName, args)
 		return ""
 	end
 
+	self:Validate_ReverseTrace(blocked, warning)
 	self:Scan_String(trace, code, blocked, warning)
 
 	local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Blocked", blocked } or #warning > 0 and { "warning", "Suspect", warning }
@@ -151,6 +171,7 @@ function BS:Validate_CompileFile(trace, funcName, args)
 		return
 	end
 
+	self:Validate_ReverseTrace(blocked, warning)
 	self:Scan_String(trace, content, blocked, warning)
 
 	local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Blocked", blocked } or #warning > 0 and { "warning", "Suspect", warning }

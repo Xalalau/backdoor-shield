@@ -50,7 +50,7 @@ local function CheckFilesWhitelist(str, whitelistFiles)
 end
 
 -- Process a string according to our white, black and suspect lists
-function BS:Scan_String(trace, str, blocked, warning)
+function BS:Scan_String(trace, str, blocked, warning, ignore_suspect)
 	if not str then return end
 
 	local IsSuspicious = IsSuspicious(str, self.notSuspect)
@@ -97,18 +97,24 @@ function BS:Scan_String(trace, str, blocked, warning)
 	if IsSuspicious and blocked then
 		if blocked[1] then
 			ProcessList(self.blacklistHigh, blocked[1])
-			ProcessList(self.blacklistHigh_suspect, blocked[1])
+			if not ignore_suspect then
+				ProcessList(self.blacklistHigh_suspect, blocked[1])
+			end
 		end
 
 		if blocked[2] then
 			ProcessList(self.blacklistMedium, blocked[2])
-			ProcessList(self.blacklistMedium_suspect, blocked[2])
+			if not ignore_suspect then
+				ProcessList(self.blacklistMedium_suspect, blocked[2])
+			end
 		end
 	end
 
 	if IsSuspicious and warning then
 		ProcessList(self.suspect, warning)
-		ProcessList(self.suspect_suspect, warning)
+		if not ignore_suspect then
+			ProcessList(self.suspect_suspect, warning)
+		end
 	end
 
 	return blocked, warning

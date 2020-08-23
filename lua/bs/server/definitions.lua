@@ -120,7 +120,6 @@ BS.blacklistHigh = {
 	",_G,",
 	"!true",
 	"!false",
-	"RunStringEx",
 }
 
 -- High chance of direct backdoor detection (suspect code only)
@@ -131,6 +130,7 @@ BS.blacklistHigh_suspect = {
 -- Medium chance of direct backdoor detection (all files)
 BS.blacklistMedium = {
 	"RunString",
+	"RunStringEx",
 	"CompileString",
 	"CompileFile",
 	"BroadcastLua",
