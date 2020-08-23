@@ -51,12 +51,6 @@ function BS:Utils_RunTests()
     print("\n\n---------------------------------------------------------")
     print("[STARTING TESTS]\n")
 
-    print("\n-----> Hinding function names (Reverse trace test)")
-    -- Works with any blacklist combo
-    local LocalFakeNameRunStr = _G.RunString
-    self.__G.FakeNameRunStr = self.__G["RunString"]
-    LocalFakeNameRunStr([[FakeNameRunStr("print('Fail')")]])
-
     local bak = self.__G["http"]["Post"]
     print("\n-----> Detour a function and call it")
     local function detour() return bak() end
