@@ -9,7 +9,7 @@
 function BS:LiveReloading_Set()
     local name = "BS_LiveReloading"
 
-    if self.LIVERELOADING and not timer.Exists(name) then
+    if self.DEVMODE and not timer.Exists(name) then
         self.__G.BS_RELOADED = false
 
         timer.Create(name, 0.2, 0, function()

@@ -10,7 +10,7 @@ BS.control = {
 	--[[
 	["somegame.function"] = {
 		original = function original function,
-		replacement = function replacement function - indexed by somegame.function
+		detour = function detour function - indexed by somegame.function
 		filter = function to scan string contents
 	},
 	]]

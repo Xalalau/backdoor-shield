@@ -25,7 +25,7 @@ BS.__index = BS
 
 BS.VERSION = "V.git.1.3+"
 
-BS.LIVERELOADING = true -- If true, will enable code live reloading (unsafe! Only used while developing)
+BS.DEVMODE = true -- If true, will enable code live reloading + the command bs_tests (unsafe mode! Only used while developing)
 BS.RELOADED = false
 -- It also creates _G.BS_RELOADED to globally control the state
 
@@ -105,7 +105,7 @@ function BS:Initialize()
         print(logo)
         print(logo2)
         print(logo3)
-        if self.LIVERELOADING then
+        if self.DEVMODE then
             print(logo4)
         end
         print()
@@ -125,7 +125,7 @@ function BS:Initialize()
         hook.Add("Initialize", self:Utils_GetRandomName(), function()
             RunConsoleCommand("sv_hibernate_think", "1")
 
-            timer.Simple(self.LIVERELOADING and 99999999 or 300, function()
+            timer.Simple(self.DEVMODE and 99999999 or 300, function()
                 RunConsoleCommand("sv_hibernate_think", "0")
             end)
         end)

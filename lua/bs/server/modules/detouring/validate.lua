@@ -35,7 +35,7 @@ end
 function BS:Validate_Detour(name, controlInfo, trace)
 	local f1, f2, f3 = unpack(string.Explode(".", name))
 	local currentAddress = self:Functions_GetCurrent(f1, f2, f3)
-	local originalAddress = controlInfo.replacement or controlInfo.original
+	local originalAddress = controlInfo.detour or controlInfo.original
 
 	if originalAddress ~= currentAddress then
 		local info = {
@@ -191,7 +191,7 @@ function BS:Validate_GetFEnv(trace, funcName, args)
 	return result
 end
 
--- Mask our function replacements
+-- Mask our function detours
 function BS:Validate_DebugGetInfo(trace, funcName, args)
 	local result = self.control[funcName].original(unpack(args))
 
@@ -214,7 +214,7 @@ function BS:Validate_DebugGetInfo(trace, funcName, args)
 	return result
 end
 
--- Mask our function replacements
+-- Mask our function detours
 function BS:Validate_JitUtilFuncinfo(trace, funcName, args)
 	for k,v in pairs(self.control) do
 		local detour = self:Functions_GetCurrent(unpack(string.Explode(".", k)))

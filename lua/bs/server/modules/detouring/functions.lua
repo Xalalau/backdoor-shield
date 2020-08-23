@@ -43,7 +43,7 @@ function BS:Functions_Detour_Aux(func, f1, f2, f3, env)
 end
 
 function BS:Functions_Detour(funcName, customFilter)
-	function Replacement(...)
+	function Detour(...)
 		local args = {...} 
 		local trace = debug.traceback()
 
@@ -56,8 +56,8 @@ function BS:Functions_Detour(funcName, customFilter)
 		end
 	end
 
-	self:Functions_Detour_Aux(Replacement, unpack(string.Explode(".", funcName)))
-	self.control[funcName].replacement = Replacement
+	self:Functions_Detour_Aux(Detour, unpack(string.Explode(".", funcName)))
+	self.control[funcName].detour = Detour
 end
 
 function BS:Functions_RemoveDetours()
