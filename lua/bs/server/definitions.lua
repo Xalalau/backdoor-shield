@@ -8,12 +8,11 @@
 -- Some are scanned or serve some special purpose
 BS.control = {
 	--[[
-	["somegame.function"] = {
-		original = function original function,
-		detour = function detour function - indexed by somegame.function
-		short_src = string original short_src
-		source = string original source
-		filter = function to scan string contents
+	["some.game.function"] = { -- Max. of 2 dots. Ex, 1 dot: http.Fecth = _G["http"]["Fetch"]
+		detour = function detoured some.game.function
+		debug_getinfo = table debug.getinfo(some.game.function)
+		jit_util_funcinfo = table jit_util_funcinfo(some.game.function)
+		filter = function to scan some.game.function contents
 	},
 	]]
 	["debug.getinfo"] = {}, -- Isolate our environment

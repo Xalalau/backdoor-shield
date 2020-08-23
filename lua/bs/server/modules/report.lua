@@ -83,7 +83,7 @@ function BS:Report_Detection(infoIn)
 	end
 
 	file.Append(logFile, fullMsg)
-	if contentLogFile then
+	if contentLogFile and infoIn.content and isstring(infoIn.content) then
 		if not file.Exists(self.FOLDER.DATA .. date .. "/" .. infoIn.folder, "DATA") then
 			file.CreateDir(self.FOLDER.DATA .. date .. "/" .. infoIn.folder)
 		end

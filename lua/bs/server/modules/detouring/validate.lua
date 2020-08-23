@@ -32,9 +32,8 @@ function BS:Validate_AutoCheckDetouring()
 end
 
 -- Check a detour
-function BS:Validate_Detour(name, controlInfo, trace)
-	local f1, f2, f3 = unpack(string.Explode(".", name))
-	local currentAddress = self:Functions_GetCurrent(f1, f2, f3)
+function BS:Validate_Detour(funcName, controlInfo, trace)
+	local currentAddress = self:Functions_GetCurrent(funcName)
 	local originalAddress = controlInfo.detour or controlInfo.original
 
 	if originalAddress ~= currentAddress then
@@ -47,7 +46,7 @@ function BS:Validate_Detour(name, controlInfo, trace)
 
 		self:Report_Detection(info)
 
-		self:Functions_Detour_Aux(originalAddress, f1, f2, f3)
+		self:Functions_Detour_Aux(funcName, originalAddress)
 
 		return false
 	end
@@ -87,7 +86,7 @@ function BS:Validate_HttpFetch(trace, funcName, args)
 			local urlStart = string.find(url, v)
 
 			if urlStart and urlStart == 1 then
-				return self.control[funcName].original(unpack(args))
+				return self:Functions_CallProtected(funcName, args)
 			end
 		end
 
@@ -121,9 +120,9 @@ function BS:Validate_HttpFetch(trace, funcName, args)
 
 			self:Report_Detection(info)
 		end
-
+	
 		if #blocked[1] == 0 and #blocked[2] == 0 then
-			self.control[funcName].original(unpack(args))
+			self:Functions_CallProtected(funcName, args)
 		end
 	end, args[3], args[4])
 end
@@ -157,7 +156,7 @@ function BS:Validate_CompileOrRunString_Ex(trace, funcName, args)
 		self:Report_Detection(info)
 	end
 
-	return #blocked[1] == 0 and #blocked[2] == 0 and self.control[funcName].original(unpack(args)) or ""
+	return #blocked[1] == 0 and #blocked[2] == 0 and self:Functions_CallProtected(funcName, args) or ""
 end
 
 -- Check CompileFile calls
@@ -190,12 +189,12 @@ function BS:Validate_CompileFile(trace, funcName, args)
 		self:Report_Detection(info)
 	end
 
-	return #blocked[1] == 0 and #blocked[2] == 0 and self.control[funcName].original(unpack(args))
+	return #blocked[1] == 0 and #blocked[2] == 0 and self:Functions_CallProtected(funcName, args)
 end
 
 -- Protect our custom environment
 function BS:Validate_GetFEnv(trace, funcName, args)
-	local result = self.control[funcName].original(unpack(args))
+	local result = self:Functions_CallProtected(funcName, args)
 	result = result == self.__G_SAFE and self.__G or result
 
 	if result == self.__G then
@@ -214,19 +213,13 @@ end
 
 -- Mask our function detours
 function BS:Validate_DebugGetInfo(trace, funcName, args)
-	local result = self.control[funcName].original(unpack(args))
+	local result = self:Functions_CallProtected(funcName, args)
 
-	if result and (result.short_src or result.source) then
-		for k,v in pairs(self.control) do
-			local detour = self:Functions_GetCurrent(unpack(string.Explode(".", k)))
-
-			if args[1] == detour then
-				if result.short_src then
-					result.short_src = v.short_src
-				end
-
-				if result.source then
-					result.source = v.source
+	for detouredFuncTableIndex, fields in pairs(self.control) do
+		if args[1] == fields.detour then
+			for k,v in pairs(fields.debug_getinfo) do
+				if result[k] then
+					result[k] = v
 				end
 			end
 		end
@@ -237,13 +230,11 @@ end
 
 -- Mask our function detours
 function BS:Validate_JitUtilFuncinfo(trace, funcName, args)
-	for k,v in pairs(self.control) do
-		local detour = self:Functions_GetCurrent(unpack(string.Explode(".", k)))
-
-		if args[1] == detour then
+	for detouredFuncTableIndex, fields in pairs(self.control) do
+		if args[1] == fields.detour then
 			return self.control[funcName].jit_util_funcinfo
 		end
 	end
 
-	return self.control[funcName].original(unpack(args))
+	return self:Functions_CallProtected(funcName, args)
 end

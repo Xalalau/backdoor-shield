@@ -16,21 +16,26 @@ function BS:Functions_InitDetouring()
 	self.control["jit.util.funcinfo"].filter = self.Validate_JitUtilFuncinfo
 
 	for k,v in pairs(self.control) do
-		self.control[k].original = self:Functions_GetCurrent(unpack(string.Explode(".", k)))
-		self.control[k].short_src = debug.getinfo(self.control[k].original).short_src
-		self.control[k].source = debug.getinfo(self.control[k].original).source
-		self.control[k].jit_util_funcinfo = jit.util.funcinfo(self.control[k].original)
+		local original = self:Functions_GetCurrent(k)
+		self.control[k].debug_getinfo = debug.getinfo(original)
+		self.control[k].jit_util_funcinfo = jit.util.funcinfo(original)
 		self:Functions_Detour(k, v.filter)
 	end
 end
 
-function BS:Functions_GetCurrent(f1, f2, f3, env)
+function BS:Functions_CallProtected(funcName, args)
+	return self:Functions_GetCurrent(funcName, _G)(unpack(args))
+end
+
+function BS:Functions_GetCurrent(funcName, env)
+	local f1, f2, f3 = unpack(string.Explode(".", funcName))
 	env = env or self.__G
 
 	return f3 and env[f1][f2][f3] or f2 and env[f1][f2] or f1 and env[f1]
 end
 
-function BS:Functions_Detour_Aux(func, f1, f2, f3, env)
+function BS:Functions_Detour_Aux(funcName, func, env)
+	local f1, f2, f3 = unpack(string.Explode(".", funcName))
 	env = env or self.__G
 
 	if f3 then
@@ -52,18 +57,18 @@ function BS:Functions_Detour(funcName, customFilter)
 		if customFilter then
 			return customFilter(self, trace, funcName, args)
 		else
-			return self.control[funcName].original(unpack(args))
+			unpack(string.Explode(".", funcName))
+
+			return self:Functions_CallProtected(funcName, args)
 		end
 	end
 
-	self:Functions_Detour_Aux(Detour, unpack(string.Explode(".", funcName)))
+	self:Functions_Detour_Aux(funcName, Detour)
 	self.control[funcName].detour = Detour
 end
 
 function BS:Functions_RemoveDetours()
 	for k,v in pairs(self.control) do
-		local f1, f2, f3 = unpack(string.Explode(".", k))
-
-		self:Functions_Detour_Aux(self:Functions_GetCurrent(f1, f2, f3, self.__G_SAFE), f1, f2, f3)
+		self:Functions_Detour_Aux(k, self:Functions_GetCurrent(k, self.__G_SAFE))
 	end
 end

@@ -51,7 +51,7 @@ end
 
 -- Process a string according to our white, black and suspect lists
 function BS:Scan_String(trace, str, blocked, warning, ignore_suspect)
-	if not str then return end
+	if not isstring(str) then return end
 
 	local IsSuspicious = IsSuspicious(str, self.notSuspect)
 
