@@ -146,4 +146,13 @@ concommand.Add("bs_scan", function(ply, cmd, args)
     end
 end)
 
+-- Command to run an automatic set of tests
+if BS.DEVMODE then
+    concommand.Add("bs_tests", function(ply, cmd, args)
+        if not ply:IsValid() or ply:IsAdmin() then
+            BS:Utils_RunTests()
+        end
+    end)
+end
+
 BS:Initialize()
