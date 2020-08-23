@@ -11,6 +11,8 @@ BS.control = {
 	["somegame.function"] = {
 		original = function original function,
 		detour = function detour function - indexed by somegame.function
+		short_src = string original short_src
+		source = string original source
 		filter = function to scan string contents
 	},
 	]]
