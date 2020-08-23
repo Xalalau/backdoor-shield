@@ -50,10 +50,10 @@ local function CheckFilesWhitelist(str, whitelistFiles)
 end
 
 -- Process a string according to our white, black and suspect lists
-function BS:Scan_String(trace, str, blocked, warning, notSuspect)
+function BS:Scan_String(trace, str, blocked, warning)
 	if not str then return end
 
-	local IsSuspicious = notSuspect or IsSuspicious(str, self.notSuspect)
+	local IsSuspicious = IsSuspicious(str, self.notSuspect)
 
 	local function ProcessList(list, list2)
 		for k,v in pairs(list) do
@@ -97,17 +97,18 @@ function BS:Scan_String(trace, str, blocked, warning, notSuspect)
 	if IsSuspicious and blocked then
 		if blocked[1] then
 			ProcessList(self.blacklistHigh, blocked[1])
-			ProcessList(self.blacklistHigh_Suspect, blocked[1])
+			ProcessList(self.blacklistHigh_suspect, blocked[1])
 		end
 
 		if blocked[2] then
 			ProcessList(self.blacklistMedium, blocked[2])
-			ProcessList(self.blacklistMedium_Suspect, blocked[2])
+			ProcessList(self.blacklistMedium_suspect, blocked[2])
 		end
 	end
 
 	if IsSuspicious and warning then
 		ProcessList(self.suspect, warning)
+		ProcessList(self.suspect_suspect, warning)
 	end
 
 	return blocked, warning
@@ -138,6 +139,7 @@ function BS:Scan_Folders(args)
 	local lowRisk = {}
 
 	local lowRiskFiles_Aux = {}
+	local suspect_suspect_Aux = {}
 
 	-- Results from addons folder take precedence
 	-- The addons folder will not be scanned if args is set
@@ -160,6 +162,11 @@ function BS:Scan_Folders(args)
 	-- Easy way to check low risk files (values as table indexes)
 	for _,v in pairs(self.lowRiskFiles) do
 		lowRiskFiles_Aux[v] = true
+	end
+
+	-- Easy way to check self.suspect_suspect table (values as table indexes)
+	for _,v in pairs(self.suspect_suspect) do
+		suspect_suspect_Aux[v] = true
 	end
 
 	-- Scan a folder
@@ -214,7 +221,7 @@ function BS:Scan_Folders(args)
 				end
 
 				-- Scanning
-				self:Scan_String(nil, file.Read(path, "GAME"), blocked, warning, ext ~= "lua" and true)
+				self:Scan_String(nil, file.Read(path, "GAME"), blocked, warning)
 
 				local resultString = ""
 				local resultTable
@@ -222,7 +229,31 @@ function BS:Scan_Folders(args)
 
 				-- Build, print and stock the result
 				if #blocked[1] > 0 or #blocked[2] > 0 or #warning > 0 then
-					resultString = path
+
+					-- Trash:
+
+					-- If it's any file with only detections from self.suspect_suspect, discard it
+					local notImportant = 0
+
+					if (#blocked[1] + #blocked[2] == 0)  then
+						for k,v in pairs (warning) do
+							if suspect_suspect_Aux[v] then
+								notImportant = notImportant + 1
+							end
+						end
+
+						if notImportant == #warning then
+							return
+						end
+					end
+
+					-- If it's a non Lua file with only one suspect detection or a suspect detection from
+					-- self.suspect and other from self.suspect_suscpec, discard it
+					if rext ~= "lua" and (#blocked[1] + #blocked[2] == 0) and (#warning == 1 or #warning == 2 and notImportant) then
+						return
+					end
+
+					-- Default risks:
 
 					-- Files inside low risk folders
 					for _,v in pairs(self.lowRiskFolders) do
@@ -234,7 +265,8 @@ function BS:Scan_Folders(args)
 						end
 					end
 
-					-- or if it's not a low risk folder
+					-- Or if it's not a low risk folder
+					-- let's set a default risk to modify later
 					if not results then
 						-- non Lua files are VERY unsafe
 						if ext ~= "lua" then
@@ -250,6 +282,8 @@ function BS:Scan_Folders(args)
 						end
 					end
 
+					-- Custom risks:
+
 					-- If we don't have a high risk but there are three or more medium risk detections, set to high risk
 					if results ~= highRisk and #blocked[2] > 2 then
 						results = highRisk
@@ -261,6 +295,7 @@ function BS:Scan_Folders(args)
 					end
 
 					-- Build
+					resultString = path
 					resultString = resultString .. JoinResults(blocked[1], "[!!]")
 					resultString = resultString .. JoinResults(blocked[2], "[!]")
 					resultString = resultString .. JoinResults(warning, "[.]")

@@ -115,24 +115,20 @@ BS.notSuspect = {
 BS.blacklistHigh = {
 	"=_G", -- !! Used by backdoors to start hiding names. Also, there is an extra check in the code to avoid incorrect results.
 	"(_G)",
-	"_G,",
+	",_G,",
 	"!true",
 	"!false",
+	"RunStringEx",
 }
 
 -- High chance of direct backdoor detection (suspect code only)
-BS.blacklistHigh_Suspect = {
-	"0x",
-	"\\x",
-	"\"\\",
-	"\'\\",
+BS.blacklistHigh_suspect = {
 	"‪", -- LEFT-TO-RIGHT EMBEDDING
 }
 
 -- Medium chance of direct backdoor detection (all files)
 BS.blacklistMedium = {
 	"RunString",
-	"RunStringEx",
 	"CompileString",
 	"CompileFile",
 	"BroadcastLua",
@@ -143,20 +139,23 @@ BS.blacklistMedium = {
 }
 
 -- Medium chance of direct backdoor detection (suspect code only)
-BS.blacklistMedium_Suspect = {
+BS.blacklistMedium_suspect = {
 	"_G[",
 	"_G.",
-	"]()",
 }
 
--- Low chance of direct backdoor detection
+-- Low chance of direct backdoor detection (all files)
 BS.suspect = {
-	--"util.AddNetworkString",
-	--"net",
-	--"file.Read",
-	--"file.Delete",
-	--"concommand.Add",
 	"pcall",
 	"xpcall",
 	"SendLua",
+}
+
+-- Low chance of direct backdoor detection (suspect code only)
+-- Note: during the scanner, if a file is detected with only 1
+-- of the values below, it will be discarded from the results.
+BS.suspect_suspect = {
+	"]()",
+	"0x",
+	"\\x",
 }
