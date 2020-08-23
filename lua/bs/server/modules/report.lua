@@ -72,8 +72,8 @@ function BS:Report_Detection(infoIn)
 
 	-- Don't flood the console with too much warnings information
 	if infoIn.suffix == "warning" then
-		-- Alert .. Log .. Content log .. trace
-		msg = info[1] .. info[5] .. info[6] .. info[9] .. "\n"
+		-- Alert .. Log .. Content log .. detected.. trace
+		msg = info[1] .. info[5] .. info[6] .. info[8] .. info[9] .. "\n"
 	end
 
 	print(msg or fullMsg)
