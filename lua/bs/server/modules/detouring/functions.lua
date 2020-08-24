@@ -67,6 +67,6 @@ end
 
 function BS:Functions_RemoveDetours()
 	for k,v in pairs(self.control) do
-		self:Functions_SetDetour_Aux(k, self:Functions_GetCurrent(k, self.__G_SAFE))
+		self:Functions_SetDetour_Aux(k, self:Functions_GetCurrent(k, _G))
 	end
 end

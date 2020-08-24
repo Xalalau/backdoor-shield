@@ -115,7 +115,7 @@ function BS:Validate_CompileOrRunString_Ex(trace, funcName, args)
 	local blocked = {{}, {}}
 	local warning = {}
 
-	if not self.__G_SAFE[funcName] then -- RunStringEx exists but is deprecated
+	if not _G[funcName] then -- RunStringEx exists but is deprecated
 		return ""
 	end
 
@@ -177,7 +177,7 @@ end
 -- Protect our custom environment
 function BS:Validate_Environment(trace, funcName, args)
 	local result = self:Functions_CallProtected(funcName, args)
-	result = result == self.__G_SAFE and self.__G or result
+	result = result == _G and self.__G or result
 
 	if result == self.__G then
 		local info = {
@@ -200,7 +200,7 @@ function BS:Validate_Adresses(trace, funcName, args)
 	if args[1] and (funcName ~= "tostring" or isfunction(args[1])) then
 		for k,v in pairs(self.control) do
 			if args[1] == v.detour then
-				args[1] = self:Functions_GetCurrent(k, self.__G_SAFE)
+				args[1] = self:Functions_GetCurrent(k, _G)
 				break
 			end
 		end
