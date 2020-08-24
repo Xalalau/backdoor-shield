@@ -1,60 +1,32 @@
--- Tem alguma coisa errada no meu BS:MaskJitUtilFuncinfo(trace, funcName, args)
--- olha tabelas de PrintFunctionParameters()
+Block this
+    RunString(RunStringFakedName() OtherProtectedFuncRenamed())
 
--- 	"lua/vcmod/server/load.lua:28", -- VCMod
---	"https://vcmod.org/",
+    Ex:
+        print("\n-----> Hinding function names (Reverse trace test)")
+        -- Works with any blacklist combo
+        local LocalFakeNameRunStr = _G.RunString
+        self.__G.FakeNameRunStr = self.__G["RunString"]
+        LocalFakeNameRunStr([[FakeNameRunStr("print('Fail')")]])
 
--- Eu posso alterar variáveis globais no meu arquivo por funções que chamam ele???
+Other addons detection:
 
--- Não permitir um util.AddNetworkString depois que o jogo estiver carregado (hook Initialize)
+    We can automatically be detected by other addons with
+        debug.getlocal
+        debug.getupvalue
+        jit.util.funck
+        error (trace)
+        ...
+        Who knows
 
--- debug.getinfo
--- jit.util.funcinfo
--- etc: se der erro, apareço (me esconder nos traces):
---[[
+    Also, they can see us by reading the folders and checking for our console commands
 
-	Podemos ser detecatados em trace de erro, incluindo interno
+Print a warning if someone try to table.Copy _G
 
-[fakedoor] gamemodes/base/gamemode/backdoor_shield.lua:477: bad argument #1 to 'original' (function or level expected)
-	1. original - [C]:-1
-	 2. getinfo - gamemodes/base/gamemode/backdoor_shield.lua:477
-	  3. PrintFunctionParameters - addons/fakedoor/lua/autorun/server/test.lua:61
-	   4. onsuccess - addons/fakedoor/lua/autorun/server/test.lua:70
-		5. unknown - lua/includes/modules/http.lua:29
+It might be a good idea to validate http.Post response
 
-Isso aparece em local files, dirs = file.Find( dir.."*", "GAME" ):
-gmod-backdoor-shield/
-]]
+It would be nice if I detected associations like
+    local somevar = globalGvar
 
+Print a warning if util.AddNetworkString is created after the addons finished loading
 
--- Testar esse lance de apagar arquivos lua do próprio GMod
--- Tentar criar arquivo lua
-
--- lua_run
--- lua_run_cl
-
--- http.Post resposta
-
-
-
-
--- 	"RunString",
---	"RunStringEx",
---	"CompileString",
-
-
-
-
--- MVC = Model Viewer Controller
-
--- 1) A estrutura de dados escolhida
--- 2) Aonde que a informação é exibidida
--- 3) Quem faz todo o processamento das informações
-
--- Info: motivo
--- Exibição: tela dos policiais e armazenamento do caso no server
--- Aceitar e recusar --> algum policial --> registro no servidor se sim ou não --> todos os policiais são dispensados se sim e começa trace, pessoa é avisada se não
-
-
-
-
+It seems that it's possible to delete server's Lua files. If so, how to protect them?
