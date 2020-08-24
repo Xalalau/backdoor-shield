@@ -92,7 +92,7 @@ function BS:Initialize()
     ██ ]] .. self.VERSION .. [[
 
 
-    ©2020 Xalalau Xubilozo. All Rights Reserved.
+    2020 Xalalau Xubilozo. MIT License.
     -------------------------------------------------------------------]]
     local logo4 = [[
     |                                                                 |
