@@ -50,7 +50,7 @@ BS.control = {
 -- -----------------------------------------------------------------------------------
 
 -- Low risk files and folders
--- When scanning the game, these limes will be considered low risk, so they won't flood
+-- When scanning the game, these files and folders will be considered low risk, so they won't flood
 -- the console with warnings (but they'll be normally reported in the logs)
 BS.lowRiskFolders = {
 	"gamemodes/darkrp/",
@@ -86,8 +86,8 @@ BS.whitelistUrls = {
 }
 
 -- Whitelist TRACE ERRORS
--- By default, I do this instead of whitelisting files because the traces cannot be
--- replicated without many counterpoints
+-- Any detections with the informed trace will be ignored!
+-- Note: protected functions detouring will still be detected and undone
 BS.whitelistTraceErrors = {
 	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
 	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:", -- DarkRP
@@ -96,13 +96,6 @@ BS.whitelistTraceErrors = {
 	"lua/dlib/sh_init.lua:105", -- DLib
 	"lua/dlib/core/loader.lua:32", -- DLib
 	"lua/dlib/modules/i18n/sh_loader.lua:66", -- DLib
-}
-
--- Whitelist files
--- Ignore these files and all their contents, so they won't going to be scanned at all!
--- Note: protected functions detouring will still be detected and undone
--- Note2: only whitelist files if you trust them completely! Even protected functions will be disarmed
-BS.whitelistFiles = {
 }
 
 -- Detections with these chars will be considered as not suspect at first
