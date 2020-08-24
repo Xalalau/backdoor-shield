@@ -17,7 +17,7 @@ function BS:Functions_InitDetouring()
 	self.control["tostring"].filter = self.Validate_Adresses
 
 	for k,v in pairs(self.control) do
-		self:Functions_Detour(k, v.filter)
+		self:Functions_SetDetour(k, v.filter)
 	end
 end
 
@@ -32,7 +32,7 @@ function BS:Functions_GetCurrent(funcName, env)
 	return f3 and env[f1][f2][f3] or f2 and env[f1][f2] or f1 and env[f1]
 end
 
-function BS:Functions_Detour_Aux(funcName, func, env)
+function BS:Functions_SetDetour_Aux(funcName, func, env)
 	local f1, f2, f3 = unpack(string.Explode(".", funcName))
 	env = env or self.__G
 
@@ -45,7 +45,7 @@ function BS:Functions_Detour_Aux(funcName, func, env)
 	end
 end
 
-function BS:Functions_Detour(funcName, customFilter)
+function BS:Functions_SetDetour(funcName, customFilter)
 	function Detour(...)
 		local args = {...} 
 		local trace = debug.traceback()
@@ -61,12 +61,12 @@ function BS:Functions_Detour(funcName, customFilter)
 		end
 	end
 
-	self:Functions_Detour_Aux(funcName, Detour)
+	self:Functions_SetDetour_Aux(funcName, Detour)
 	self.control[funcName].detour = Detour
 end
 
 function BS:Functions_RemoveDetours()
 	for k,v in pairs(self.control) do
-		self:Functions_Detour_Aux(k, self:Functions_GetCurrent(k, self.__G_SAFE))
+		self:Functions_SetDetour_Aux(k, self:Functions_GetCurrent(k, self.__G_SAFE))
 	end
 end

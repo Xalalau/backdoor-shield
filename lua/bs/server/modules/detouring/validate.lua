@@ -46,7 +46,7 @@ function BS:Validate_Detour(funcName, controlInfo, trace)
 
 		self:Report_Detection(info)
 
-		self:Functions_Detour_Aux(funcName, originalAddress)
+		self:Functions_SetDetour_Aux(funcName, originalAddress)
 
 		return false
 	end
