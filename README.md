@@ -1,6 +1,10 @@
 # Backdoor Shield
 Protect your Garry's Mod server against backdoors.
 
+__Install__: both folders go to the garrysmod folder.
+
+__Configure__: edit lua/bs/server/definitions.lua.
+
 **!!WARNING!!**
 
 This is a very complicated world and using this addon can have consequences! If you go on, don't try to whitelist an addon with a DRM!!! There has already been a case of loss of license and I do not take any responsibility for that! Use at your own risk!! And don't expect support about fancy security things.
