@@ -22,7 +22,7 @@ end
 BS = {}
 BS.__index = BS
 
-BS.VERSION = "V.1.4"
+BS.VERSION = "V.1.4" 
 
 BS.DEVMODE = false -- If true, will enable code live reloading + the command bs_tests (unsafe mode! Only used while developing)
 BS.RELOADED = false
