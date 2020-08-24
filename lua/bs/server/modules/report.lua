@@ -1,9 +1,7 @@
 --[[
-    ©2020 Xalalau Xubilozo. All Rights Reserved.
-    https://tldrlegal.com/license/all-rights-served#summary
+    2020 Xalalau Xubilozo. MIT License
     https://xalalau.com/
 --]]
-
 
 local function GetContentLogFileName(contentLogFile)
 	local function ParseName(testName, i)
