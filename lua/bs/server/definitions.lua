@@ -82,12 +82,14 @@ BS.lowRiskFiles = {
 -- Note3: insert a url starting with http or https and ending with a "/", like https://google.com/
 BS.whitelistUrls = {
 	"http://www.geoplugin.net/",
+	"https://vcmod.org/", -- VCMod
 }
 
 -- Whitelist TRACE ERRORS
 -- Any detections with the informed trace will be ignored!
 -- Note: protected functions detouring will still be detected and undone
 BS.whitelistTraceErrors = {
+	"lua/vcmod/server/load.lua:28", -- VCMod
 	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
 	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:", -- DarkRP
 	"lua/autorun/streamradio_loader.lua:254", -- 3D Stream Radio
@@ -95,6 +97,13 @@ BS.whitelistTraceErrors = {
 	"lua/dlib/sh_init.lua:105", -- DLib
 	"lua/dlib/core/loader.lua:32", -- DLib
 	"lua/dlib/modules/i18n/sh_loader.lua:66", -- DLib
+}
+
+-- Whitelist file contents
+-- Detections containing the listed snippets will be ignored
+BS.whitelistContents = {
+	"VCMod", -- VCMod
+	"VCPrint", -- VCMod
 }
 
 -- Detections with these chars will be considered as not suspect at first
