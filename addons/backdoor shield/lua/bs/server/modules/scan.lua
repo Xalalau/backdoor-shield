@@ -134,7 +134,7 @@ local function JoinResults(tab, alert)
 	return resultString
 end
 
--- Process recusively the files inside the aimed folders according to our white, black and suspect lists
+-- Process the files recusively inside the aimed folders according to our white, black and suspect lists
 -- Low risk files will be reported in the logs as well, but they won't flood the console with warnings
 function BS:Scan_Folders(args)
 	local highRisk = {}
@@ -145,7 +145,7 @@ function BS:Scan_Folders(args)
 	local suspect_suspect_Aux = {}
 
 	-- Results from addons folder take precedence
-	-- The addons folder will not be scanned if args is set
+	-- The addons folder will not be scanned if args are set
 	local addonsFolder = {}
 	local addonsFolderScan = #args == 0 and true
 
@@ -188,7 +188,7 @@ function BS:Scan_Folders(args)
 		end
 
 		for _, fdir in pairs(dirs) do
-			if fdir ~= "/" then -- We can get a / if the start from the root
+			if fdir ~= "/" then -- We can get a / if we start from the root
 				ParteDir(dir .. fdir .. "/")
 			end
 		end

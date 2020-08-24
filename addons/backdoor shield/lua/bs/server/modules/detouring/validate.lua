@@ -192,6 +192,7 @@ function BS:Validate_Environment(trace, funcName, args)
 	return result
 end
 
+-- Hide our detours
 -- debug.getinfo
 -- jit.util.funcinfo
 -- tostring

@@ -24,7 +24,7 @@ BS.__index = BS
 
 BS.VERSION = "V.git.1.4+"
 
-BS.DEVMODE = false -- If true, will enable code live reloading + the command bs_tests (unsafe mode! Only used while developing)
+BS.DEVMODE = false -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
 BS.RELOADED = false
 -- It also creates _G.BS_RELOADED to globally control the state
 
@@ -131,7 +131,7 @@ function BS:Initialize()
     end
 end
 
--- Isolate our enironment
+-- Isolate our environment
 for k,v in pairs(BS)do
     if isfunction(v) then
         setfenv(v, BS.__G_SAFE)

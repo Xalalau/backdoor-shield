@@ -78,7 +78,7 @@ BS.lowRiskFiles = {
 -- Don't scan the downloaded string!
 -- Note: protected functions detouring will still be detected and undone
 -- Note2: any protected functions called will still be scanned
--- Note3: insert a url starting with http or https and ending with a "/", like https://google.com/
+-- Note3: insert an url starting with http or https and ending with a "/", like https://google.com/
 BS.whitelistUrls = {
 	"http://www.geoplugin.net/",
 }
@@ -96,7 +96,7 @@ BS.whitelistTraceErrors = {
 	"lua/dlib/modules/i18n/sh_loader.lua:66", -- DLib
 }
 
--- Whitelist file contents
+-- Whitelist contents
 -- Detections containing the listed snippets will be ignored
 BS.whitelistContents = {
 }
@@ -149,8 +149,6 @@ BS.suspect = {
 }
 
 -- Low chance of direct backdoor detection (suspect code only)
--- Note: during the scanner, if a file is detected with only 1
--- of the values below, it will be discarded from the results.
 BS.suspect_suspect = {
 	"]()",
 	"0x",
