@@ -14,27 +14,11 @@ local function IsSuspicious(str, notSuspect)
 	return true
 end
 
-local function CheckTraceWhitelist(trace, whitelistTraceErrors)
+local function CheckWhitelist(str, whitelist)
 	local found = false
 
-	if trace and #whitelistTraceErrors > 0 then
-		for _,allowed in pairs(whitelistTraceErrors)do
-			if string.find(trace, allowed, nil, true) then
-				found = true
-
-				break
-			end
-		end
-	end
-
-	return found
-end
-
-local function CheckContentsWhitelist(str, whitelistContents)
-	local found = false
-
-	if str and #whitelistContents > 0 then
-		for _,allowed in pairs(whitelistContents)do
+	if str and #whitelist > 0 then
+		for _,allowed in pairs(whitelist)do
 			if string.find(str, allowed, nil, true) then
 				found = true
 
@@ -55,8 +39,8 @@ function BS:Scan_String(trace, str, blocked, warning, ignore_suspect)
 	local function ProcessList(list, list2)
 		for k,v in pairs(list) do
 			if string.find(string.gsub(str, " ", ""), v, nil, true) and
-			   not CheckTraceWhitelist(trace, self.whitelistTraceErrors) and
-			   not CheckContentsWhitelist(str, self.whitelistContents) then
+			   not CheckWhitelist(trace, self.whitelistTraceErrors) and
+			   not CheckWhitelist(str, self.whitelistContents) then
 	
 				if v == "=_G" then -- Hack: recheck _G with some spaces
 					local check = string.gsub(str, "%s+", " ")
@@ -219,7 +203,7 @@ function BS:Scan_Folders(args)
 				end
 
 				-- Ignore whitelisted contents
-				if CheckContentsWhitelist(pathAux, self.whitelistContents) then
+				if CheckWhitelist(pathAux, self.whitelistContents) then
 					return 
 				end
 
