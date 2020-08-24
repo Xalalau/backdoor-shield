@@ -2,8 +2,6 @@ Block this
     RunString(RunStringFakedName() OtherProtectedFuncRenamed())
 
     Ex:
-        print("\n-----> Hinding function names (Reverse trace test)")
-        -- Works with any blacklist combo
         local LocalFakeNameRunStr = _G.RunString
         self.__G.FakeNameRunStr = self.__G["RunString"]
         LocalFakeNameRunStr([[FakeNameRunStr("print('Fail')")]])
@@ -18,7 +16,7 @@ Other addons detection:
         ...
         Who knows
 
-    Also, they can see us by reading the folders and checking for our console commands
+    Also, they can see us by reading the folders or checking for our console commands
 
 Print a warning if someone try to table.Copy _G
 
