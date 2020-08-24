@@ -75,10 +75,10 @@ function BS:Initialize()
     ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝
 
     The security is performed by automatically blocking executions,
-    correcting some	changes and warning about suspicious activity,
+    correcting some changes and warning about suspicious activity,
     but you may also:
 
-    1) Set custom black and white lists directly in the main file.
+    1) Set custom black and white lists directly in the definitions file.
     Don't leave warnings circulating on the console and make exceptions
     whenever you want.
 
