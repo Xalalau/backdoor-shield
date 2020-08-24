@@ -1,6 +1,8 @@
 # Backdoor Shield
 Protect your Garry's Mod server against backdoors.
 
+![logo](https://i.imgur.com/OViogYT.png)
+
 __Install__: both folders go to the garrysmod folder.
 
 __Configure__: edit lua/bs/server/definitions.lua.
