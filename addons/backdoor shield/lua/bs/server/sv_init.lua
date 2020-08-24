@@ -25,7 +25,7 @@ BS.__index = BS
 local __G_SAFE = table.Copy(_G) -- Our custom environment
 BS.__G = _G -- Access the global table inside our custom environment
 
-BS.VERSION = "V.git.1.4+"
+BS.VERSION = "V1.4.1"
 
 BS.DEVMODE = false -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
 BS.RELOADED = false
