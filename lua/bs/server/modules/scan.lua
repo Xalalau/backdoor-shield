@@ -31,6 +31,22 @@ local function CheckTraceWhitelist(trace, whitelistTraceErrors)
 	return found
 end
 
+local function CheckContentsWhitelist(str, whitelistContents)
+	local found = false
+
+	if str and #whitelistContents > 0 then
+		for _,allowed in pairs(whitelistContents)do
+			if string.find(str, allowed, nil, true) then
+				found = true
+
+				break
+			end
+		end
+	end
+
+	return found
+end
+
 -- Process a string according to our white, black and suspect lists
 function BS:Scan_String(trace, str, blocked, warning, ignore_suspect)
 	if not isstring(str) then return end
@@ -40,7 +56,8 @@ function BS:Scan_String(trace, str, blocked, warning, ignore_suspect)
 	local function ProcessList(list, list2)
 		for k,v in pairs(list) do
 			if string.find(string.gsub(str, " ", ""), v, nil, true) and
-			   not CheckTraceWhitelist(trace, self.whitelistTraceErrors) then
+			   not CheckTraceWhitelist(trace, self.whitelistTraceErrors) and
+			   not CheckContentsWhitelist(str, self.whitelistContents) then
 	
 				if v == "=_G" then -- Hack: recheck _G with some spaces
 					local check = string.gsub(str, "%s+", " ")
@@ -200,6 +217,11 @@ function BS:Scan_Folders(args)
 					correctPath = string.sub(correctPath, 2, string.len(correctPath))
 					pathAux = correctPath
 					addonsFolder[correctPath] = true
+				end
+
+				-- Ignore whitelisted contents
+				if CheckContentsWhitelist(pathAux, self.whitelistContents) then
+					return 
 				end
 
 				-- Scanning

@@ -10,15 +10,13 @@ function BS:Functions_InitDetouring()
 	self.control["CompileString"].filter = self.Validate_CompileOrRunString_Ex
 	self.control["RunString"].filter = self.Validate_CompileOrRunString_Ex
 	self.control["RunStringEx"].filter = self.Validate_CompileOrRunString_Ex
-	self.control["getfenv"].filter = self.Validate_GetFEnv
-	self.control["debug.getfenv"].filter = self.Validate_GetFEnv
-	self.control["debug.getinfo"].filter = self.Validate_DebugGetInfo
-	self.control["jit.util.funcinfo"].filter = self.Validate_JitUtilFuncinfo
+	self.control["getfenv"].filter = self.Validate_Environment
+	self.control["debug.getfenv"].filter = self.Validate_Environment
+	self.control["debug.getinfo"].filter = self.Validate_Adresses
+	self.control["jit.util.funcinfo"].filter = self.Validate_Adresses
+	self.control["tostring"].filter = self.Validate_Adresses
 
 	for k,v in pairs(self.control) do
-		local original = self:Functions_GetCurrent(k)
-		self.control[k].debug_getinfo = debug.getinfo(original)
-		self.control[k].jit_util_funcinfo = jit.util.funcinfo(original)
 		self:Functions_Detour(k, v.filter)
 	end
 end

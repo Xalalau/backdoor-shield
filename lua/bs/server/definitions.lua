@@ -10,8 +10,6 @@ BS.control = {
 	--[[
 	["some.game.function"] = { -- Max. of 2 dots. Ex, 1 dot: http.Fecth = _G["http"]["Fetch"]
 		detour = function detoured some.game.function
-		debug_getinfo = table debug.getinfo(some.game.function)
-		jit_util_funcinfo = table jit_util_funcinfo(some.game.function)
 		filter = function to scan some.game.function contents
 	},
 	]]
@@ -19,6 +17,7 @@ BS.control = {
 	["jit.util.funcinfo"] = {}, -- Isolate our environment
 	["getfenv"] = {}, -- Isolate our environment and alert the user
 	["debug.getfenv"] = {}, -- Isolate our environment and alert the user
+	["tostring"] = {}, -- Isolate our environment
 	["http.Post"] = {},
 	["http.Fetch"] = {}, -- scanned
 	["CompileString"] = {}, -- scanned

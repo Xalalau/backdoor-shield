@@ -175,7 +175,7 @@ function BS:Validate_CompileFile(trace, funcName, args)
 end
 
 -- Protect our custom environment
-function BS:Validate_GetFEnv(trace, funcName, args)
+function BS:Validate_Environment(trace, funcName, args)
 	local result = self:Functions_CallProtected(funcName, args)
 	result = result == self.__G_SAFE and self.__G or result
 
@@ -193,28 +193,16 @@ function BS:Validate_GetFEnv(trace, funcName, args)
 	return result
 end
 
--- Mask our function detours
-function BS:Validate_DebugGetInfo(trace, funcName, args)
-	local result = self:Functions_CallProtected(funcName, args)
-
-	for detouredFuncTableIndex, fields in pairs(self.control) do
-		if args[1] == fields.detour then
-			for k,v in pairs(fields.debug_getinfo) do
-				if result[k] then
-					result[k] = v
-				end
+-- debug.getinfo
+-- jit.util.funcinfo
+-- tostring
+function BS:Validate_Adresses(trace, funcName, args)
+	if args[1] and (funcName ~= "tostring" or isfunction(args[1])) then
+		for k,v in pairs(self.control) do
+			if args[1] == v.detour then
+				args[1] = self:Functions_GetCurrent(k, self.__G_SAFE)
+				break
 			end
-		end
-	end
-
-	return result
-end
-
--- Mask our function detours
-function BS:Validate_JitUtilFuncinfo(trace, funcName, args)
-	for detouredFuncTableIndex, fields in pairs(self.control) do
-		if args[1] == fields.detour then
-			return self.control[funcName].jit_util_funcinfo
 		end
 	end
 
