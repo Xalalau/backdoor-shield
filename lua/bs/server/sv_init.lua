@@ -22,9 +22,9 @@ end
 BS = {}
 BS.__index = BS
 
-BS.VERSION = "V.git.1.3+"
+BS.VERSION = "V.1.4"
 
-BS.DEVMODE = true -- If true, will enable code live reloading + the command bs_tests (unsafe mode! Only used while developing)
+BS.DEVMODE = false -- If true, will enable code live reloading + the command bs_tests (unsafe mode! Only used while developing)
 BS.RELOADED = false
 -- It also creates _G.BS_RELOADED to globally control the state
 
