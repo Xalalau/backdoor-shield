@@ -18,7 +18,7 @@ end
 local function CheckTraceWhitelist(trace, whitelistTraceErrors)
 	local found = false
 
-	if trace then
+	if trace and #whitelistTraceErrors > 0 then
 		for _,allowed in pairs(whitelistTraceErrors)do
 			if string.find(trace, allowed, nil, true) then
 				found = true
@@ -34,14 +34,12 @@ end
 local function CheckFilesWhitelist(str, whitelistFiles)
 	local found = false
 
-	if trace then
-		if str and #whitelistFiles > 0 then
-			for _,allowed in pairs(whitelistFiles)do
-				if string.find(str, allowed, nil, true) then
-					found = true
+	if str and #whitelistFiles > 0 then
+		for _,allowed in pairs(whitelistFiles)do
+			if string.find(str, allowed, nil, true) then
+				found = true
 
-					break
-				end
+				break
 			end
 		end
 	end
