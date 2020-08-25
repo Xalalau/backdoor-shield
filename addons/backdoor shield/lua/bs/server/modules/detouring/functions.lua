@@ -54,8 +54,6 @@ function BS:Functions_SetDetour(funcName, customFilter)
 		if customFilter then
 			return customFilter(self, trace, funcName, args)
 		else
-			unpack(string.Explode(".", funcName))
-
 			return self:Functions_CallProtected(funcName, args)
 		end
 	end
