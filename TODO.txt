@@ -1,3 +1,10 @@
+
+Light scan
+
+Complete scan
+
+show progress every 500 files / Utils_GetTotalFilesAndFolders
+
 Block this
     RunString(RunStringFakedName() OtherProtectedFuncRenamed())
 
@@ -28,3 +35,4 @@ It would be nice if I detected associations like
 Print a warning if util.AddNetworkString is created after the addons finished loading
 
 It seems that it's possible to delete server's Lua files. If so, how to protect them?
+ 
