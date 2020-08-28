@@ -1,3 +1,4 @@
+Convar to disable the real time protection (disable detouring)
 
 Light scan
 
