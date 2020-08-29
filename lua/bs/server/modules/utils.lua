@@ -64,6 +64,9 @@ function BS:Utils_RunTests()
     print("\n-----> getfenv")
     self.__G.getfenv()
 
+    print("\n-----> tostring\n")
+    print(" I think jit.util.funcinfo is " .. (string.find(self.__G.tostring(self.__G["jit"]["util"]["funcinfo"]), "builtin", nil, true) and "original (Pass)" or "detoured (Fail)"))
+
     print("\n-----> debug.getfenv")
     local function this() end
     self.__G.debug.getfenv(this)
