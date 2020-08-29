@@ -99,7 +99,7 @@ function BS:Initialize()
     -------- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --------]] }
 
     if not self.__G.BS_RELOADED then
-        for _, str ipairs(logo) do
+        for _, str in ipairs(logo) do
             if _ == 4 and !self.DEVMODE then continue end
             print(str)
         end
