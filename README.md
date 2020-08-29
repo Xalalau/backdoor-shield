@@ -38,7 +38,7 @@ Clone or download the files inside your **addons folder**.
 
 ## Scan Logs
 
-Each scan log is stored in **data/backdoor-shield**. They divide the results into risk groups that are displayed together during the detection or in order in the saved file.
+Each scan log is stored in **data/backdoor-shield**. They divide the results into risk groups that are displayed together during the detection or by order in the saved file.
 
 <details><summary>Console</summary>
 <p>
