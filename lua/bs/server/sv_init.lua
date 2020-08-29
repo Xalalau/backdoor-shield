@@ -6,9 +6,9 @@
 BS = {}
 BS.__index = BS
 
-BS.VERSION = "GitHub V1.4.1+"
+BS.VERSION = "V 1.5"
 
-BS.DEVMODE = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
+BS.DEVMODE = false -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
 BS.LIVEPROTECTION = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
 
 BS.ALERT = "[Backdoor Shield]"
@@ -85,12 +85,13 @@ function BS:Initialize()
     |
     |--> bs_scan folder(s)
     |
-    |       scan all files in folder(s) or in lua, gamemode and data folders.
+    |       scan all files in folder(s) or in lua, gamemode and data
+    |       folders.
     |
     |--> bs_scan_fast folder(s)
 
-            scan lua, txt, vmt, dat and json files in folder(s) or in lua,
-            gamemode and data folders.
+            scan lua, txt, vmt, dat and json files in folder(s) or in
+            lua, gamemode and data folders.
 
     -------------------------------------------------------------------]],
     [5] = [[
