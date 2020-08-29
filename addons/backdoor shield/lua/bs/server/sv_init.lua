@@ -103,6 +103,7 @@ function BS:Initialize()
             if _ == 4 and !self.DEVMODE then continue end
             print(str)
         end
+        print()
     end
 
     if not file.Exists(self.FOLDER.DATA, "DATA") then
