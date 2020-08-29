@@ -102,7 +102,7 @@ function BS:Initialize()
 
     if not self.__G.BS_RELOADED then
         for _, str in ipairs(logo) do
-            if _ == 5 and self.DEVMODE then continue end
+            if _ == 5 and not self.DEVMODE then continue end
             print(str)
         end
 
