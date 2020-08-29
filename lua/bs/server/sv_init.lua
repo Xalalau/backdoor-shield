@@ -31,6 +31,8 @@ BS.DEVMODE = true -- If true, will enable code live reloading, the command bs_te
 BS.RELOADED = false
 -- It also creates _G.BS_RELOADED to globally control the state
 
+BS.LIVEPROTECTION = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
+
 BS.ALERT = "[Backdoor Shield]"
 
 BS.FILENAME = "backdoor_shield.lua"
@@ -112,18 +114,20 @@ function BS:Initialize()
 
     self:LiveReloading_Set()
 
-    self:Functions_InitDetouring()
+    if BS.LIVEPROTECTION then
+        self:Functions_InitDetouring()
 
-    self:Validate_AutoCheckDetouring()
+        self:Validate_AutoCheckDetouring()
 
-    if not GetConVar("sv_hibernate_think"):GetBool() then
-        hook.Add("Initialize", self:Utils_GetRandomName(), function()
-            RunConsoleCommand("sv_hibernate_think", "1")
+        if not GetConVar("sv_hibernate_think"):GetBool() then
+            hook.Add("Initialize", self:Utils_GetRandomName(), function()
+                RunConsoleCommand("sv_hibernate_think", "1")
 
-            timer.Simple(self.DEVMODE and 99999999 or 300, function()
-                RunConsoleCommand("sv_hibernate_think", "0")
+                timer.Simple(self.DEVMODE and 99999999 or 300, function()
+                    RunConsoleCommand("sv_hibernate_think", "0")
+                end)
             end)
-        end)
+        end
     end
 end
 
