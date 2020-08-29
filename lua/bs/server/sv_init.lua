@@ -6,7 +6,7 @@
 BS = {}
 BS.__index = BS
 
-BS.VERSION = "GitVub V1.4.1+"
+BS.VERSION = "GitHub V1.4.1+"
 
 BS.DEVMODE = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
 BS.LIVEPROTECTION = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
@@ -102,7 +102,7 @@ function BS:Initialize()
 
     if not self.__G.BS_RELOADED then
         for _, str in ipairs(logo) do
-            if _ == 5 and !self.DEVMODE then continue end
+            if _ == 5 and self.DEVMODE then continue end
             print(str)
         end
 
