@@ -85,11 +85,11 @@ function BS:Initialize()
     |
     |--> bs_scan folder(s)
     |
-    |       all files in folder(s) or in lua, gamemode and data folders.
+    |       scan all files in folder(s) or in lua, gamemode and data folders.
     |
-    |--> bs_scan_fast folder(s):
+    |--> bs_scan_fast folder(s)
 
-            lua, txt, vmt, dat and json files in folder(s) or in lua,
+            scan lua, txt, vmt, dat and json files in folder(s) or in lua,
             gamemode and data folders.
 
     -------------------------------------------------------------------]],
