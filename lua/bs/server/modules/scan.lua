@@ -120,7 +120,7 @@ end
 
 -- Process the files recusively inside the aimed folders according to our white, black and suspect lists
 -- Low risk files will be reported in the logs as well, but they won't flood the console with warnings
-function BS:Scan_Folders(args)
+function BS:Scan_Folders(args, extensions)
 	local highRisk = {}
 	local mediumRisk = {}
 	local lowRisk = {}
@@ -185,6 +185,20 @@ function BS:Scan_Folders(args)
 				local blocked = {{}, {}}
 				local warning = {}
 				local pathAux = path
+
+				-- Filter by extension (if they are specified)
+				if extensions then
+					local isValid = false
+
+					for k,v in pairs(extensions) do
+						if ext == v then
+							isValid = true
+							break
+						end
+					end
+
+					if not isValid then return end
+				end
 
 				-- Convert the path of a file in the addons folder to a game's mounted one.
 				-- I'll save it and prevent us from scanning twice.

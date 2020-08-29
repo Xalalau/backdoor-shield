@@ -64,44 +64,48 @@ function BS:Initialize()
     ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝
 
     ███████╗██╗  ██╗██╗███████╗██╗     ██████╗
-    ██╔════╝██║  ██║██║██╔════╝██║     ██╔══██╗
-    ███████╗███████║██║█████╗  ██║     ██║  ██║
+    ██╔════╝██║  ██║██║██╔════╝██║     ██╔══██╗  2020 Xalalau Xubilozo
+    ███████╗███████║██║█████╗  ██║     ██║  ██║  MIT License
     ╚════██║██╔══██║██║██╔══╝  ██║     ██║  ██║]],
     [3] = [[
-    ███████║██║  ██║██║███████╗███████╗██████╔╝
-    ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝
+    ███████║██║  ██║██║███████╗███████╗██████╔╝  ██ ]] .. self.VERSION .. [[
+
+    ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝      
 
     The security is performed by automatically blocking executions,
-    correcting some changes and warning about suspicious activity,
-    but you may also:
+    correcting some changes and warning about suspicious activity, but
+    you may also:
 
     1) Set custom black and white lists directly in the definitions file.
-    Don't leave warnings circulating on the console and make exceptions
-    whenever you want.
-
-    2) Scan your addons and investigate the results:
-    |--> "bs_scan": Recursively scan GMod and all the mounted contents
-    |--> "bs_scan <folder(s)>": Recursively scan the seleceted folder
-
-    All logs are located in: "garrysmod/data/]] .. self.FOLDER.DATA .. [["
-
-
-    ██ ]] .. self.VERSION .. [[
-
-
-    2020 Xalalau Xubilozo. MIT License.
-    -------------------------------------------------------------------]],
+    Don't leave warnings on the console and make exceptions whenever you
+    want. Logs are located in: "garrysmod/data/]] .. self.FOLDER.DATA .. [["
+    ]],
     [4] = [[
+    2) Recursively scan folders and investigate the results:
+    |
+    |--> bs_scan folder(s)
+    |
+    |       all files in folder(s) or in lua, gamemode and data folders.
+    |
+    |--> bs_scan_fast folder(s):
+
+            lua, txt, vmt, dat and json files in folder(s) or in lua,
+            gamemode and data folders.
+
+    -------------------------------------------------------------------]],
+    [5] = [[
     |                                                                 |
     |        Live reloading in turned on! The addon is unsafe!        |
+    |                    Command bs_tests added.                      |
     |                                                                 |
     -------- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --------]] }
 
     if not self.__G.BS_RELOADED then
         for _, str in ipairs(logo) do
-            if _ == 4 and !self.DEVMODE then continue end
+            if _ == 5 and !self.DEVMODE then continue end
             print(str)
         end
+
         print()
     end
 
@@ -135,10 +139,17 @@ for k,v in pairs(BS)do
     end
 end
 
--- Command to scan folders
+-- Command to scan all files in the main/selected folders
 concommand.Add("bs_scan", function(ply, cmd, args)
     if not ply:IsValid() or ply:IsAdmin() then
         BS:Scan_Folders(args)
+    end
+end)
+
+-- Command to scan some files in the main/selected folders
+concommand.Add("bs_scan_fast", function(ply, cmd, args)
+    if not ply:IsValid() or ply:IsAdmin() then
+        BS:Scan_Folders(args, { "lua", "txt" , "vmt", "dat", "json" })
     end
 end)
 
