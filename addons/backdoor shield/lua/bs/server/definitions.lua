@@ -57,6 +57,10 @@ BS.lowRiskFolders = {
 	"lua/ulx/",
 	"lua/ulib/",
 	"lua/dlib/",
+	"lua/xlib/",
+	"lua/_awesome/",
+	"lua/serverguard/",
+	"lua/klib/"
 }
 
 BS.lowRiskFiles = {
