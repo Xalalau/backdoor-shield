@@ -20,9 +20,6 @@ BS.FOLDER.MODULES = BS.FOLDER.LUA .. "server/modules/"
 
 BS.RELOADED = false -- Internal control to check the tool reloading state - don't change it. _G.BS_RELOADED is also created to globally do the same thing
 
-local __G_SAFE = table.Copy(_G) -- Our custom environment
-BS.__G = _G -- Access the global table inside our custom environment
-
 local function includeModules(dir)
     local files, dirs = file.Find( dir.."*", "LUA" )
 
@@ -45,6 +42,9 @@ includeModules(BS.FOLDER.MODULES)
 local BS_AUX = table.Copy(BS)
 BS = nil
 local BS = BS_AUX
+
+local __G_SAFE = table.Copy(_G) -- Our custom environment
+BS.__G = _G -- Access the global table inside our custom environment
 
 BS.FILETIMES = BS:Utils_GetFilesCreationTimes()
 
