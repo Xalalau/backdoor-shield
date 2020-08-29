@@ -55,7 +55,7 @@ Each scan log is stored in **data/backdoor-shield**. They divide the results int
 
 ## Detection Logs
 
-The real time protection prints console messages and creates detection logs in the folder **data/backdoor-shield/THE-CURRENT-DATE**. Results are stored in files that display all together, but are also stored separately by folder and type when detection contents are available.
+The real time protection prints console messages and creates detection logs in the folder **data/backdoor-shield/THE-CURRENT-DATE**. Results are stored in files that display all together, but are also stored separately by folder and type when detected contents are available.
 
 <details><summary>1) Running two backdoors</summary>
 <p>
@@ -252,10 +252,10 @@ end)
 
 Actually you can copy the detection results, decode them and keep going to see whats going on.
 
-<details><summary>1) Here is the first decoding</summary>
+<details><summary>1) Here is the decoding of the active backdoor from the examples above</summary>
 <p>
 
-The backdoor is inhibiting other backdoors through some detourings and taking the next step.
+It's inhibiting other backdoors through some detourings and taking the next step.
 
 ```lua
 local nKvWQygqjyMKsWkNbsiO = { 
@@ -363,7 +363,7 @@ end)
 </p>
 </details>
 
-<details><summary>2) I disabled my old Lua snippets, took the end of the code above and ran it</summary>
+<details><summary>2) I disabled my old Lua snippets, took the end of the decoded script and ran it</summary>
 <p>
 
 ```lua
@@ -667,7 +667,7 @@ end
 </p>
 </details>
 
-<details><summary>4) After decoding, I can see everything</summary>
+<details><summary>4) After more decoding, I can see everything</summary>
 <p>
 
 ```lua
