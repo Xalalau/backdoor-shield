@@ -55,7 +55,7 @@ Each scan log is stored in **data/backdoor-shield**. They divide the results int
 
 ## Detection Logs
 
-The real time protection prints console messages and creates detection logs in the folder **data\backdoor-shield/THE-CURRENT-DATE**. Results are stored in files that display all together, but are also stored separately by folder and type when detection contents are available.
+The real time protection prints console messages and creates detection logs in the folder **data/backdoor-shield/THE-CURRENT-DATE**. Results are stored in files that display all together, but are also stored separately by folder and type when detection contents are available.
 
 <details><summary>1) Running two backdoors</summary>
 <p>
