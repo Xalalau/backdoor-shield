@@ -121,6 +121,9 @@ end
 -- Process the files recusively inside the aimed folders according to our white, black and suspect lists
 -- Low risk files will be reported in the logs as well, but they won't flood the console with warnings
 function BS:Scan_Folders(args, extensions)
+	local totalScanned = 0
+	local lastTotalPrinted = 0
+
 	local highRisk = {}
 	local mediumRisk = {}
 	local lowRisk = {}
@@ -219,6 +222,13 @@ function BS:Scan_Folders(args, extensions)
 				-- Ignore whitelisted contents
 				if CheckWhitelist(pathAux, self.whitelistContents) then
 					return 
+				end
+
+				-- Print status
+				totalScanned = totalScanned + 1
+				if totalScanned == lastTotalPrinted + 500 then
+					print("\n" .. totalScanned .. " files scanned...\n")
+					lastTotalPrinted = totalScanned
 				end
 
 				-- Scanning
@@ -335,6 +345,8 @@ function BS:Scan_Folders(args, extensions)
 			ParteDir(folder == "" and folder or folder .. "/")
 		end
 	end
+
+	print("\nTotal files scanned: " .. totalScanned)
 
 	self:Report_Folder(highRisk, mediumRisk, lowRisk)
 
