@@ -35,63 +35,90 @@ Clone or download the files inside your **addons folder**.
     |
     | --> bs_tests
 
+
+<font color="white">.</font>
+
 ## Scan Logs
 
 Each scan log is stored in **data/backdoor-shield**. They divide the results into risk groups that are displayed together during the detection or in order in the saved file.
 
-Console:
+<details><summary>Console</summary>
+<p>
+<img src="https://i.imgur.com/sBzfD9G.png"/>
+</p>
+</details>
 
-![scan_console](https://i.imgur.com/sBzfD9G.png)
-
-File:
-
-![scan_file](https://i.imgur.com/kwUtAb0.png)
+<details><summary>File</summary>
+<p>
+<img src="https://i.imgur.com/kwUtAb0.png"/>
+</p>
+</details>
+.
 
 ## Detection Logs
 
 The real time protection prints console messages and creates detection logs in the folder **data\backdoor-shield/THE-CURRENT-DATE**. Results are stored in files that display all together, but are also stored separately by folder and type when detection contents are available.
 
-1) Two backdoors - the first is dead, the second is alive:
+<details><summary>1) Two backdoors - the first is dead, the second is alive</summary>
+<p>
+<img src="https://i.imgur.com/Z8CL4lq.png"/>
+</p>
+</details>
 
-![detection_backdoor](https://i.imgur.com/Z8CL4lq.png)
+<details><summary>2) Real time protection</summary>
+<p>
+<img src="https://i.imgur.com/3yWXO6D.png"/>
+</p>
+</details>
 
-2) Real time protection:
+<details><summary>3) Logs folder</summary>
+<p>
+<img src="https://i.imgur.com/DhGWEbU.png"/>
+</p>
+</details>
 
-![detection_realtime](https://i.imgur.com/3yWXO6D.png)
+<details><summary>4) General blocked executions log</summary>
+<p>
+<img src="https://i.imgur.com/XWCwr87.png"/>
+</p>
+</details>
 
-3) Logs folder:
-
-![detection_folder](https://i.imgur.com/DhGWEbU.png)
-
-4) General blocked executions log:
-
-![detection_blockedlog](https://i.imgur.com/XWCwr87.png)
-
-5) Detection contents:
+<details><summary>5) Detection contents</summary>
+<p>
 
 - The first backdoor is dead, since the link inside the content doesn't work
 
-![detection_contentdead](https://i.imgur.com/o6itfE2.png)
+<img src="https://i.imgur.com/o6itfE2.png"/>
 
 - But the second one is doing some stuff
 
-![detection_contentalive1](https://i.imgur.com/6i8xNtz.png)
+<img src="https://i.imgur.com/6i8xNtz.png"/>
 
-![detection_contentalive2](https://i.imgur.com/MYHm7c8.png)
+<img src="https://i.imgur.com/MYHm7c8.png"/>
+
+</p>
+</details>
+
+.
 
 ## Backdoor hunting
 
 Actually you can copy the detection results, decode them and keep going to see whats going on.
 
-1) I disabled my old Lua snippets, took the end of the code from the last detection and ran it:
+<details><summary>1) I disabled my old Lua snippets, took the end of the code from the last detection and ran it</summary>
+<p>
+<img src="https://i.imgur.com/yTVWWwF.png"/>
+</p>
+</details>
 
-![post_detection1](https://i.imgur.com/yTVWWwF.png)
+<details><summary>2) Now I got a bunch of things to analyze</summary>
+<p>
+<img src="https://i.imgur.com/SBwHXDy.png"/>
+</p>
+</details>
 
-2) Now I got a bunch of things to analyse:
-
-![post_detection2](https://i.imgur.com/SBwHXDy.png)
-
-3) After decoding, I can see everything:
+<details><summary>3) After decoding, I can see everything</summary>
+<p>
 
 ```lua
 --[[
@@ -318,5 +345,10 @@ timer.Create( "timer1", 1, 0, function()
 end)
 
 ```
+
+</p>
+</details>
+
+.
 
 That's it. I hope you enjoy :)
