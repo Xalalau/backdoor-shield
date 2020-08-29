@@ -25,9 +25,9 @@ BS.__index = BS
 local __G_SAFE = table.Copy(_G) -- Our custom environment
 BS.__G = _G -- Access the global table inside our custom environment
 
-BS.VERSION = "V1.4.1"
+BS.VERSION = "GitVub V1.4.1+"
 
-BS.DEVMODE = false -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
+BS.DEVMODE = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
 BS.RELOADED = false
 -- It also creates _G.BS_RELOADED to globally control the state
 
