@@ -36,7 +36,7 @@ BS.ALERT = "[Backdoor Shield]"
 BS.FILENAME = "backdoor_shield.lua"
 
 BS.FOLDER = {}
-BS.FOLDER.DATA = "backdoor shield/"
+BS.FOLDER.DATA = "backdoor-shield/"
 BS.FOLDER.LUA = "bs/"
 BS.FOLDER.MODULES = BS.FOLDER.LUA .. "server/modules/"
 

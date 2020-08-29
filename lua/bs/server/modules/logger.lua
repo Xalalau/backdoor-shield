@@ -118,7 +118,7 @@ function BS:Log(err, type, ...)
     local sModule = info.short_src
     sModule = string.Explode('/', sModule)
     for _, c in pairs(sModule) do
-        if c == "gmod-backdoor-shield" then
+        if c == "backdoor-shield" then
             iModuleStart = _
         end
     end
