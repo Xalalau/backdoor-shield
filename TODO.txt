@@ -1,9 +1,3 @@
-Light scan
-
-Complete scan
-
-show progress every 500 files / Utils_GetTotalFilesAndFolders
-
 Block this
     RunString(RunStringFakedName() OtherProtectedFuncRenamed())
 
