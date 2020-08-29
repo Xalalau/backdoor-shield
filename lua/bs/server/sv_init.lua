@@ -3,6 +3,26 @@
     https://xalalau.com/
 --]]
 
+BS = {}
+BS.__index = BS
+
+BS.VERSION = "GitVub V1.4.1+"
+
+BS.DEVMODE = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
+BS.LIVEPROTECTION = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
+
+BS.ALERT = "[Backdoor Shield]"
+BS.FILENAME = "backdoor_shield.lua"
+BS.FOLDER = {}
+BS.FOLDER.DATA = "backdoor-shield/"
+BS.FOLDER.LUA = "bs/"
+BS.FOLDER.MODULES = BS.FOLDER.LUA .. "server/modules/"
+
+BS.RELOADED = false -- Internal control to check the tool reloading state - don't change it. _G.BS_RELOADED is also created to globally do the same thing
+
+local __G_SAFE = table.Copy(_G) -- Our custom environment
+BS.__G = _G -- Access the global table inside our custom environment
+
 local function includeModules(dir)
     local files, dirs = file.Find( dir.."*", "LUA" )
 
@@ -18,29 +38,6 @@ local function includeModules(dir)
         include(dir .. v)
     end 
 end
-
-BS = {}
-BS.__index = BS
-
-local __G_SAFE = table.Copy(_G) -- Our custom environment
-BS.__G = _G -- Access the global table inside our custom environment
-
-BS.VERSION = "GitVub V1.4.1+"
-
-BS.DEVMODE = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
-BS.RELOADED = false
--- It also creates _G.BS_RELOADED to globally control the state
-
-BS.LIVEPROTECTION = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
-
-BS.ALERT = "[Backdoor Shield]"
-
-BS.FILENAME = "backdoor_shield.lua"
-
-BS.FOLDER = {}
-BS.FOLDER.DATA = "backdoor-shield/"
-BS.FOLDER.LUA = "bs/"
-BS.FOLDER.MODULES = BS.FOLDER.LUA .. "server/modules/"
 
 include("definitions.lua")
 includeModules(BS.FOLDER.MODULES)
