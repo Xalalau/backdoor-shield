@@ -1,5 +1,3 @@
-Convar to disable the real time protection (disable detouring)
-
 Light scan
 
 Complete scan
@@ -34,6 +32,3 @@ It would be nice if I detected associations like
     local somevar = globalGvar
 
 Print a warning if util.AddNetworkString is created after the addons finished loading
-
-It seems that it's possible to delete server's Lua files. If so, how to protect them?
- 
