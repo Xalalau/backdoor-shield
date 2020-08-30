@@ -6,7 +6,7 @@
 BS = {}
 BS.__index = BS
 
-BS.VERSION = "V 1.5.1"
+BS.VERSION = "V 1.5.2"
 
 BS.DEVMODE = false -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
 BS.LIVEPROTECTION = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
@@ -81,17 +81,15 @@ function BS:Initialize()
     want. Logs are located in: "garrysmod/data/]] .. self.FOLDER.DATA .. [["
     ]],
     [4] = [[
-    2) Recursively scan:
+    2) Use these commands:
     |
-    |--> bs_scan folder(s)
+    |-> bs_scan FOLDER(S)       Recursively scan all files in FOLDER(S).
     |
-    |       Scan all files in folder(s) or in lua, gamemode and data
-    |       folders.
-    |
-    |--> bs_scan_fast folder(s)
+    |-> bs_scan_fast FOLDER(S)  Recursively scan lua, txt, vmt, dat and
+                                json files in FOLDER(S).
 
-            Scan lua, txt, vmt, dat and json files in folder(s) or in
-            lua, gamemode and data folders.
+        * If no folder is defined, it'll scan addons, lua, gamemode and
+        data folders.
 
     -------------------------------------------------------------------]],
     [5] = [[

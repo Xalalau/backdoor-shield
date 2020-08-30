@@ -2,7 +2,7 @@
 
 Protect your GMod server against backdoors! Block, find, investigate and remove them.
 
-![logo](https://i.imgur.com/DJlASZh.png)
+![logo](https://i.imgur.com/sAze5Q4.png)
 
 ## !! WARNING !!
 
@@ -25,21 +25,17 @@ Clone or download the files inside your **addons folder**.
 
 ## Commands
 
-    # Recursively scan folders:
+    #
+    |-> bs_tests                Run a series of tests when BS.DEVMODE is
+    |                           set to true.
     |
-    |--> bs_scan folder(s)
+    |-> bs_scan FOLDER(S)       Recursively scan all files in FOLDER(S).
     |
-    |       Scan all files in folder(s) or in lua, gamemode and data
-    |       folders.
-    |
-    |--> bs_scan_fast folder(s)
+    |-> bs_scan_fast FOLDER(S)  Recursively scan lua, txt, vmt, dat and
+                                json files in FOLDER(S).
 
-            Scan lua, txt, vmt, dat and json files in folder(s) or in
-            lua, gamemode and data folders.
-
-    # Run a series of tests when BS.DEVMODE is set to true:
-    |
-    | --> bs_tests
+        * If no folder is defined, it'll scan addons, lua, gamemode and
+        data folders.
 
 <br/>
 
