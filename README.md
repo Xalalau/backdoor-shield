@@ -1,21 +1,27 @@
-# Backdoor Shield
+# Garry's Mod - Backdoor Shield
 
-Protect your Garry's Mod server against backdoors.
+Protect your GMod server against backdoors! Block, find, investigate and remove them.
 
 ![logo](https://i.imgur.com/DJlASZh.png)
 
-## !!WARNING!!
+## !! WARNING !!
 
 >Consider that this addon just gives you an extra layer of security! You'll be able to scan your files and avoid a series of unwanted executions with a basic real-time protection, but don't think that it'll get you out of all troubles!
+
+<br/>
 
 ## Install
 
 Clone or download the files inside your **addons folder**.
 
+<br/>
+
 ## Configure
 
 - Addon settings: **lua/bs/server/sv_init.lua**
 - Scan definitions: **lua/bs/server/definitions.lua**
+
+<br/>
 
 ## Commands
 
@@ -35,6 +41,7 @@ Clone or download the files inside your **addons folder**.
     |
     | --> bs_tests
 
+<br/>
 
 ## Scan Logs
 
@@ -51,7 +58,8 @@ Each scan log is stored in **data/backdoor-shield**. They divide the results int
 <img src="https://i.imgur.com/kwUtAb0.png"/>
 </p>
 </details>
-.
+
+<br/>
 
 ## Detection Logs
 
@@ -246,7 +254,7 @@ end)
 </p>
 </details>
 
-.
+<br/>
 
 ## Backdoor Hunting
 
@@ -899,6 +907,6 @@ end)
 </p>
 </details>
 
-.
+<br/>
 
 That's it. I hope you enjoy :)
