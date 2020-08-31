@@ -8,7 +8,7 @@ AddCSLuaFile()
 BS = {}
 BS.__index = BS
 
-BS.VERSION = "V 1.6"
+BS.VERSION = "V 1.6.1"
 
 BS.ALERT = "[Backdoor Shield]"
 BS.FOLDER = {}
