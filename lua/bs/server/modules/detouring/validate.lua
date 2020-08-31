@@ -10,7 +10,7 @@ function BS:Validate_AutoCheckDetouring()
 	local function SetAuto(name, delay)
 		timer.Create(name, delay, 0, function()
 			if self.RELOADED then
-				timer.Destroy(name)
+				timer.Remove(name)
 
 				return
 			end

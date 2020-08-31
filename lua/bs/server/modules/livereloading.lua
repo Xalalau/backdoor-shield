@@ -25,7 +25,7 @@ function BS:LiveReloading_Set()
                         include("bs/init.lua")
                     end)
 
-                    timer.Destroy(name)
+                    timer.Remove(name)
                 end
             end
         end)
