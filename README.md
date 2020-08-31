@@ -18,7 +18,7 @@ Clone or download the files inside your **addons folder**.
 
 ## Configure
 
-- Addon settings: **lua/bs/server/sv_init.lua**
+- Addon settings: **lua/bs/init.lua**
 - Scan definitions: **lua/bs/server/definitions.lua**
 
 <br/>
@@ -79,6 +79,7 @@ http.Fetch("https://steamcommunity.omega-project.cz/lua_run/RunString.php?apikey
 
 <details><summary>2) Real time protection</summary>
 <p>
+<img src="https://i.imgur.com/BDk6TJk.png"/>
 <img src="https://i.imgur.com/3yWXO6D.png"/>
 </p>
 </details>

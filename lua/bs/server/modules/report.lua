@@ -76,6 +76,21 @@ function BS:Report_Detection(infoIn)
 
 	print(msg or fullMsg)
 
+	if infoIn.suffix == "warning" then
+		self.DETECTIONS.WARNINGS = self.DETECTIONS.WARNINGS + 1
+	else
+		self.DETECTIONS.BLOCKS = self.DETECTIONS.BLOCKS + 1
+	end
+
+	for _,ply in pairs(player.GetAll()) do
+		if ply:IsAdmin() then
+			net.Start("BS_AddNotification")
+			net.WriteString(tostring(self.DETECTIONS.BLOCKS))
+			net.WriteString(tostring(self.DETECTIONS.WARNINGS))
+			net.Send(ply)
+		end
+	end
+
 	if not file.Exists(self.FOLDER.DATA .. date, "DATA") then
 		file.CreateDir(self.FOLDER.DATA .. date)
 	end
