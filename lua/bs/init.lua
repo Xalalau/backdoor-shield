@@ -3,10 +3,22 @@
     https://xalalau.com/
 --]]
 
+--[[
+    General initialization:
+
+    > BS table (global vars/controls + include code);
+    > protect environment;
+    > create our data folder;
+    > create cvars;
+    > call other server and client init.
+]]
+
 AddCSLuaFile()
 
 BS = {}
 BS.__index = BS
+
+-- Global vars/controls
 
 BS.VERSION = "V GitHub 1.6.1+"
 
@@ -25,13 +37,21 @@ if SERVER then
         BS.RELOADED = false -- Internal control to check the tool reloading state - don't change it. _G.BS_RELOADED is also created to globally do the same thing
     end
 
-    BS.DETECTIONS = {
+    BS.DETECTIONS = { -- Counting
         BLOCKS = 0,
         WARNINGS = 0
     }
 
     BS.IGNORED_DETOURS = {} -- Ignored low risk detour detections. e.g { ["lua/ulib/shared/hook.lua"] = true }
 end
+
+local function GetFilesCreationTimes()
+    if SERVER then
+        BS.FILETIMES = BS:Utils_GetFilesCreationTimes() -- Get the creation time of each Lua game file
+    end
+end
+
+-- Include our stuff
 
 local function includeModules(dir, isClientModule)
     local files, dirs = file.Find( dir.."*", "LUA" )
@@ -60,8 +80,11 @@ if SERVER then
 end
 includeModules(BS.FOLDER.CL_MODULES, true)
 
--- Redeclarate the lowRiskFiles list so that it's easy to use in the code
--- e.g. ([1] = "lua/derma/derma.lua") will turn into ("lua/derma/derma.lua" = true). Much better for me.
+-- Get the creation time of each Lua game file
+GetFilesCreationTimes(BS)
+
+-- Redeclarate the lowRiskFiles list from definitions.lua, so that it's easy to use in the code
+-- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks.
 if SERVER then
     local lowRiskFiles_Aux = {}
 
@@ -73,6 +96,8 @@ if SERVER then
     lowRiskFiles_Aux = nil
 end
 
+-- Isolate our environment
+
 local BS_AUX = table.Copy(BS)
 BS = nil
 local BS = BS_AUX
@@ -81,7 +106,7 @@ local __G_SAFE = table.Copy(_G) -- Our custom environment
 BS.__G = _G -- Access the global table inside our custom environment
 BS.__G_SAFE = __G_SAFE
 
--- Isolate our environment
+
 for k,v in pairs(BS)do
     if isfunction(v) then
         setfenv(v, __G_SAFE)
@@ -89,13 +114,13 @@ for k,v in pairs(BS)do
 end
 
 if SERVER then
-    BS.FILETIMES = BS:Utils_GetFilesCreationTimes()
-
-    BS:Initialize()
+    -- Create our data folder
 
     if not file.Exists(BS.FOLDER.DATA, "DATA") then
         file.CreateDir(BS.FOLDER.DATA)
     end
+
+    -- Create cvars
 
     -- Command to scan all files in the main/selected folders
     concommand.Add("bs_scan", function(ply, cmd, args)
@@ -119,4 +144,8 @@ if SERVER then
             end
         end)
     end
+
+    -- Call other specific initializations 
+
+    BS:Initialize()
 end
