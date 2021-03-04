@@ -1,5 +1,5 @@
 --[[
-    2020 Xalalau Xubilozo. MIT License
+    2020-2021 Xalalau Xubilozo. MIT License
     https://xalalau.com/
 --]]
 
