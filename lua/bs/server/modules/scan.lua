@@ -268,7 +268,7 @@ function BS:Scan_Folders(args, extensions)
 
 					-- Files inside low risk folders
 					for _,v in pairs(self.lowRiskFolders) do
-						start = string.find(pathAux, v, nil, true)
+						local start = string.find(pathAux, v, nil, true)
 						if start == 1 then
 							results = lowRisk
 
