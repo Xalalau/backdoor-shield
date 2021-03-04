@@ -29,6 +29,8 @@ if SERVER then
         BLOCKS = 0,
         WARNINGS = 0
     }
+
+    BS.IGNORED_DETOURS = {} -- Ignored low risk detour detections. e.g { ["lua/ulib/shared/hook.lua"] = true }
 end
 
 local function includeModules(dir, isClientModule)
@@ -57,6 +59,19 @@ if SERVER then
     includeModules(BS.FOLDER.SV_MODULES)
 end
 includeModules(BS.FOLDER.CL_MODULES, true)
+
+-- Redeclarate the lowRiskFiles list so that it's easy to use in the code
+-- e.g. ([1] = "lua/derma/derma.lua") will turn into ("lua/derma/derma.lua" = true). Much better for me.
+if SERVER then
+    local lowRiskFiles_Aux = {}
+
+    for _,v in pairs(BS.lowRiskFiles) do
+        lowRiskFiles_Aux[v] = true
+    end
+
+    BS.lowRiskFiles = lowRiskFiles_Aux
+    lowRiskFiles_Aux = nil
+end
 
 local BS_AUX = table.Copy(BS)
 BS = nil

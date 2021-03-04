@@ -46,6 +46,26 @@ function BS:Utils_GetFilesCreationTimes()
     return times
 end
 
+-- Convert the path of a file in the addons folder to a game's mounted one.
+-- I'll save it and prevent us from scanning twice.
+function BS:Utils_ConvertAddonPath(path, forceConvertion)
+    local corvertedPath
+    
+    if forceConvertion or string.sub(path, 1, 7) == "addons/" then
+        corvertedPath = ""
+
+        for k,v in pairs(string.Explode("/", path)) do
+            if k > 2 then
+                corvertedPath = corvertedPath .. "/" .. v
+            end
+        end
+
+        corvertedPath = string.sub(corvertedPath, 2, string.len(corvertedPath))
+    end
+
+    return corvertedPath or path
+end
+
 function BS:Utils_RunTests()
     print("\n\n---------------------------------------------------------")
     print("[STARTING TESTS]\n")

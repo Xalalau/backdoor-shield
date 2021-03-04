@@ -37,15 +37,44 @@ function BS:Validate_Detour(funcName, controlInfo, trace)
 
 	if originalAddress ~= currentAddress then
 		local info = {
-			suffix = "detour",
-			alert = "Detour captured and undone!",
 			func = name,
 			trace = trace or debug.getinfo(currentAddress, "S").source
 		}
 
-		self:Report_Detection(info)
+		-- Check if it's a low risk detection. If so, only report
+		local lowRisk = false
+		local trace_aux = self:Utils_ConvertAddonPath(string.sub(info.trace, 1, 1) == "@" and string.sub(info.trace, 2) or info.trace, true)
 
-		self:Functions_SetDetour_Aux(funcName, originalAddress)
+		if self.lowRiskFiles[trace_aux] then
+			lowRisk = true
+		else
+			for _,v in pairs(self.lowRiskFolders) do
+				local start = string.find(trace_aux, v, nil, true)
+
+				if start == 1 then
+					lowRisk = true
+
+					break
+				end
+			end
+		end
+
+		if lowRisk then
+			if self.IGNORED_DETOURS[trace_aux] then
+				return true
+			end
+
+			info.suffix = "warning"
+			info.alert = "Warning! Detour detected in a low risk location. Ignoring it..."
+			self.IGNORED_DETOURS[trace_aux] = true
+		else
+			info.suffix = "detour"
+			info.alert = "Detour captured and undone!"
+
+			self:Functions_SetDetour_Aux(funcName, originalAddress)
+		end
+
+		self:Report_Detection(info)
 
 		return false
 	end

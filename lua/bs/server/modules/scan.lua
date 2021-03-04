@@ -128,7 +128,6 @@ function BS:Scan_Folders(args, extensions)
 	local mediumRisk = {}
 	local lowRisk = {}
 
-	local lowRiskFiles_Aux = {}
 	local suspect_suspect_Aux = {}
 
 	-- Results from addons folder take precedence
@@ -147,11 +146,6 @@ function BS:Scan_Folders(args, extensions)
 		if string.sub(folders[k], -1) == "/" then
 			folders[k] = folders[k]:sub(1, #v - 1)
 		end
-	end
-
-	-- Easy way to check low risk files (values as table indexes)
-	for _,v in pairs(self.lowRiskFiles) do
-		lowRiskFiles_Aux[v] = true
 	end
 
 	-- Easy way to check self.suspect_suspect table (values as table indexes)
@@ -206,15 +200,8 @@ function BS:Scan_Folders(args, extensions)
 				-- Convert the path of a file in the addons folder to a game's mounted one.
 				-- I'll save it and prevent us from scanning twice.
 				if addonsFolderScan then
-					local correctPath = ""
+					local correctPath = self:Utils_ConvertAddonPath(path, true)
 
-					for k,v in pairs(string.Explode("/", path)) do
-						if k > 2 then
-							correctPath = correctPath .. "/" .. v
-						end
-					end
-
-					correctPath = string.sub(correctPath, 2, string.len(correctPath))
 					pathAux = correctPath
 					addonsFolder[correctPath] = true
 				end
@@ -283,7 +270,7 @@ function BS:Scan_Folders(args, extensions)
 						if ext ~= "lua" then
 							results = highRisk
 						-- or check if it's a low risk file
-						elseif lowRiskFiles_Aux[pathAux] then
+						elseif self.lowRiskFiles[pathAux] then
 							results = lowRisk
 						-- or set the risk based on the detection precedence
 						else

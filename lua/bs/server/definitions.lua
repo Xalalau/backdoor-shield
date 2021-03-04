@@ -48,8 +48,12 @@ BS.control = {
 -- -----------------------------------------------------------------------------------
 
 -- Low risk files and folders
--- When scanning the game, these files and folders will be considered low risk, so they won't flood
--- the console with warnings (but they'll be normally reported in the logs)
+-- 1) When scanning the game, these files and folders will be considered low risk, so they won't flood
+-- the console with warnings (but they'll be normally reported in the logs);
+-- 2) If a detour is detected here, it'll only be reported, not undone. Be very careful with these locations!
+-- Note: if you are a programmer changing this tool, note that the lowRiskFiles list is restructured during init like this:
+--       { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks.
+
 BS.lowRiskFolders = {
 	"gamemodes/darkrp/",
 	"lua/entities/gmod_wire_expression2/",
