@@ -43,7 +43,7 @@ function BS:Validate_Detour(funcName, controlInfo, trace)
 
 		-- Check if it's a low risk detection. If so, only report
 		local lowRisk = false
-		local trace_aux = self:Utils_ConvertAddonPath(string.sub(info.trace, 1, 1) == "@" and string.sub(info.trace, 2) or info.trace, true)
+		local trace_aux = self:Utils_ConvertAddonPath(string.sub(info.trace, 1, 1) == "@" and string.sub(info.trace, 2) or info.trace)
 
 		if self.lowRiskFiles[trace_aux] then
 			lowRisk = true
