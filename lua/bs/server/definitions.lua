@@ -12,11 +12,11 @@ BS.control = {
 		filter = string                  -- An "internal BS function name" to execute extra protections
 	},
 ]]
-	["debug.getinfo"] = { filter = "Validate_Adresses" },     -- Isolate our environment
-	["jit.util.funcinfo"] = { filter = "Validate_Adresses" }, -- Isolate our environment
+	["debug.getinfo"] = { filter = "Validate_Adrresses" },     -- Isolate our environment
+	["jit.util.funcinfo"] = { filter = "Validate_Adrresses" }, -- Isolate our environment
 	["getfenv"] = { filter = "Validate_Environment" },        -- Isolate our environment and alert the user
 	["debug.getfenv"] = { filter = "Validate_Environment" },  -- Isolate our environment and alert the user
-	["tostring"] = { filter = "Validate_Adresses" },          -- Isolate our environment
+	["tostring"] = { filter = "Validate_Adrresses" },          -- Isolate our environment
 	["http.Post"] = { filter = "Validate_HttpFetchPost" },    -- scanned
 	["http.Fetch"] = { filter = "Validate_HttpFetchPost" },   -- scanned
 	["CompileString"] = { filter = "Validate_StrCode" },      -- scanned
