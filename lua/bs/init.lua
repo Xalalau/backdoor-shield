@@ -45,6 +45,12 @@ if SERVER then
     }
 
     BS.IGNORED_DETOURS = {} -- Ignored low risk detour detections. e.g { ["lua/ulib/shared/hook.lua"] = true }
+
+    BS.PROTECTEDCALLS = {} -- List of functions that can't call each other
+
+    BS.DANGEROUSEXTENTIONS_Check = {} -- Auxiliar tables to check values faster
+    BS.lowRiskFiles_Check = {}
+    BS.suspect_suspect_Check = {}
 end
 
 local function GetFilesCreationTimes()
@@ -106,11 +112,7 @@ BS.__G = _G
 if SERVER then
     -- Create auxiliar tables to check values faster
 
-     -- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks.
-    BS.lowRiskFiles_Check = {}
-    BS.DANGEROUSEXTENTIONS_Check = {}
-    BS.suspect_suspect_Check = {}
-
+     -- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks
     local generate = {
         { BS.lowRiskFiles, BS.lowRiskFiles_Check },
         { BS.DANGEROUSEXTENTIONS, BS.DANGEROUSEXTENTIONS_Check },
