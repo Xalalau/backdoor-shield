@@ -9,12 +9,8 @@ BS.control = {
 --[[
 	["some.game.function"] = {                -- Max. of 2 dots. Ex, 1 dot: http.Fecth = _G["http"]["Fetch"]
 		detour = function                     -- Automatically managed, just ignore. Detour function address
-		filters =                             -- Extra protections. string is a internal function name and
-		           string or                     set "failed" if you need to return values other than nil
-				   { string, ... } or
-				   { { string, failed = type } } or
-				   { { string, failed = type }, ... } or
-				   more combinations of the above patterns
+		filters = string or { string, ... }   -- Internal function names for specific protections, execution is done in order
+		failed = type                         -- Set "failed" if you need to return values other than nil
 	},
 ]]
 	["debug.getinfo"] = { filters = "Validate_Adrresses" },     -- Isolate our environment
@@ -24,10 +20,10 @@ BS.control = {
 	["tostring"] = { filters = "Validate_Adrresses" },          -- Isolate our environment
 	["http.Post"] = { filters = "Validate_HttpFetchPost" },     -- scanned
 	["http.Fetch"] = { filters = "Validate_HttpFetchPost" },    -- scanned
-	["CompileString"] = { filters = { { "Validate_StrCode", failed = "" } } }, -- scanned
+	["CompileString"] = { filters = "Validate_StrCode", failed = "" }, -- scanned
 	["CompileFile"] = { filters = "Validate_StrCode" },                        -- scanned
-	["RunString"] = { filters = { { "Validate_StrCode", failed = "" } } },     -- scanned
-	["RunStringEx"] = { filters = { { "Validate_StrCode", failed = "" } } },   -- scanned
+	["RunString"] = { filters = "Validate_StrCode", failed = "" },     -- scanned
+	["RunStringEx"] = { filters = "Validate_StrCode", failed = "" },   -- scanned
 	["HTTP"] = {},
 	["hook.Add"] = {},
 	["hook.Remove"] = {},

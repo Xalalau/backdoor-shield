@@ -6,23 +6,20 @@
 function BS:Functions_InitDetouring()
 	for protectedFunc,_ in pairs(self.control) do
 		local filters = self.control[protectedFunc].filters
+		local failed = self.control[protectedFunc].failed
 
 		if isstring(filters) then
 			self.control[protectedFunc].filters = self[self.control[protectedFunc].filters]
 			filters = { self.control[protectedFunc].filters }
 		elseif istable(filters) then
 			for k,filters2 in ipairs(filters) do
-				if not istable(filters[k]) then
-					self.control[protectedFunc].filters[k] = self[self.control[protectedFunc].filters[k]]
-				else
-					self.control[protectedFunc].filters[k][1] = self[self.control[protectedFunc].filters[k][1]]
-				end
+				self.control[protectedFunc].filters[k] = self[self.control[protectedFunc].filters[k]]
 			end
 
 			filters = self.control[protectedFunc].filters
 		end
 
-		self:Functions_SetDetour(protectedFunc, filters)
+		self:Functions_SetDetour(protectedFunc, filters, failed)
 	end
 end
 
@@ -50,7 +47,7 @@ function BS:Functions_SetDetour_Aux(funcName, func, env)
 	end
 end
 
-function BS:Functions_SetDetour(funcName, filters)
+function BS:Functions_SetDetour(funcName, filters, failed)
 	function Detour(...)
 		local args = {...} 
 		local trace = debug.traceback()
@@ -58,16 +55,17 @@ function BS:Functions_SetDetour(funcName, filters)
 		self:Validate_Detour(funcName, self.control[funcName], trace)
 
 		if filters then
+			local i = 1
 			for _,filter in ipairs(filters) do
-				local filterAux = {}
+				local result = filter(self, trace, funcName, args)
 
-				if not istable(filter) then
-					filterAux[1] = filter
-				else
-					filterAux = filter
+				if not result then
+					return failed
+				elseif i == #filters then
+					return result
 				end
 
-				return filterAux[1](self, trace, funcName, args) or filterAux[2]
+				i = i + 1
 			end
 		else
 			return self:Functions_CallProtected(funcName, args)
