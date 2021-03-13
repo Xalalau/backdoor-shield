@@ -227,7 +227,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 
 				-- If it's a non Lua file with only one suspect detection or a suspect detection from
 				-- BS.suspect and other from BS.suspect_suscpec, discard it
-				if rext ~= "lua" and (#blocked[1] + #blocked[2] == 0) and (#warning == 1 or #warning == 2 and notImportant) then
+				if ext ~= "lua" and (#blocked[1] + #blocked[2] == 0) and (#warning == 1 or #warning == 2 and notImportant) then
 					return
 				end
 
