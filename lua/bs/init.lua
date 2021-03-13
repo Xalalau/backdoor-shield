@@ -53,7 +53,7 @@ if SERVER then
     BS.suspect_suspect_Check = {}
 end
 
-local function GetFilesCreationTimes()
+local function GetFilesCreationTimes(BS)
     if SERVER then
         BS.FILETIMES = BS:Utils_GetFilesCreationTimes() -- Get the creation time of each Lua game file
     end
