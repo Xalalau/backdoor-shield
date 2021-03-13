@@ -4,7 +4,9 @@
 --]]
 
 -- Check if a file isn't suspicious at first 
-local function IsSuspicious(str, notSuspect)
+local function IsSuspicious(str, ext, dangerousExtensions, notSuspect)
+	if dangerousExtensions[ext] then return true end
+
 	for k,v in pairs(notSuspect) do
 		if string.find(str, v, nil, true) then
 			return false
@@ -31,10 +33,10 @@ local function CheckWhitelist(str, whitelist)
 end
 
 -- Process a string according to our white, black and suspect lists
-function BS:Scan_String(trace, str, blocked, warning, ignore_suspect)
+function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if not isstring(str) then return end
 
-	local IsSuspicious = IsSuspicious(str, self.notSuspect)
+	local IsSuspicious = IsSuspicious(str, ext, self.DANGEROUSEXTENTIONS_Check, self.notSuspect)
 
 	local function ProcessList(list, list2)
 		for k,v in pairs(list) do
@@ -198,7 +200,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 			end
 
 			-- Scanning
-			BS:Scan_String(nil, file.Read(path, "GAME"), blocked, warning)
+			BS:Scan_String(nil, file.Read(path, "GAME"), ext, blocked, warning)
 
 			local resultString = ""
 			local resultsList

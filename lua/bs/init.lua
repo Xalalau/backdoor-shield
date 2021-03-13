@@ -4,10 +4,11 @@
 --]]
 
 --[[
-    General initialization:
+    Main structure initialization:
 
     > BS table (global vars/controls + include code);
     > protect environment;
+    > create auxiliar tables;
     > create our data folder;
     > create cvars;
     > call other server and client init.
@@ -32,6 +33,8 @@ BS.FOLDER.CL_MODULES = BS.FOLDER.LUA .. "client/modules/"
 if SERVER then
     BS.DEVMODE = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
     BS.LIVEPROTECTION = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
+
+    BS.DANGEROUSEXTENTIONS = { "lua", "txt" , "vmt", "dat", "json" }
 
     if BS.DEVMODE then
         BS.RELOADED = false -- Internal control to check the tool reloading state - don't change it. _G.BS_RELOADED is also created to globally do the same thing
@@ -83,15 +86,6 @@ includeModules(BS.FOLDER.CL_MODULES, true)
 -- Get the creation time of each Lua game file
 GetFilesCreationTimes(BS)
 
--- Redeclarate the lowRiskFiles list from definitions.lua, so that it's easy to use in the code
--- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks.
-if SERVER then
-    BS.lowRiskFiles_Check = {}
-    for _,v in pairs(BS.lowRiskFiles) do
-        lowRiskFiles_Aux[v] = true
-    end
-end
-
 -- Protect environment
 
 -- Isolate our addon functions
@@ -110,8 +104,29 @@ end
 -- Access the global table inside our custom environment
 BS.__G = _G 
 
+-- Create auxiliar tables to check values faster
+
+-- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks.
 if SERVER then
+    BS.lowRiskFiles_Check = {}
+    BS.DANGEROUSEXTENTIONS_Check = {}
+
+    local generate = {
+        { BS.lowRiskFiles, BS.lowRiskFiles_Check },
+        { BS.DANGEROUSEXTENTIONS, BS.DANGEROUSEXTENTIONS_Check }
+    }
+
+    for _,tab in ipairs(generate) do
+        for _,field in ipairs(tab[1]) do
+            tab[2][field] = true
+        end
+    end
+end
+
+if SERVER then
+
     -- Create our data folder
+
     if not file.Exists(BS.FOLDER.DATA, "DATA") then
         file.CreateDir(BS.FOLDER.DATA)
     end
@@ -128,7 +143,7 @@ if SERVER then
     -- Command to scan some files in the main/selected folders
     concommand.Add("bs_scan_fast", function(ply, cmd, args)
         if not ply:IsValid() or ply:IsAdmin() then
-            BS:Scan_Folders(args, { "lua", "txt" , "vmt", "dat", "json" })
+            BS:Scan_Folders(args, BS.DANGEROUSEXTENTIONS)
         end
     end)
 

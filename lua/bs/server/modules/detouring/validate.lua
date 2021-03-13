@@ -100,15 +100,15 @@ function BS:Validate_HttpFetchPost(trace, funcName, args)
 			end
 		end
 
-		self:Scan_String(trace, url, blocked, warning)
+		self:Scan_String(trace, url, "lua", blocked, warning)
 
 		for _,arg in pairs(args2) do
 			if isstring(arg) then
-				self:Scan_String(trace, arg, blocked, warning)
+				self:Scan_String(trace, arg, "lua", blocked, warning)
 			elseif istable(arg) then
 				for k,v in pairs(arg) do
-					self:Scan_String(trace, k, blocked, warning)
-					self:Scan_String(trace, v, blocked, warning)
+					self:Scan_String(trace, k, "lua", blocked, warning)
+					self:Scan_String(trace, v, "lua", blocked, warning)
 				end
 			end
 		end
@@ -166,7 +166,7 @@ function BS:Validate_StrCode(trace, funcName, args)
 	if not _G[funcName] then return "" end -- RunStringEx exists but is deprecated
 	if not isstring(code) then return "" end -- Just checking
 
-	self:Scan_String(trace, code, blocked, warning)
+	self:Scan_String(trace, code, "lua", blocked, warning)
 
 	local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Execution blocked!", blocked } or
 	                 #warning > 0 and { "warning", "Suspicious execution!", warning }
