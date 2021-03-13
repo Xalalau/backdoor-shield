@@ -8,18 +8,20 @@ function BS:Functions_InitDetouring()
 		local filters = self.control[protectedFunc].filters
 		local failed = self.control[protectedFunc].failed
 
-		if isstring(filters) then
-			self.control[protectedFunc].filters = self[self.control[protectedFunc].filters]
-			filters = { self.control[protectedFunc].filters }
-		elseif istable(filters) then
-			for k,filters2 in ipairs(filters) do
-				self.control[protectedFunc].filters[k] = self[self.control[protectedFunc].filters[k]]
+		if filters then
+			if isstring(filters) then
+				self.control[protectedFunc].filters = self[self.control[protectedFunc].filters]
+				filters = { self.control[protectedFunc].filters }
+			elseif istable(filters) then
+				for k,_ in ipairs(filters) do
+					self.control[protectedFunc].filters[k] = self[self.control[protectedFunc].filters[k]]
+				end
+
+				filters = self.control[protectedFunc].filters
 			end
 
-			filters = self.control[protectedFunc].filters
+			self:Functions_SetDetour(protectedFunc, filters, failed)
 		end
-
-		self:Functions_SetDetour(protectedFunc, filters, failed)
 	end
 end
 
@@ -65,7 +67,7 @@ function BS:Functions_SetDetour(funcName, filters, failed)
 		if filters then
 			local i = 1
 			for _,filter in ipairs(filters) do
-				local result = filter(BSAux, trace, funcName, args)
+				local result = filter(self, trace, funcName, args)
 
 				running[funcName] = nil
 
