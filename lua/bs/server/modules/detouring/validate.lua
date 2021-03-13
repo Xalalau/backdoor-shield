@@ -33,10 +33,10 @@ end
 -- Check a detour
 function BS:Validate_Detour(funcName, controlInfo, trace)
 	local currentAddress = self:Functions_GetCurrent(funcName)
-	local originalAddress = controlInfo.detour or controlInfo.original
+	local detourAddress = controlInfo.detour
 	local trace_aux = debug.getinfo(currentAddress, "S").source
 
-	if originalAddress ~= currentAddress then
+	if detourAddress ~= currentAddress then
 		local info = {
 			func = name,
 			trace = trace or trace_aux
@@ -72,7 +72,7 @@ function BS:Validate_Detour(funcName, controlInfo, trace)
 			info.suffix = "detour"
 			info.alert = "Detour captured and undone!"
 
-			self:Functions_SetDetour_Aux(funcName, originalAddress)
+			self:Functions_SetDetour_Aux(funcName, detourAddress)
 		end
 
 		self:Report_Detection(info)
