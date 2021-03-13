@@ -32,71 +32,71 @@ local function CheckWhitelist(str, whitelist)
 	return found
 end
 
--- Process a string according to our white, black and suspect lists
-function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
-	if not isstring(str) then return end
+local function ProcessList(BS, trace, str, IsSuspicious, list, list2)
+	for k,v in pairs(list) do
+		if string.find(string.gsub(str, " ", ""), v, nil, true) and
+		   not CheckWhitelist(trace, BS.whitelistTraceErrors) and
+		   not CheckWhitelist(str, BS.whitelistContents) then
 
-	local IsSuspicious = IsSuspicious(str, ext, self.DANGEROUSEXTENTIONS_Check, self.notSuspect)
+			if v == "=_G" then -- Hack: recheck _G with some spaces
+				local check = string.gsub(str, "%s+", " ")
+				local strStart, strEnd = string.find(check, "=_G", nil, true)
+				if not strStart then
+					strStart, strEnd = string.find(check, "= _G", nil, true)
+				end
 
-	local function ProcessList(list, list2)
-		for k,v in pairs(list) do
-			if string.find(string.gsub(str, " ", ""), v, nil, true) and
-			   not CheckWhitelist(trace, self.whitelistTraceErrors) and
-			   not CheckWhitelist(str, self.whitelistContents) then
-	
-				if v == "=_G" then -- Hack: recheck _G with some spaces
-					local check = string.gsub(str, "%s+", " ")
-					local strStart, strEnd = string.find(check, "=_G", nil, true)
-					if not strStart then
-						strStart, strEnd = string.find(check, "= _G", nil, true)
-					end
-	
-					local nextChar = check[strEnd + 1] or "-"
-	
-					if nextChar == " " or nextChar == "\n" or nextChar == "\r\n" then
-						if not IsSuspicious then
-							return true
-						else
-							table.insert(list2, v)
-						end
-					end
-				else
+				local nextChar = check[strEnd + 1] or "-"
+
+				if nextChar == " " or nextChar == "\n" or nextChar == "\r\n" then
 					if not IsSuspicious then
 						return true
 					else
 						table.insert(list2, v)
 					end
 				end
+			else
+				if not IsSuspicious then
+					return true
+				else
+					table.insert(list2, v)
+				end
 			end
 		end
 	end
+end
+
+-- Process a string according to our white, black and suspect lists
+function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
+	if not isstring(str) then return end
+
+	local IsSuspicious = IsSuspicious(str, ext, self.DANGEROUSEXTENTIONS_Check, self.notSuspect)
 
 	if not IsSuspicious then
-		IsSuspicious = ProcessList(self.blacklistHigh) or
-					   ProcessList(self.blacklistMedium) or
-					   ProcessList(self.suspect)
+		IsSuspicious = ProcessList(self, trace, str, IsSuspicious, self.blacklistHigh) or
+					   ProcessList(self, trace, str, IsSuspicious, self.blacklistMedium) or
+					   ProcessList(self, trace, str, IsSuspicious, self.suspect)
 	end
 
 	if IsSuspicious and blocked then
 		if blocked[1] then
-			ProcessList(self.blacklistHigh, blocked[1])
+			ProcessList(self, trace, str, IsSuspicious, self.blacklistHigh, blocked[1])
 			if not ignore_suspect then
-				ProcessList(self.blacklistHigh_suspect, blocked[1])
+				ProcessList(self, trace, str, IsSuspicious, self.blacklistHigh_suspect, blocked[1])
 			end
 		end
 
 		if blocked[2] then
-			ProcessList(self.blacklistMedium, blocked[2])
+			ProcessList(self, trace, str, IsSuspicious, self.blacklistMedium, blocked[2])
 			if not ignore_suspect then
-				ProcessList(self.blacklistMedium_suspect, blocked[2])
+				ProcessList(self, trace, str, IsSuspicious, self.blacklistMedium_suspect, blocked[2])
 			end
 		end
 	end
 
 	if IsSuspicious and warning then
-		ProcessList(self.suspect, warning)
+		ProcessList(self, trace, str, IsSuspicious, self.suspect, warning)
 		if not ignore_suspect then
-			ProcessList(self.suspect_suspect, warning)
+			ProcessList(self, trace, str, IsSuspicious, self.suspect_suspect, warning)
 		end
 	end
 
