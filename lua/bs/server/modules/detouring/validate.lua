@@ -87,8 +87,7 @@ end
 function BS:Validate_HttpFetch(trace, funcName, args)
 	local url = args[1]
 
-	http.Fetch(url, function(...)
-		local args2 = { ... }
+	local function Scan(args2)
 		local blocked = {{}, {}}
 		local warning = {}
 		local detected
@@ -135,7 +134,15 @@ function BS:Validate_HttpFetch(trace, funcName, args)
 		if #blocked[1] == 0 and #blocked[2] == 0 then
 			self:Functions_CallProtected(funcName, args)
 		end
-	end, args[3], args[4])
+	end
+
+	http.Fetch(url, function(...)
+		local args2 = { ... }
+		Scan(args2)
+	end, function(...)
+		local args2 = { ... }
+		Scan(args2)
+	end, args[4])
 end
 
 -- Check CompileString and RunString(EX) calls
