@@ -59,6 +59,12 @@ local function GetFilesCreationTimes()
     end
 end
 
+local function SetControlsBackup(BS)
+    if SERVER then
+        BS.CONTROLSBACKUP = table.Copy(BS.control) -- Get the creation time of each Lua game file
+    end
+end
+
 -- Include our stuff
 
 local function includeModules(dir, isClientModule)
@@ -90,6 +96,9 @@ includeModules(BS.FOLDER.CL_MODULES, true)
 
 -- Get the creation time of each Lua game file
 GetFilesCreationTimes(BS)
+
+-- Backup the controls table
+SetControlsBackup(BS)
 
 -- Protect environment
 
