@@ -6,23 +6,23 @@
 -- Functions that need to be protected
 -- Some are scanned or serve some special purpose
 BS.control = {
-	--[[
-	["some.game.function"] = { -- Max. of 2 dots. Ex, 1 dot: http.Fecth = _G["http"]["Fetch"]
-		detour = function detoured some.game.function
-		filter = function to scan some.game.function contents
+--[[
+	["some.game.function"] = {           -- Max. of 2 dots. Ex, 1 dot: http.Fecth = _G["http"]["Fetch"]
+		detour = function                -- Automatically managed, just ignore. Detour function address
+		filter = string                  -- An "internal BS function name" to execute extra protections
 	},
-	]]
-	["debug.getinfo"] = {}, -- Isolate our environment
-	["jit.util.funcinfo"] = {}, -- Isolate our environment
-	["getfenv"] = {}, -- Isolate our environment and alert the user
-	["debug.getfenv"] = {}, -- Isolate our environment and alert the user
-	["tostring"] = {}, -- Isolate our environment
+]]
+	["debug.getinfo"] = { filter = "Validate_Adresses" },     -- Isolate our environment
+	["jit.util.funcinfo"] = { filter = "Validate_Adresses" }, -- Isolate our environment
+	["getfenv"] = { filter = "Validate_Environment" },        -- Isolate our environment and alert the user
+	["debug.getfenv"] = { filter = "Validate_Environment" },  -- Isolate our environment and alert the user
+	["tostring"] = { filter = "Validate_Adresses" },          -- Isolate our environment
 	["http.Post"] = {},
-	["http.Fetch"] = {}, -- scanned
-	["CompileString"] = {}, -- scanned
-	["CompileFile"] = {}, -- scanned
-	["RunString"] = {}, -- scanned
-	["RunStringEx"] = {}, -- scanned
+	["http.Fetch"] = { filter = "Validate_HttpFetch" },                -- scanned
+	["CompileString"] = { filter = "Validate_CompileOrRunString_Ex" }, -- scanned
+	["CompileFile"] = { filter = "Validate_CompileFile" },             -- scanned
+	["RunString"] = { filter = "Validate_CompileOrRunString_Ex" },     -- scanned
+	["RunStringEx"] = { filter = "Validate_CompileOrRunString_Ex" },   -- scanned
 	["HTTP"] = {},
 	["hook.Add"] = {},
 	["hook.Remove"] = {},
