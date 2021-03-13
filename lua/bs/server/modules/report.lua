@@ -114,11 +114,11 @@ function BS:Report_Folder(highRisk, mediumRisk, lowRisk)
 	local time = os.date("%Hh %Mm %Ss", Timestamp)
 	local logFile = self.FOLDER.DATA .. "Scan_" .. date .. "_(" .. time .. ").txt"
 
-	file.Append(logFile, "[HIGH RISK DETECTIONS]\n\n")
+	file.Append(logFile, "[HIGH RISK DETECTIONS]\n----------------------------------------------------------------------------\n\n")
 	file.Append(logFile, table.ToString(highRisk, "Results", true))
-	file.Append(logFile, "\n\n\n\n\n[MEDIUM RISK DETECTIONS]\n\n")
+	file.Append(logFile, "\n\n\n\n\n[MEDIUM RISK DETECTIONS]\n----------------------------------------------------------------------------\n\n")
 	file.Append(logFile, table.ToString(mediumRisk, "Results", true))
-	file.Append(logFile, "\n\n\n\n\n[LOW RISK DETECTIONS]\n\n")
+	file.Append(logFile, "\n\n\n\n\n[LOW RISK DETECTIONS]\n----------------------------------------------------------------------------\n\n")
 	file.Append(logFile, table.ToString(lowRisk, "Results", true))
 
 	print("\nScan saved as \"data/" .. logFile .. "\"")
