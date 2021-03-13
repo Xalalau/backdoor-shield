@@ -282,6 +282,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 				end
 
 				-- Build
+
 				resultString = path
 				resultString = resultString .. JoinResults(blocked[1], "[!!]")
 				resultString = resultString .. JoinResults(blocked[2], "[!]")
@@ -289,6 +290,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 				resultString = resultString .. "\n"
 
 				-- Print
+
 				if resultsList ~= results.lowRisk then
 					if resultsList == results.highRisk then
 						print("[[[ HIGH RISK ]]] ---------------------------------------------------------------------------- <<<")
@@ -298,6 +300,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 				end
 
 				-- Stack up
+
 				table.insert(resultsList, resultString)
 			end
 		end
