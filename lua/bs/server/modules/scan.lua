@@ -215,7 +215,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 
 				if (#blocked[1] + #blocked[2] == 0)  then
 					for k,v in pairs (warning) do
-						if cfgs.suspect_suspect_Aux[v] then
+						if cfgs.suspect_suspect_Check[v] then
 							notImportant = notImportant + 1
 						end
 					end
@@ -318,8 +318,7 @@ function BS:Scan_Folders(args, extensions)
 
 	local cfgs = {
 		addonsFolder = {}, 	-- Note: results from addons folder have precedence.
-		addonsFolderScan = #args == 0 and true, -- The addons folder will not be scanned if args is set
-		suspect_suspect_Aux = {} -- Internal control
+		addonsFolderScan = #args == 0 and true -- The addons folder will not be scanned if args is set
 	}
 
 	-- Select custom folders or a list of default folders
@@ -335,11 +334,6 @@ function BS:Scan_Folders(args, extensions)
 		if string.sub(folders[k], -1) == "/" then
 			folders[k] = folders[k]:sub(1, #v - 1)
 		end
-	end
-
-	-- Easy way to check self.suspect_suspect table (values as table indexes)
-	for _,v in pairs(self.suspect_suspect) do
-		cfgs.suspect_suspect_Aux[v] = true
 	end
 
 	print("\n\n -------------------------------------------------------------------")

@@ -110,10 +110,12 @@ BS.__G = _G
 if SERVER then
     BS.lowRiskFiles_Check = {}
     BS.DANGEROUSEXTENTIONS_Check = {}
+    BS.suspect_suspect_Check = {}
 
     local generate = {
         { BS.lowRiskFiles, BS.lowRiskFiles_Check },
-        { BS.DANGEROUSEXTENTIONS, BS.DANGEROUSEXTENTIONS_Check }
+        { BS.DANGEROUSEXTENTIONS, BS.DANGEROUSEXTENTIONS_Check },
+        { BS.suspect_suspect, BS.suspect_suspect_Check }
     }
 
     for _,tab in ipairs(generate) do
