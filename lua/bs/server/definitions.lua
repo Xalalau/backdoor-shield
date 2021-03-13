@@ -17,12 +17,12 @@ BS.control = {
 	["getfenv"] = { filter = "Validate_Environment" },        -- Isolate our environment and alert the user
 	["debug.getfenv"] = { filter = "Validate_Environment" },  -- Isolate our environment and alert the user
 	["tostring"] = { filter = "Validate_Adresses" },          -- Isolate our environment
-	["http.Post"] = { filter = "Validate_HttpFetchPost" },             -- scanned
-	["http.Fetch"] = { filter = "Validate_HttpFetchPost" },            -- scanned
-	["CompileString"] = { filter = "Validate_CompileOrRunString_Ex" }, -- scanned
-	["CompileFile"] = { filter = "Validate_CompileFile" },             -- scanned
-	["RunString"] = { filter = "Validate_CompileOrRunString_Ex" },     -- scanned
-	["RunStringEx"] = { filter = "Validate_CompileOrRunString_Ex" },   -- scanned
+	["http.Post"] = { filter = "Validate_HttpFetchPost" },    -- scanned
+	["http.Fetch"] = { filter = "Validate_HttpFetchPost" },   -- scanned
+	["CompileString"] = { filter = "Validate_StrCode" },      -- scanned
+	["CompileFile"] = { filter = "Validate_StrCode" },        -- scanned
+	["RunString"] = { filter = "Validate_StrCode" },          -- scanned
+	["RunStringEx"] = { filter = "Validate_StrCode" },        -- scanned
 	["HTTP"] = {},
 	["hook.Add"] = {},
 	["hook.Remove"] = {},

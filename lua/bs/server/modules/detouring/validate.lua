@@ -157,15 +157,14 @@ function BS:Validate_HttpFetchPost(trace, funcName, args)
 	end
 end
 
--- Check CompileString and RunString(EX) calls
-function BS:Validate_CompileOrRunString_Ex(trace, funcName, args)
-	local code = args[1]
+-- Check CompileString, CompileFile, RunString and RunStringEX calls
+function BS:Validate_StrCode(trace, funcName, args)
+	local code = funcName == "CompileFile" and file.Read(args[1], "LUA") or args[1]
 	local blocked = {{}, {}}
 	local warning = {}
 
-	if not _G[funcName] then -- RunStringEx exists but is deprecated
-		return ""
-	end
+	if not _G[funcName] then return "" end -- RunStringEx exists but is deprecated
+	if not isstring(code) then return "" end -- Just checking
 
 	self:Scan_String(trace, code, blocked, warning)
 
@@ -186,40 +185,7 @@ function BS:Validate_CompileOrRunString_Ex(trace, funcName, args)
 		self:Report_Detection(info)
 	end
 
-	return #blocked[1] == 0 and #blocked[2] == 0 and self:Functions_CallProtected(funcName, #args > 0 and args or {""}) or ""
-end
-
--- Check CompileFile calls
-function BS:Validate_CompileFile(trace, funcName, args)
-	local path = args[1]
-	local content = file.Read(path, "LUA")
-	local blocked = {{}, {}}
-	local warning = {}
-
-	if not isstring(content) then
-		return
-	end
-
-	self:Scan_String(trace, content, blocked, warning)
-
-	local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Execution blocked!", blocked } or
-	                 #warning > 0 and { "warning", "Suspicious execution!", warning }
-
-	if detected then
-		local info = {
-			suffix = detected[1],
-			folder = funcName,
-			alert = detected[2],
-			func = funcName,
-			trace = trace,
-			detected = detected[3],
-			content = content
-		}
-
-		self:Report_Detection(info)
-	end
-
-	return #blocked[1] == 0 and #blocked[2] == 0 and self:Functions_CallProtected(funcName, args)
+	return #blocked[1] == 0 and #blocked[2] == 0 and self:Functions_CallProtected(funcName, #args > 0 and args or {""}) or not funcName == "CompileFile" and "" or nil
 end
 
 -- Protect our custom environment
