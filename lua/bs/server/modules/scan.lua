@@ -215,7 +215,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 
 				if (#blocked[1] + #blocked[2] == 0)  then
 					for k,v in pairs (warning) do
-						if cfgs.suspect_suspect_Check[v] then
+						if BS.suspect_suspect_Check[v] then
 							notImportant = notImportant + 1
 						end
 					end
