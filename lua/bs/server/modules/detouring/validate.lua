@@ -34,16 +34,17 @@ end
 function BS:Validate_Detour(funcName, controlInfo, trace)
 	local currentAddress = self:Functions_GetCurrent(funcName)
 	local originalAddress = controlInfo.detour or controlInfo.original
+	local trace_aux = debug.getinfo(currentAddress, "S").source
 
 	if originalAddress ~= currentAddress then
 		local info = {
 			func = name,
-			trace = trace or debug.getinfo(currentAddress, "S").source
+			trace = trace or trace_aux
 		}
 
 		-- Check if it's a low risk detection. If so, only report
 		local lowRisk = false
-		local trace_aux = self:Utils_ConvertAddonPath(string.sub(info.trace, 1, 1) == "@" and string.sub(info.trace, 2) or info.trace)
+		trace_aux = self:Utils_ConvertAddonPath(string.sub(trace_aux, 1, 1) == "@" and string.sub(trace_aux, 2))
 
 		if self.lowRiskFiles[trace_aux] then
 			lowRisk = true
