@@ -126,8 +126,9 @@ local function RecursiveScan(BS, dir, results, cfgs)
 
 	local files, dirs = file.Find(dir.."*", "GAME")
 	
-	if not dirs or
+	if not dirs or -- Ignore our own folders
 		dir == "addons/" .. BS.FOLDER.DATA or
+		dir == "addons/" .. string.gsub(BS.FOLDER.DATA, "/", "") .. "-master/" or
 		dir == "lua/" .. BS.FOLDER.LUA  then
 
 		return
