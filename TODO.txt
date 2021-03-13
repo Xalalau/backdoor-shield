@@ -1,7 +1,5 @@
 Print a warning if someone try to table.Copy _G
 
-It might be a good idea to validate http.Post response
-
 It would be nice if I detected associations like
     local somevar = globalGvar
 

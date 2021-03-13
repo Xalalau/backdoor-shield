@@ -17,8 +17,8 @@ BS.control = {
 	["getfenv"] = { filter = "Validate_Environment" },        -- Isolate our environment and alert the user
 	["debug.getfenv"] = { filter = "Validate_Environment" },  -- Isolate our environment and alert the user
 	["tostring"] = { filter = "Validate_Adresses" },          -- Isolate our environment
-	["http.Post"] = {},
-	["http.Fetch"] = { filter = "Validate_HttpFetch" },                -- scanned
+	["http.Post"] = { filter = "Validate_HttpFetchPost" },             -- scanned
+	["http.Fetch"] = { filter = "Validate_HttpFetchPost" },            -- scanned
 	["CompileString"] = { filter = "Validate_CompileOrRunString_Ex" }, -- scanned
 	["CompileFile"] = { filter = "Validate_CompileFile" },             -- scanned
 	["RunString"] = { filter = "Validate_CompileOrRunString_Ex" },     -- scanned

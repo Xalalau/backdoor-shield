@@ -84,7 +84,7 @@ function BS:Validate_Detour(funcName, controlInfo, trace)
 end
 
 -- Check http.fetch calls
-function BS:Validate_HttpFetch(trace, funcName, args)
+function BS:Validate_HttpFetchPost(trace, funcName, args)
 	local url = args[1]
 
 	local function Scan(args2)
@@ -130,19 +130,31 @@ function BS:Validate_HttpFetch(trace, funcName, args)
 
 			self:Report_Detection(info)
 		end
-	
+
 		if #blocked[1] == 0 and #blocked[2] == 0 then
 			self:Functions_CallProtected(funcName, args)
 		end
 	end
 
-	http.Fetch(url, function(...)
-		local args2 = { ... }
-		Scan(args2)
-	end, function(...)
-		local args2 = { ... }
-		Scan(args2)
-	end, args[4])
+	if funcName == "http.Fetch" then
+		http.Fetch(url, function(...)
+			local args2 = { ... }
+			Scan(args2)
+		end, function(...)
+			local args2 = { ... }
+			Scan(args2)
+		end, args[4])
+	elseif funcName == "http.Post" then
+		http.Post(url, args[2], function(...)
+			local args2 = { ... }
+			args2[9999] = args[2]
+			Scan(args2)
+		end, function(...)
+			local args2 = { ... }
+			args2[9999] = args[2]
+			Scan(args2)
+		end, args[5])
+	end
 end
 
 -- Check CompileString and RunString(EX) calls
