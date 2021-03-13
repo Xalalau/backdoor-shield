@@ -4,6 +4,7 @@
 --]]
 
 function BS:Initialize()
+    -- Print logo
     -- https://manytools.org/hacker-tools/ascii-banner/
     -- Font: ANSI Shadow
     local logo = { [1] = [[
@@ -63,7 +64,36 @@ function BS:Initialize()
         print()
     end
 
+    -- Create cvars
+
+    -- Command to scan all files in the main/selected folders
+    concommand.Add("bs_scan", function(ply, cmd, args)
+        if not ply:IsValid() or ply:IsAdmin() then
+            self:Scan_Folders(args)
+        end
+    end)
+
+    -- Command to scan some files in the main/selected folders
+    concommand.Add("bs_scan_fast", function(ply, cmd, args)
+        if not ply:IsValid() or ply:IsAdmin() then
+            self:Scan_Folders(args, self.DANGEROUSEXTENTIONS)
+        end
+    end)
+
+    -- Command to run an automatic set of tests
+    if self.DEVMODE then
+        concommand.Add("bs_tests", function(ply, cmd, args)
+            if not ply:IsValid() or ply:IsAdmin() then
+                self:Utils_RunTests()
+            end
+        end)
+    end
+
+    -- Set live reloading
+
     self:LiveReloading_Set()
+
+    -- Set live protection
 
     if self.LIVEPROTECTION then
         self:Functions_InitDetouring()

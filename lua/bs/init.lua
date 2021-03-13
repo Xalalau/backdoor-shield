@@ -10,7 +10,6 @@
     > protect environment;
     > create auxiliar tables;
     > create our data folder;
-    > create cvars;
     > call other server and client init.
 ]]
 
@@ -104,10 +103,10 @@ end
 -- Access the global table inside our custom environment
 BS.__G = _G 
 
--- Create auxiliar tables to check values faster
-
--- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks.
 if SERVER then
+    -- Create auxiliar tables to check values faster
+
+     -- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks.
     BS.lowRiskFiles_Check = {}
     BS.DANGEROUSEXTENTIONS_Check = {}
     BS.suspect_suspect_Check = {}
@@ -123,39 +122,11 @@ if SERVER then
             tab[2][field] = true
         end
     end
-end
-
-if SERVER then
 
     -- Create our data folder
 
     if not file.Exists(BS.FOLDER.DATA, "DATA") then
         file.CreateDir(BS.FOLDER.DATA)
-    end
-
-    -- Create cvars
-
-    -- Command to scan all files in the main/selected folders
-    concommand.Add("bs_scan", function(ply, cmd, args)
-        if not ply:IsValid() or ply:IsAdmin() then
-            BS:Scan_Folders(args)
-        end
-    end)
-
-    -- Command to scan some files in the main/selected folders
-    concommand.Add("bs_scan_fast", function(ply, cmd, args)
-        if not ply:IsValid() or ply:IsAdmin() then
-            BS:Scan_Folders(args, BS.DANGEROUSEXTENTIONS)
-        end
-    end)
-
-    -- Command to run an automatic set of tests
-    if BS.DEVMODE then
-        concommand.Add("bs_tests", function(ply, cmd, args)
-            if not ply:IsValid() or ply:IsAdmin() then
-                BS:Utils_RunTests()
-            end
-        end)
     end
 
     -- Call other specific initializations 
