@@ -96,26 +96,26 @@ if SERVER then
     lowRiskFiles_Aux = nil
 end
 
--- Isolate our environment
+-- Protect environment
 
+-- Isolate our addon functions
 local BS_AUX = table.Copy(BS)
 BS = nil
 local BS = BS_AUX
 
-local __G_SAFE = table.Copy(_G) -- Our custom environment
-BS.__G = _G -- Access the global table inside our custom environment
-BS.__G_SAFE = __G_SAFE
-
-
+-- Set our custom environment
+local __G_SAFE = table.Copy(_G)
 for k,v in pairs(BS)do
     if isfunction(v) then
         setfenv(v, __G_SAFE)
     end
 end
 
+-- Access the global table inside our custom environment
+BS.__G = _G 
+
 if SERVER then
     -- Create our data folder
-
     if not file.Exists(BS.FOLDER.DATA, "DATA") then
         file.CreateDir(BS.FOLDER.DATA)
     end
