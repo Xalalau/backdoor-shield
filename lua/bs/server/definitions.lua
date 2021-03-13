@@ -7,22 +7,27 @@
 -- Some are scanned or serve some special purpose
 BS.control = {
 --[[
-	["some.game.function"] = {           -- Max. of 2 dots. Ex, 1 dot: http.Fecth = _G["http"]["Fetch"]
-		detour = function                -- Automatically managed, just ignore. Detour function address
-		filter = string                  -- An "internal BS function name" to execute extra protections
+	["some.game.function"] = {                -- Max. of 2 dots. Ex, 1 dot: http.Fecth = _G["http"]["Fetch"]
+		detour = function                     -- Automatically managed, just ignore. Detour function address
+		filters =                             -- Extra protections. string is a internal function name and
+		           string or                     set "failed" if you need to return values other than nil
+				   { string, ... } or
+				   { { string, failed = type } } or
+				   { { string, failed = type }, ... } or
+				   more combinations of the above patterns
 	},
 ]]
-	["debug.getinfo"] = { filter = "Validate_Adrresses" },     -- Isolate our environment
-	["jit.util.funcinfo"] = { filter = "Validate_Adrresses" }, -- Isolate our environment
-	["getfenv"] = { filter = "Validate_Environment" },        -- Isolate our environment and alert the user
-	["debug.getfenv"] = { filter = "Validate_Environment" },  -- Isolate our environment and alert the user
-	["tostring"] = { filter = "Validate_Adrresses" },          -- Isolate our environment
-	["http.Post"] = { filter = "Validate_HttpFetchPost" },    -- scanned
-	["http.Fetch"] = { filter = "Validate_HttpFetchPost" },   -- scanned
-	["CompileString"] = { filter = "Validate_StrCode" },      -- scanned
-	["CompileFile"] = { filter = "Validate_StrCode" },        -- scanned
-	["RunString"] = { filter = "Validate_StrCode" },          -- scanned
-	["RunStringEx"] = { filter = "Validate_StrCode" },        -- scanned
+	["debug.getinfo"] = { filters = "Validate_Adrresses" },     -- Isolate our environment
+	["jit.util.funcinfo"] = { filters = "Validate_Adrresses" }, -- Isolate our environment
+	["getfenv"] = { filters = "Validate_Environment" },         -- Isolate our environment and alert the user
+	["debug.getfenv"] = { filters = "Validate_Environment" },   -- Isolate our environment and alert the user
+	["tostring"] = { filters = "Validate_Adrresses" },          -- Isolate our environment
+	["http.Post"] = { filters = "Validate_HttpFetchPost" },     -- scanned
+	["http.Fetch"] = { filters = "Validate_HttpFetchPost" },    -- scanned
+	["CompileString"] = { filters = { { "Validate_StrCode", failed = "" } } }, -- scanned
+	["CompileFile"] = { filters = "Validate_StrCode" },                        -- scanned
+	["RunString"] = { filters = { { "Validate_StrCode", failed = "" } } },     -- scanned
+	["RunStringEx"] = { filters = { { "Validate_StrCode", failed = "" } } },   -- scanned
 	["HTTP"] = {},
 	["hook.Add"] = {},
 	["hook.Remove"] = {},

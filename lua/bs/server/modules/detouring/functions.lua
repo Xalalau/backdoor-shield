@@ -4,9 +4,25 @@
 --]]
 
 function BS:Functions_InitDetouring()
-	for protectedFunc, protectedFuncTab in pairs(self.control) do
-		self.control[protectedFunc].filter = self[protectedFuncTab.filter]
-		self:Functions_SetDetour(protectedFunc, protectedFuncTab.filter)
+	for protectedFunc,_ in pairs(self.control) do
+		local filters = self.control[protectedFunc].filters
+
+		if isstring(filters) then
+			self.control[protectedFunc].filters = self[self.control[protectedFunc].filters]
+			filters = { self.control[protectedFunc].filters }
+		elseif istable(filters) then
+			for k,filters2 in ipairs(filters) do
+				if not istable(filters[k]) then
+					self.control[protectedFunc].filters[k] = self[self.control[protectedFunc].filters[k]]
+				else
+					self.control[protectedFunc].filters[k][1] = self[self.control[protectedFunc].filters[k][1]]
+				end
+			end
+
+			filters = self.control[protectedFunc].filters
+		end
+
+		self:Functions_SetDetour(protectedFunc, filters)
 	end
 end
 
@@ -34,15 +50,25 @@ function BS:Functions_SetDetour_Aux(funcName, func, env)
 	end
 end
 
-function BS:Functions_SetDetour(funcName, customFilter)
+function BS:Functions_SetDetour(funcName, filters)
 	function Detour(...)
 		local args = {...} 
 		local trace = debug.traceback()
 
 		self:Validate_Detour(funcName, self.control[funcName], trace)
 
-		if customFilter then
-			return customFilter(self, trace, funcName, args)
+		if filters then
+			for _,filter in ipairs(filters) do
+				local filterAux = {}
+
+				if not istable(filter) then
+					filterAux[1] = filter
+				else
+					filterAux = filter
+				end
+
+				return filterAux[1](self, trace, funcName, args) or filterAux[2]
+			end
 		else
 			return self:Functions_CallProtected(funcName, args)
 		end

@@ -155,6 +155,8 @@ function BS:Validate_HttpFetchPost(trace, funcName, args)
 			Scan(args2)
 		end, args[5])
 	end
+
+	return true
 end
 
 -- Check CompileString, CompileFile, RunString and RunStringEX calls
@@ -185,7 +187,7 @@ function BS:Validate_StrCode(trace, funcName, args)
 		self:Report_Detection(info)
 	end
 
-	return #blocked[1] == 0 and #blocked[2] == 0 and self:Functions_CallProtected(funcName, #args > 0 and args or {""}) or not funcName == "CompileFile" and "" or nil
+	return #blocked[1] == 0 and #blocked[2] == 0 and self:Functions_CallProtected(funcName, #args > 0 and args or {""})
 end
 
 -- Protect our custom environment
