@@ -15,8 +15,8 @@ function BS:Validate_AutoCheckDetouring()
 				return
 			end
 
-			for k,v in pairs(self.control) do
-				self:Validate_Detour(k, v)
+			for funcName,_ in pairs(self.control) do
+				self:Validate_Detour(funcName)
 			end
 		end)
 	end
@@ -31,9 +31,9 @@ function BS:Validate_AutoCheckDetouring()
 end
 
 -- Check a detour
-function BS:Validate_Detour(funcName, controlInfo, trace)
+function BS:Validate_Detour(funcName, trace)
 	local currentAddress = self:Functions_GetCurrent(funcName)
-	local detourAddress = controlInfo.detour
+	local detourAddress = self.control[funcName].detour
 	local trace_aux = debug.getinfo(currentAddress, "S").source
 
 	if detourAddress ~= currentAddress then
@@ -44,7 +44,12 @@ function BS:Validate_Detour(funcName, controlInfo, trace)
 
 		-- Check if it's a low risk detection. If so, only report
 		local lowRisk = false
-		trace_aux = self:Utils_ConvertAddonPath(string.sub(trace_aux, 1, 1) == "@" and string.sub(trace_aux, 2))
+
+		if not trace_aux or string.len(trace_aux) == 4 then
+			trace_aux = self:Utils_ConvertAddonPath(string.Trim(string.Explode(":", string.Explode("\n", trace or debug.traceback())[2])[1]))
+		else
+			trace_aux = self:Utils_ConvertAddonPath(string.sub(trace_aux, 1, 1) == "@" and string.sub(trace_aux, 2))
+		end
 
 		if self.lowRiskFiles_Check[trace_aux] then
 			lowRisk = true
