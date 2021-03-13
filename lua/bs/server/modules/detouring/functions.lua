@@ -13,7 +13,7 @@ function BS:Functions_InitDetouring()
 	self.control["debug.getfenv"].filter = self.Validate_Environment
 	self.control["debug.getinfo"].filter = self.Validate_Adresses
 	self.control["jit.util.funcinfo"].filter = self.Validate_Adresses
-	--self.control["tostring"].filter = self.Validate_Adresses
+	self.control["tostring"].filter = self.Validate_Adresses
 
 	for k,v in pairs(self.control) do
 		self:Functions_SetDetour(k, v.filter)
