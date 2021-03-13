@@ -119,29 +119,32 @@ local function JoinResults(tab, alert)
 end
 
 -- Scan a folder
-local function RecursiveScan(BS, dir, results, cfgs)
+local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 	if dir == "data/" .. BS.FOLDER.DATA then
 		return
 	end
 
 	local files, dirs = file.Find(dir.."*", "GAME")
-
-	-- List lua/bs/ results as low risk
 	local forceLowRisk = false
 
-	if string.find(dir, "lua/" .. BS.FOLDER.LUA, nil, true) == 1 then
+	-- Ignore nil folders
+	if not dirs then
+		return
+	-- List lua/bs/ results as low risk
+	elseif string.find(dir, "lua/" .. BS.FOLDER.LUA, nil, true) == 1 then
 		forceLowRisk = true
-	-- Ignore nil folders and our own addons folders
+	-- Ignore our own addons folder(s) results
 	elseif not dirs or
 		dir == "addons/" .. BS.FOLDER.DATA or
 		dir == "addons/" .. string.gsub(BS.FOLDER.DATA, "/", "") .. "-master/" then
-		return
+
+		forceIgnore = true
 	end
 
 	-- Check directories
 	for _, fdir in pairs(dirs) do
 		if fdir ~= "/" then -- We can get a / if we start from the root
-			RecursiveScan(BS, dir .. fdir .. "/", results, cfgs)
+			RecursiveScan(BS, dir .. fdir .. "/", results, cfgs, forceIgnore)
 		end
 	end
 
@@ -171,11 +174,15 @@ local function RecursiveScan(BS, dir, results, cfgs)
 
 			-- Convert the path of a file in the addons folder to a game's mounted one.
 			-- I'll save it and prevent us from scanning twice.
-			if cfgs.addonsFolderScan then
+			if cfgs.addonsFolderScan or forceIgnore then
 				local correctPath = BS:Utils_ConvertAddonPath(path, true)
 
 				pathAux = correctPath
 				cfgs.addonsFolder[correctPath] = true
+
+				if forceIgnore then
+					return
+				end
 			end
 
 			-- Ignore whitelisted contents
