@@ -223,11 +223,17 @@ function BS:Validate_Environment(trace, funcName, args)
 end
 
 -- Hide our detours
--- debug.getinfo
--- jit.util.funcinfo
--- tostring
+--   debug.getinfo
+--   jit.util.funcinfo
+--   tostring
+local checking = {}
 function BS:Validate_Adresses(trace, funcName, args)
-	if args[1] and (funcName ~= "tostring" or isfunction(args[1])) then
+	if checking[funcName] then -- Avoid loops
+		return self:Functions_CallProtected(funcName, args)
+	end
+	checking[funcName] = true
+
+	if args[1] and isfunction(args[1]) then
 		for k,v in pairs(self.control) do
 			if args[1] == v.detour then
 				args[1] = self:Functions_GetCurrent(k, _G)
@@ -236,5 +242,6 @@ function BS:Validate_Adresses(trace, funcName, args)
 		end
 	end
 
+	checking[funcName] = nil
 	return self:Functions_CallProtected(funcName, args)
 end
