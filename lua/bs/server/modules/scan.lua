@@ -125,21 +125,27 @@ local function RecursiveScan(BS, dir, results, cfgs)
 	end
 
 	local files, dirs = file.Find(dir.."*", "GAME")
-	
-	if not dirs or -- Ignore our own folders
-		dir == "addons/" .. BS.FOLDER.DATA or
-		dir == "addons/" .. string.gsub(BS.FOLDER.DATA, "/", "") .. "-master/" or
-		dir == "lua/" .. BS.FOLDER.LUA  then
 
+	-- List lua/bs/ results as low risk
+	local forceLowRisk = false
+
+	if string.find(dir, "lua/" .. BS.FOLDER.LUA, nil, true) == 1 then
+		forceLowRisk = true
+	-- Ignore nil folders and our own addons folders
+	elseif not dirs or
+		dir == "addons/" .. BS.FOLDER.DATA or
+		dir == "addons/" .. string.gsub(BS.FOLDER.DATA, "/", "") .. "-master/" then
 		return
 	end
 
+	-- Check directories
 	for _, fdir in pairs(dirs) do
 		if fdir ~= "/" then -- We can get a / if we start from the root
 			RecursiveScan(BS, dir .. fdir .. "/", results, cfgs)
 		end
 	end
 
+	-- Check files
 	for k,v in pairs(files) do
 		local path = dir .. v
 
@@ -218,20 +224,27 @@ local function RecursiveScan(BS, dir, results, cfgs)
 
 				-- Default risks:
 
-				-- Files inside low risk folders
-				for _,v in pairs(BS.lowRiskFolders) do
-					local start = string.find(pathAux, v, nil, true)
-					if start == 1 then
-						resultsList = results.lowRisk
+				-- Force low risk
+				if forceLowRisk then
+					resultsList = results.lowRisk
+				end
 
-						break
+				-- Files inside low risk folders
+				if not resultsList then
+					for _,v in pairs(BS.lowRiskFolders) do
+						local start = string.find(pathAux, v, nil, true)
+						if start == 1 then
+							resultsList = results.lowRisk
+
+							break
+						end
 					end
 				end
 
 				-- Or if it's not a low risk folder
 				-- let's set a default risk to modify later
 				if not resultsList then
-					-- non Lua files are VERY unsafe
+					-- non Lua detections are VERY unsafe
 					if ext ~= "lua" then
 						resultsList = results.highRisk
 					-- or check if it's a low risk file
@@ -245,16 +258,18 @@ local function RecursiveScan(BS, dir, results, cfgs)
 					end
 				end
 
-				-- Custom risks:
+				-- Other custom risks:
 
-				-- If we don't have a high risk but there are three or more medium risk detections, set to high risk
-				if resultsList ~= results.highRisk and #blocked[2] > 2 then
-					resultsList = results.highRisk
-				end
+				if not forceLowRisk then
+					-- If we don't have a high risk but there are three or more medium risk detections, set to high risk
+					if resultsList ~= results.highRisk and #blocked[2] > 2 then
+						resultsList = results.highRisk
+					end
 
-				-- If we have a low risk but there are two or more high risk detections, set to medium risk
-				if resultsList == results.lowRisk and #blocked[1] >= 2 then
-					resultsList = results.mediumRisk
+					-- If we have a low risk but there are two or more high risk detections, set to medium risk
+					if resultsList == results.lowRisk and #blocked[1] >= 2 then
+						resultsList = results.mediumRisk
+					end
 				end
 
 				-- Build
