@@ -48,8 +48,16 @@ function BS:Functions_SetDetour_Aux(funcName, func, env)
 end
 
 function BS:Functions_SetDetour(funcName, filters, failed)
+	local running = {}
+
 	function Detour(...)
 		local args = {...} 
+
+		if running[funcName] then -- Avoid loops
+			return self:Functions_CallProtected(funcName, args)
+		end
+		running[funcName] = true
+
 		local trace = debug.traceback()
 
 		self:Validate_Detour(funcName, self.control[funcName], trace)
@@ -57,7 +65,9 @@ function BS:Functions_SetDetour(funcName, filters, failed)
 		if filters then
 			local i = 1
 			for _,filter in ipairs(filters) do
-				local result = filter(self, trace, funcName, args)
+				local result = filter(BSAux, trace, funcName, args)
+
+				running[funcName] = nil
 
 				if not result then
 					return failed
@@ -68,6 +78,8 @@ function BS:Functions_SetDetour(funcName, filters, failed)
 				i = i + 1
 			end
 		else
+			running[funcName] = nil
+
 			return self:Functions_CallProtected(funcName, args)
 		end
 	end
