@@ -223,9 +223,8 @@ function BS:Validate_Environment(trace, funcName, args)
 end
 
 -- Hide our detours
---   debug.getinfo
---   jit.util.funcinfo
---   tostring
+--   These functions are used to verify if other functions have valid addresses:
+--     debug.getinfo, jit.util.funcinfo and tostring
 local checking = {}
 function BS:Validate_Adresses(trace, funcName, args)
 	if checking[funcName] then -- Avoid loops
