@@ -255,7 +255,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 					if ext ~= "lua" then
 						resultsList = results.highRisk
 					-- or check if it's a low risk file
-					elseif BS.lowRiskFiles[pathAux] then
+					elseif BS.lowRiskFiles_Check[pathAux] then
 						resultsList = results.lowRisk
 					-- or set the risk based on the detection precedence
 					else

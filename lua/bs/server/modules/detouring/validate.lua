@@ -46,7 +46,7 @@ function BS:Validate_Detour(funcName, controlInfo, trace)
 		local lowRisk = false
 		trace_aux = self:Utils_ConvertAddonPath(string.sub(trace_aux, 1, 1) == "@" and string.sub(trace_aux, 2))
 
-		if self.lowRiskFiles[trace_aux] then
+		if self.lowRiskFiles_Check[trace_aux] then
 			lowRisk = true
 		else
 			for _,v in pairs(self.lowRiskFolders) do

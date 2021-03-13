@@ -86,14 +86,10 @@ GetFilesCreationTimes(BS)
 -- Redeclarate the lowRiskFiles list from definitions.lua, so that it's easy to use in the code
 -- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks.
 if SERVER then
-    local lowRiskFiles_Aux = {}
-
+    BS.lowRiskFiles_Check = {}
     for _,v in pairs(BS.lowRiskFiles) do
         lowRiskFiles_Aux[v] = true
     end
-
-    BS.lowRiskFiles = lowRiskFiles_Aux
-    lowRiskFiles_Aux = nil
 end
 
 -- Protect environment
