@@ -23,6 +23,25 @@ function BS:Functions_InitDetouring()
 	end
 end
 
+function BS:Functions_InitCallsProtection()
+	for protectedFunc,_ in pairs(self.CONTROLSBACKUP) do
+		local filters = self.CONTROLSBACKUP[protectedFunc].filters
+
+		if isstring(filters) then
+			if filters == "Validate_Callers" then
+				table.insert(self.PROTECTEDCALLS, self.control[protectedFunc].detour)
+			end
+		elseif istable(filters) then
+			for k,filters2 in ipairs(filters) do
+				if filters2 == "Validate_Callers" then
+					table.insert(self.PROTECTEDCALLS, self.control[protectedFunc].detour)
+					break
+				end
+			end
+		end
+	end
+end
+
 function BS:Functions_CallProtected(funcName, args)
 	return self:Functions_GetCurrent(funcName, _G)(unpack(args))
 end

@@ -236,3 +236,79 @@ function BS:Validate_Adrresses(trace, funcName, args)
 	checking[funcName] = nil
 	return self:Functions_CallProtected(funcName, args)
 end
+
+-- HACKS: For some reason this function is EXTREMELY temperamental! I was unable to use the
+-- code inside the orignal function, to pass parameters and even to freely write variables
+-- or acceptable syntax. It only works when it's this mess. Test each changed line if you
+-- want to touch it.
+-- If the stack is good, return false
+-- If the stack is bad, return the detected func address, func name 1 and func name 2
+local BS_PROTECTEDCALLS_Hack
+local Callers_Aux_StartHack = { ["Validate_Callers_Aux"] = true }
+local function Validate_Callers_Aux()
+	local counter = { increment = 1, detected = 0, jumpStart = 0, firstDetection = "" }
+	while true do
+		local func = debug.getinfo(counter.increment, "flnSu" )
+		local name, value = debug.getlocal(1, 2, counter.increment)
+		if func == nil then break end
+		if value then
+			--print(value.name and value.name or "")
+			--print(value.func)
+			if counter.jumpStart == 2 then
+				if value.func then
+					for k,v in ipairs(BS_PROTECTEDCALLS_Hack) do
+						if value.func and value.func == v then
+							counter.detected = counter.detected + 1
+							if counter.detected == 2 then
+								return value.func, value.name and value.name or "", counter.firstDetection
+							else
+								counter.firstDetection = value.name and value.name or ""
+							end
+							break
+						end
+					end
+				end
+			end
+			if value.name and Callers_Aux_StartHack[value.name] then
+				counter.jumpStart = counter.jumpStart + 1
+			end
+		end
+		counter.increment = counter.increment + 1
+	end
+	return false
+end
+
+-- Validate functions that can't call each other
+local callersWarningCooldown = {} -- Don't flood the console with messages
+function BS:Validate_Callers(trace, funcName, args)
+	-- Hack, explained above Validate_Callers_Aux()
+	if not BS_PROTECTEDCALLS_Hack then
+		BS_PROTECTEDCALLS_Hack = table.Copy(self.PROTECTEDCALLS)
+	end
+
+	local funcAddress, funcName1, funcName2 = Validate_Callers_Aux()
+
+	if funcAddress then
+		if not callersWarningCooldown[funcAddress] then
+			callersWarningCooldown[funcAddress] = true
+			timer.Simple(0.1, function()
+				callersWarningCooldown[funcAddress] = nil
+			end)
+
+			local info = {
+				suffix = "unknown",
+				folder = funcName2,
+				alert = "Dangerous execution detected! The blocking attempt was uncertain!",
+				func = funcName2,
+				trace = trace,
+				detected = { funcName1 }
+			}
+
+			self:Report_Detection(info)
+		end
+
+		return false
+	else
+		return true
+	end
+end

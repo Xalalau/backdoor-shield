@@ -98,6 +98,8 @@ function BS:Initialize()
     if self.LIVEPROTECTION then
         self:Functions_InitDetouring()
 
+        self:Functions_InitCallsProtection()
+
         self:Validate_AutoCheckDetouring()
 
         if not GetConVar("sv_hibernate_think"):GetBool() then

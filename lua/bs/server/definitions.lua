@@ -13,18 +13,18 @@ BS.control = {
 		failed = type                         -- Set "failed" if you need to return values other than nil
 	},
 ]]
-	["debug.getinfo"] = { filters = "Validate_Adrresses" },     -- Isolate our environment
-	["jit.util.funcinfo"] = { filters = "Validate_Adrresses" }, -- Isolate our environment
-	["getfenv"] = { filters = "Validate_Environment" },         -- Isolate our environment and alert the user
-	["debug.getfenv"] = { filters = "Validate_Environment" },   -- Isolate our environment and alert the user
-	["tostring"] = { filters = "Validate_Adrresses" },          -- Isolate our environment
-	["http.Post"] = { filters = "Validate_HttpFetchPost" },     -- scanned
-	["http.Fetch"] = { filters = "Validate_HttpFetchPost" },    -- scanned
-	["CompileString"] = { filters = "Validate_StrCode", failed = "" }, -- scanned
-	["CompileFile"] = { filters = "Validate_StrCode" },                        -- scanned
-	["RunString"] = { filters = "Validate_StrCode", failed = "" },     -- scanned
-	["RunStringEx"] = { filters = "Validate_StrCode", failed = "" },   -- scanned
-	["HTTP"] = {},
+	["debug.getinfo"] = { filters = { "Validate_Callers", "Validate_Adrresses" } },     -- Isolate our environment, scan callers
+	["jit.util.funcinfo"] = { filters = { "Validate_Callers", "Validate_Adrresses" } }, -- Isolate our environment, scan callers
+	["getfenv"] = { filters = { "Validate_Callers", "Validate_Environment" } },         -- Isolate our environment, scan callers
+	["debug.getfenv"] = { filters = { "Validate_Callers", "Validate_Environment" } },   -- Isolate our environment, scan callers
+	["tostring"] = { filters = "Validate_Adrresses" },                                  -- Isolate our environment, scan callers
+	["http.Post"] = { filters = { "Validate_Callers", "Validate_HttpFetchPost" } },            -- Scan inputs, scan callers
+	["http.Fetch"] = { filters = { "Validate_Callers", "Validate_HttpFetchPost" } },           -- Scan inputs, scan callers
+	["CompileString"] = { filters = { "Validate_Callers", "Validate_StrCode" }, failed = "" }, -- Scan inputs, scan callers
+	["CompileFile"] = { filters = { "Validate_Callers", "Validate_StrCode" } },                -- Scan inputs, scan callers
+	["RunString"] = { filters = { "Validate_Callers", "Validate_StrCode" }, failed = "" },     -- Scan inputs, scan callers
+	["RunStringEx"] = { filters = { "Validate_Callers", "Validate_StrCode" }, failed = "" },   -- Scan inputs, scan callers
+	["HTTP"] = { "Validate_Callers" }, -- scan callers
 	["hook.Add"] = {},
 	["hook.Remove"] = {},
 	["hook.GetTable"] = {},
@@ -33,11 +33,11 @@ BS.control = {
 	["net.ReadHeader"] = {},
 	["net.WriteString"] = {},
 	["require"] = {},
-	["pcall"] = {},
-	["xpcall"] = {},
+	["pcall"] = { "Validate_Callers" },  -- scan callers 
+	["xpcall"] = { "Validate_Callers" }, -- scan callers
 	["Error"] = {},
 	["jit.util.funck"] = {},
-	["util.NetworkIDToString"] = {},
+	["util.NetworkIDToString"] = { "Validate_Callers" }, -- scan callers
 	["TypeID"] = {},
 }
 
