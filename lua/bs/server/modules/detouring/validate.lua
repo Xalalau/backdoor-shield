@@ -9,7 +9,7 @@
 function BS:Validate_AutoCheckDetouring()
 	local function SetAuto(name, delay)
 		timer.Create(name, delay, 0, function()
-			if self.RELOADED then
+			if self.reloaded then
 				timer.Remove(name)
 
 				return
@@ -66,13 +66,13 @@ function BS:Validate_Detour(funcName, trace)
 		end
 
 		if lowRisk then
-			if self.IGNORED_DETOURS[trace_aux] then
+			if self.ignoredDetours[trace_aux] then
 				return true
 			end
 
 			info.suffix = "warning"
 			info.alert = "Warning! Detour detected in a low risk location. Ignoring it..."
-			self.IGNORED_DETOURS[trace_aux] = true
+			self.ignoredDetours[trace_aux] = true
 		else
 			info.suffix = "detour"
 			info.alert = "Detour captured and undone!"
@@ -246,8 +246,8 @@ end
 -- want to touch it.
 -- If the stack is good, return false
 -- If the stack is bad, return the detected func address, func name 1 and func name 2
-local BS_PROTECTEDCALLS_Hack
-local BS_TRACEBANK_Hack
+local BS_protectedCalls_Hack
+local BS_traceBank_Hack
 local _debug = {}
 _debug.getinfo = debug.getinfo
 _debug.getlocal = debug.getlocal
@@ -258,7 +258,7 @@ local function Validate_Callers_Aux()
 		local name, value = _debug.getlocal(1, 2, counter.increment)
 		if func == nil then break end
 		if value then
-			local traceBank = BS_TRACEBANK_Hack[tostring(value.func)]
+			local traceBank = BS_traceBank_Hack[tostring(value.func)]
 			if traceBank then
 				local func = _G
 				for k,v in ipairs(string.Explode(".", traceBank.name)) do
@@ -270,7 +270,7 @@ local function Validate_Callers_Aux()
 			--print(value.name and value.name or "")
 			--print(value.func)
 			if value.func then
-				for k,v in pairs(BS_PROTECTEDCALLS_Hack) do
+				for k,v in pairs(BS_protectedCalls_Hack) do
 					if value.func and value.func == v then
 						counter.detected = counter.detected + 1
 						if counter.detected == 2 then
@@ -293,11 +293,11 @@ local callersWarningCooldown = {} -- Don't flood the console with messages
 function BS:Validate_Callers(trace, funcName, args)
 	-- Hacks, explained above Validate_Callers_Aux()
 	--   Expose internal values to this file local scope
-	if not BS_PROTECTEDCALLS_Hack then
-		BS_PROTECTEDCALLS_Hack = table.Copy(self.PROTECTEDCALLS)
+	if not BS_protectedCalls_Hack then
+		BS_protectedCalls_Hack = table.Copy(self.protectedCalls)
 	end
-	if not BS_TRACEBANK_Hack then
-		BS_TRACEBANK_Hack = self.TRACEBANK
+	if not BS_traceBank_Hack then
+		BS_traceBank_Hack = self.traceBank
 	end
 
 	local funcAddress, funcName1, funcName2 = Validate_Callers_Aux()

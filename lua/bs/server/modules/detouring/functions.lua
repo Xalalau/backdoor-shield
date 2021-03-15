@@ -24,17 +24,17 @@ function BS:Functions_InitDetouring()
 end
 
 function BS:Functions_InitCallsProtection()
-	for protectedFunc,_ in pairs(self.CONTROLSBACKUP) do
-		local filters = self.CONTROLSBACKUP[protectedFunc].filters
+	for protectedFunc,_ in pairs(self.controlsBackup) do
+		local filters = self.controlsBackup[protectedFunc].filters
 
 		if isstring(filters) then
 			if filters == "Validate_Callers" then
-				self.PROTECTEDCALLS[protectedFunc] = self.control[protectedFunc].detour
+				self.protectedCalls[protectedFunc] = self.control[protectedFunc].detour
 			end
 		elseif istable(filters) then
 			for k,filters2 in ipairs(filters) do
 				if filters2 == "Validate_Callers" then
-					self.PROTECTEDCALLS[protectedFunc] = self.control[protectedFunc].detour
+					self.protectedCalls[protectedFunc] = self.control[protectedFunc].detour
 					break
 				end
 			end

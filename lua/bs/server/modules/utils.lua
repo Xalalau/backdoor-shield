@@ -41,7 +41,7 @@ function BS:Utils_GetFilesCreationTimes()
         end 
     end
 
-    GetRecursive(self.FOLDER.LUA)
+    GetRecursive(self.folder.lua)
 
     return times
 end

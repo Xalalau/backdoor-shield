@@ -6,7 +6,7 @@
 --[[
     Main structure initialization:
 
-    > BS table (global vars/controls + include code);
+    > BS table (global vars + include code);
     > protect environment;
     > create auxiliar tables;
     > create our data folder;
@@ -20,43 +20,43 @@ BS.__index = BS
 
 -- Global vars/controls
 
-BS.VERSION = "V. 1.8+ (GitHub)"
+BS.version = "V. 1.8+ (GitHub)"
 
-BS.ALERT = "[Backdoor Shield]"
-BS.FOLDER = {}
-BS.FOLDER.DATA = "backdoor-shield/"
-BS.FOLDER.LUA = "bs/"
-BS.FOLDER.SV_MODULES = BS.FOLDER.LUA .. "server/modules/"
-BS.FOLDER.CL_MODULES = BS.FOLDER.LUA .. "client/modules/"
+BS.alert = "[Backdoor Shield]"
+BS.folder = {}
+BS.folder.data = "backdoor-shield/"
+BS.folder.lua = "bs/"
+BS.folder.sv_modules = BS.folder.lua .. "server/modules/"
+BS.folder.cl_modules = BS.folder.lua .. "client/modules/"
 
 if SERVER then
-    BS.RELOADED = false -- Internal control to check the tool reloading state - don't change it. _G.BS_RELOADED is also created to globally do the same thing
+    BS.reloaded = false -- Internal control to check the tool reloading state - don't change it. _G.BS_reloaded is also created to globally do the same thing
 
-    BS.DETECTIONS = { -- Counting
-        BLOCKS = 0,
-        WARNINGS = 0
+    BS.detections = { -- Counting
+        blocks = 0,
+        warnings = 0
     }
 
-    BS.IGNORED_DETOURS = {} -- Ignored low risk detour detections. e.g { ["lua/ulib/shared/hook.lua"] = true }
+    BS.ignoredDetours = {} -- Ignored low risk detour detections. e.g { ["lua/ulib/shared/hook.lua"] = true }
 
-    BS.PROTECTEDCALLS = {} -- List of functions that can't call each other. e.g. { ["function name"] = detoured function address }
+    BS.protectedCalls = {} -- List of functions that can't call each other. e.g. { ["function name"] = detoured function address }
 
-    BS.TRACEBANK = {} -- List traces saved from some functions. e.g { ["lua/ulib/shared/hook.lua"] = { name = "fuction name", trace = trace } }
+    BS.traceBank = {} -- List traces saved from some functions. e.g { ["lua/ulib/shared/hook.lua"] = { name = "fuction name", trace = trace } }
 
-    BS.DANGEROUSEXTENTIONS_Check = {} -- Auxiliar tables to check values faster
+    BS.dangerousExtensions_Check = {} -- Auxiliar tables to check values faster
     BS.lowRiskFiles_Check = {}
     BS.suspect_suspect_Check = {}
 end
 
 local function GetFilesCreationTimes(BS)
     if SERVER then
-        BS.FILETIMES = BS:Utils_GetFilesCreationTimes() -- Get the creation time of each Lua game file
+        BS.filenames = BS:Utils_GetFilesCreationTimes() -- Get the creation time of each Lua game file
     end
 end
 
 local function SetControlsBackup(BS)
     if SERVER then
-        BS.CONTROLSBACKUP = table.Copy(BS.control) -- Get the creation time of each Lua game file
+        BS.controlsBackup = table.Copy(BS.control) -- Get the creation time of each Lua game file
     end
 end
 
@@ -83,11 +83,11 @@ end
 if SERVER then
     AddCSLuaFile("autorun/client/bs_cl_autorun.lua")
 
-    include(BS.FOLDER.LUA .. "server/definitions.lua")
-    include(BS.FOLDER.LUA .. "server/sv_init.lua")
-    includeModules(BS.FOLDER.SV_MODULES)
+    include(BS.folder.lua .. "server/definitions.lua")
+    include(BS.folder.lua .. "server/sv_init.lua")
+    includeModules(BS.folder.sv_modules)
 end
-includeModules(BS.FOLDER.CL_MODULES, true)
+includeModules(BS.folder.cl_modules, true)
 
 -- Get the creation time of each Lua game file
 GetFilesCreationTimes(BS)
@@ -119,7 +119,7 @@ if SERVER then
      -- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks
     local generate = {
         { BS.lowRiskFiles, BS.lowRiskFiles_Check },
-        { BS.DANGEROUSEXTENTIONS, BS.DANGEROUSEXTENTIONS_Check },
+        { BS.dangerousExtensions, BS.dangerousExtensions_Check },
         { BS.suspect_suspect, BS.suspect_suspect_Check }
     }
 
@@ -131,8 +131,8 @@ if SERVER then
 
     -- Create our data folder
 
-    if not file.Exists(BS.FOLDER.DATA, "DATA") then
-        file.CreateDir(BS.FOLDER.DATA)
+    if not file.Exists(BS.folder.data, "DATA") then
+        file.CreateDir(BS.folder.data)
     end
 
     -- Call other specific initializations 

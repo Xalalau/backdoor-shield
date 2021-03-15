@@ -24,7 +24,7 @@ function BS:Initialize()
     ███████╗███████║██║█████╗  ██║     ██║  ██║  MIT License
     ╚════██║██╔══██║██║██╔══╝  ██║     ██║  ██║]],
     [3] = [[
-    ███████║██║  ██║██║███████╗███████╗██████╔╝  ██ ]] .. self.VERSION .. [[
+    ███████║██║  ██║██║███████╗███████╗██████╔╝  ██ ]] .. self.version .. [[
 
     ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝      
 
@@ -34,7 +34,7 @@ function BS:Initialize()
 
     1) Set custom black and white lists directly in the definitions file.
     Don't leave warnings on the console and make exceptions whenever you
-    want. Logs are located in: "garrysmod/data/]] .. self.FOLDER.DATA .. [["
+    want. Logs are located in: "garrysmod/data/]] .. self.folder.data .. [["
     ]],
     [4] = [[
     2) Use these commands:
@@ -55,9 +55,9 @@ function BS:Initialize()
     |                                                                 |
     -------- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --------]] }
 
-    if not self.__G.BS_RELOADED then
+    if not self.__G.BS_reloaded then
         for _, str in ipairs(logo) do
-            if _ == 5 and not self.DEVMODE then continue end
+            if _ == 5 and not self.devMode then continue end
             print(str)
         end
 
@@ -76,12 +76,12 @@ function BS:Initialize()
     -- Command to scan some files in the main/selected folders
     concommand.Add("bs_scan_fast", function(ply, cmd, args)
         if not ply:IsValid() or ply:IsAdmin() then
-            self:Scan_Folders(args, self.DANGEROUSEXTENTIONS)
+            self:Scan_Folders(args, self.dangerousExtensions)
         end
     end)
 
     -- Command to run an automatic set of tests
-    if self.DEVMODE then
+    if self.devMode then
         concommand.Add("bs_tests", function(ply, cmd, args)
             if not ply:IsValid() or ply:IsAdmin() then
                 self:Utils_RunTests()
@@ -95,7 +95,7 @@ function BS:Initialize()
 
     -- Set live protection
 
-    if self.LIVEPROTECTION then
+    if self.liveProtection then
         self:Functions_InitDetouring()
 
         self:Functions_InitCallsProtection()
@@ -106,7 +106,7 @@ function BS:Initialize()
             hook.Add("Initialize", self:Utils_GetRandomName(), function()
                 RunConsoleCommand("sv_hibernate_think", "1")
 
-                timer.Simple(self.DEVMODE and 99999999 or 300, function()
+                timer.Simple(self.devMode and 99999999 or 300, function()
                     RunConsoleCommand("sv_hibernate_think", "0")
                 end)
             end)

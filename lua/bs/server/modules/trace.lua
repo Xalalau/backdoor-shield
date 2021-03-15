@@ -23,17 +23,17 @@ end
 
 -- Try to get a stored trace given any function address
 function BS:Trace_Get()
-    local bankedTrace = self.TRACEBANK[tostring(Trace_Get_Aux())]
+    local bankedTrace = self.traceBank[tostring(Trace_Get_Aux())]
     return bankedTrace and bankedTrace.trace or ""
 end
 
 -- Store a trace associated to a specific function that will lose it
 function BS:Trace_Set(func, name, trace)
-    local bankedTrace = self.TRACEBANK[tostring(Trace_Get_Aux())]
+    local bankedTrace = self.traceBank[tostring(Trace_Get_Aux())]
 
     if bankedTrace then
         trace = bankedTrace.trace .. trace
     end
 
-    self.TRACEBANK[tostring(func)] = { name = name, trace = trace }
+    self.traceBank[tostring(func)] = { name = name, trace = trace }
 end

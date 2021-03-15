@@ -71,7 +71,7 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 		end
 	end
 
-	local IsSuspicious = IsSuspicious(str, ext, self.DANGEROUSEXTENTIONS_Check, self.notSuspect)
+	local IsSuspicious = IsSuspicious(str, ext, self.dangerousExtensions_Check, self.notSuspect)
 
 	if not IsSuspicious then
 		IsSuspicious = ProcessList(self, trace, str, IsSuspicious, self.blacklistHigh) or
@@ -156,7 +156,7 @@ function BS:Scan_Folders(args, extensions)
 
 	-- Scan a folder
 	local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
-		if dir == "data/" .. BS.FOLDER.DATA then
+		if dir == "data/" .. BS.folder.data then
 			return
 		end
 
@@ -167,12 +167,12 @@ function BS:Scan_Folders(args, extensions)
 		if not dirs then
 			return
 		-- List lua/bs/ results as low risk
-		elseif string.find(dir, "lua/" .. BS.FOLDER.LUA, nil, true) == 1 then
+		elseif string.find(dir, "lua/" .. BS.folder.lua, nil, true) == 1 then
 			forceLowRisk = true
 		-- Ignore our own addons folder(s) results
 		elseif not dirs or
-			dir == "addons/" .. BS.FOLDER.DATA or
-			dir == "addons/" .. string.gsub(BS.FOLDER.DATA, "/", "") .. "-master/" then
+			dir == "addons/" .. BS.folder.data or
+			dir == "addons/" .. string.gsub(BS.folder.data, "/", "") .. "-master/" then
 
 			forceIgnore = true
 		end
@@ -342,7 +342,7 @@ function BS:Scan_Folders(args, extensions)
 	end
 
 	print("\n\n -------------------------------------------------------------------")
-	print(self.ALERT .. " Scanning GMod and all the mounted contents...\n")
+	print(self.alert .. " Scanning GMod and all the mounted contents...\n")
 
 	-- Manually installed addons have a much higher chance of infection.
 	-- Results from the addons folder always have the the full file paths

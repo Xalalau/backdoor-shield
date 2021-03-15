@@ -6,10 +6,10 @@
 -- MAIN CONFIGURATIONS
 -- -----------------------------------------------------------------------------------
 
-BS.DEVMODE = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
-BS.LIVEPROTECTION = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
+BS.devMode = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
+BS.liveProtection = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
 
-BS.DANGEROUSEXTENTIONS = { "lua", "txt" , "vmt", "dat", "json" }
+BS.dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" }
 
 -- GAME FUNCTIONS PROTECTION
 -- -----------------------------------------------------------------------------------
