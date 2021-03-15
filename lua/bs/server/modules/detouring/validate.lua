@@ -310,3 +310,42 @@ function BS:Validate_Callers(trace, funcName, args)
 		return true
 	end
 end
+
+-- HACK: this function is as bad as Validate_Callers_Aux()
+local argsPop = {}
+local function Validate_DebugGetinfo_Aux()
+	local vars = { increment = 1, foundDebug = false, args }
+	for k,v in ipairs(argsPop) do -- This is how I'm passing arguments
+		vars.args = v
+		argsPop[k] = nil
+		break
+	end
+	while true do
+		local func = _debug.getinfo(vars.increment, "flnSu" )
+		local name, value = _debug.getlocal(1, 2, vars.increment)
+		if func == nil then break end
+		--print(value.name)
+		if value and value.name then
+			if vars.foundDebug then
+				if vars.args[1] == 1 then
+					return _debug.getinfo(vars.increment, vars.args[2])
+				end
+			elseif value.name == "getinfo" then
+				if vars.args[1] == 1 then
+					return _debug.getinfo(vars.increment, vars.args[2])
+				else
+					vars.foundDebug = true
+					vars.args[1] = vars.args[1] - 1
+				end
+			end
+		end
+		vars.increment = vars.increment + 1
+	end
+end
+
+-- Hide our detours
+--   Force getinfo to jump our functions
+function BS:Validate_DebugGetinfo(trace, funcName, args)
+	table.insert(argsPop, args)
+	return Validate_DebugGetinfo_Aux()
+end

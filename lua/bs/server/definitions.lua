@@ -13,7 +13,7 @@ BS.control = {
 		failed = type                         -- Set "failed" if you need to return values other than nil
 	},
 ]]
-	["debug.getinfo"] = { filters = { "Validate_Callers", "Validate_Adrresses" } },     -- Isolate our environment, scan callers
+	["debug.getinfo"] = { filters = { "Validate_Callers", "Validate_Adrresses", "Validate_DebugGetinfo" } }, -- Isolate our environment, scan callers
 	["jit.util.funcinfo"] = { filters = { "Validate_Callers", "Validate_Adrresses" } }, -- Isolate our environment, scan callers
 	["getfenv"] = { filters = { "Validate_Callers", "Validate_Environment" } },         -- Isolate our environment, scan callers
 	["debug.getfenv"] = { filters = { "Validate_Callers", "Validate_Environment" } },   -- Isolate our environment, scan callers
