@@ -8,7 +8,7 @@
 --   Declaring filters will hook functions to execute security checks, following the given order
 BS.control = {
 --[[
-	["some.game.function"] = {                -- Max. of 2 fields. Eg, 1 field: http.Fecth = _G["http"]["Fetch"]
+	["some.game.function"] = {
 		detour = function                     -- Automatically managed, just ignore. It's the detour function address
 		filters = string or { string, ... }   -- Write internal function names to execute security checks. Execution is done in order
 		failed = type                         -- Set "failed" if you have "filters" and need to return fail values other than the default or nil

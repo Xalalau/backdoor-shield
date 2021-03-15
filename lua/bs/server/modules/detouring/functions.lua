@@ -47,23 +47,48 @@ function BS:Functions_CallProtected(funcName, args)
 end
 
 function BS:Functions_GetCurrent(funcName, env)
-	local f1, f2, f3 = unpack(string.Explode(".", funcName))
 	env = env or self.__G
+	local currentFunc = {}
 
-	return f3 and env[f1][f2][f3] or f2 and env[f1][f2] or f1 and env[f1]
+	for k,v in ipairs(string.Explode(".", funcName)) do
+		currentFunc[k] = currentFunc[k - 1] and currentFunc[k - 1][v] or env[v]
+	end
+
+	return currentFunc[#currentFunc]
 end
 
-function BS:Functions_SetDetour_Aux(funcName, func, env)
-	local f1, f2, f3 = unpack(string.Explode(".", funcName))
+function BS:Functions_SetDetour_Aux(funcName, newfunc, env)
 	env = env or self.__G
 
-	if f3 then
-		env[f1][f2][f3] = func
-	elseif f2 then
-		env[f1][f2] = func
-	elseif f1 then
-		env[f1] = func
+	local function RecursiveRebuild(funcName, currentFunction)
+		local newTable = {}
+		local nameParts = string.Explode(".", funcName)
+		local rejoin
+		local index
+	
+		for k,v in ipairs(nameParts) do
+			if k == 1 then
+				currentFunction = currentFunction[v]
+				index = v
+	
+				if isfunction(currentFunction) then
+					newTable[v] = newfunc
+
+					return newTable
+				end
+			end
+	
+			if k > 1 then
+				rejoin = not rejoin and v or rejoin .. "." .. v
+			end				
+		end
+	
+		newTable[index] = RecursiveRebuild(rejoin, currentFunction)
+
+		return newTable
 	end
+
+	table.Merge(env, RecursiveRebuild(funcName, env, newTable))
 end
 
 function BS:Functions_SetDetour(funcName, filters, failed)
