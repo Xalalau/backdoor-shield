@@ -3,7 +3,17 @@
     https://xalalau.com/
 --]]
 
--- Game functions to protect
+-- MAIN CONFIGURATIONS
+-- -----------------------------------------------------------------------------------
+
+BS.DEVMODE = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
+BS.LIVEPROTECTION = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
+
+BS.DANGEROUSEXTENTIONS = { "lua", "txt" , "vmt", "dat", "json" }
+
+-- GAME FUNCTIONS PROTECTION
+-- -----------------------------------------------------------------------------------
+
 --   Declaring a function in a field will keep if safe from detours
 --   Declaring filters will hook functions to execute security checks, following the given order
 BS.control = {
@@ -52,11 +62,11 @@ BS.whitelistedCallerCombos = {
 }
 
 -- SCAN LISTS
+-- -----------------------------------------------------------------------------------
 
 -- These lists are used to check urls, files and codes passed as argument
 -- Note: these lists are locked here for proper security
 -- Note2: I'm not using patterns
--- -----------------------------------------------------------------------------------
 
 -- Low risk files and folders
 -- 1) When scanning the game, these files and folders will be considered low risk, so they won't flood

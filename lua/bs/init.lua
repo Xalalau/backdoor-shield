@@ -30,14 +30,7 @@ BS.FOLDER.SV_MODULES = BS.FOLDER.LUA .. "server/modules/"
 BS.FOLDER.CL_MODULES = BS.FOLDER.LUA .. "client/modules/"
 
 if SERVER then
-    BS.DEVMODE = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
-    BS.LIVEPROTECTION = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
-
-    BS.DANGEROUSEXTENTIONS = { "lua", "txt" , "vmt", "dat", "json" }
-
-    if BS.DEVMODE then
-        BS.RELOADED = false -- Internal control to check the tool reloading state - don't change it. _G.BS_RELOADED is also created to globally do the same thing
-    end
+    BS.RELOADED = false -- Internal control to check the tool reloading state - don't change it. _G.BS_RELOADED is also created to globally do the same thing
 
     BS.DETECTIONS = { -- Counting
         BLOCKS = 0,
