@@ -249,7 +249,7 @@ local _debug = {}
 _debug.getinfo = debug.getinfo
 _debug.getlocal = debug.getlocal
 local function Validate_CallStack()
-	local counter = { increment = 1, detected = 0, jumpStart = 0, firstDetection = "" }
+	local counter = { increment = 1, detected = 0, firstDetection = "" }
 	while true do
 		local func = _debug.getinfo(counter.increment, "flnSu" )
 		local name, value = _debug.getlocal(1, 2, counter.increment)
@@ -257,27 +257,18 @@ local function Validate_CallStack()
 		if value then
 			print(value.name and value.name or "")
 			--print(value.func)
-			if counter.jumpStart == 3 then
-				if value.func then
-					--print(value.name and value.name or "")
-					for k,v in ipairs(BS_PROTECTEDCALLS_Hack) do
-						if value.func and value.func == v then
-							counter.detected = counter.detected + 1
-							if counter.detected == 2 then
-								return value.func, value.name and value.name or "", counter.firstDetection
-							else
-								counter.firstDetection = value.name and value.name or ""
-							end
-							break
+			if value.func then
+				for k,v in ipairs(BS_PROTECTEDCALLS_Hack) do
+					if value.func and value.func == v then
+						counter.detected = counter.detected + 1
+						if counter.detected == 2 then
+							return value.func, value.name and value.name or "", counter.firstDetection
+						else
+							counter.firstDetection = value.name and value.name or ""
 						end
+						break
 					end
 				end
-			end
-			if counter.jumpStart == 2 then
-				counter.jumpStart = counter.jumpStart + 1
-			end
-			if value.name and Callers_Aux_StartHack[value.name] then
-				counter.jumpStart = counter.jumpStart + 1
 			end
 		end
 		counter.increment = counter.increment + 1
