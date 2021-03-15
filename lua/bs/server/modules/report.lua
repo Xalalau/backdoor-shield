@@ -3,49 +3,39 @@
     https://xalalau.com/
 --]]
 
-local function GetContentLogFileName(contentLogFile)
-	local function ParseName(testName, i)
-		local newName = contentLogFile:gsub("%.txt", "_" .. tostring(i+1) .. ".txt")
-
-		if not file.Exists(newName, "DATA") then
-			contentLogFile = newName
-		else
-			ParseName(newName, i+1)
-		end
-	end
-
-	if contentLogFile and file.Exists(contentLogFile, "DATA") then
-		ParseName(contentLogFile, 1)
-	end
-
-	return contentLogFile
-end
-
-local function GetDetected(detected)
-	local newStr = ""
-
-	if detected then
-		for _,v1 in pairs(detected) do
-			if isstring(v1) then
-				newStr = newStr .. "\n        " .. v1
-			elseif istable(v1) then
-				for _,v2 in pairs(v1) do
-					newStr = newStr .. "\n        " .. v2
-				end
-			end
-		end
-	end
-
-	return newStr
-end
-
 function BS:Report_Detection(infoIn)
 	local Timestamp = os.time()
 	local date = os.date("%m-%d-%Y", Timestamp)
 	local time = os.date("%Hh %Mm %Ss", Timestamp)
 	local logFile = self.FOLDER.DATA .. date .. "/log_" .. infoIn.suffix .. ".txt"
-	local contentLogFile = GetContentLogFileName(infoIn.folder and self.FOLDER.DATA .. date .. "/" .. infoIn.folder .. "/log_" .. infoIn.suffix .. "_(" .. time .. ").txt")
-	local detected = GetDetected(infoIn.detected)
+
+	local contentLogFile = infoIn.folder and self.FOLDER.DATA .. date .. "/" .. infoIn.folder .. "/log_" .. infoIn.suffix .. "_(" .. time .. ").txt"
+	local function ValidateName(testName, i)
+		local newName = contentLogFile:gsub("%.txt", "_" .. tostring(i+1) .. ".txt")
+
+		if not file.Exists(newName, "DATA") then
+			contentLogFile = newName
+		else
+			ValidateName(newName, i+1)
+		end
+	end
+
+	if contentLogFile and file.Exists(contentLogFile, "DATA") then
+		ValidateName(contentLogFile, 1)
+	end
+
+	local detected = ""
+	if infoIn.detected then
+		for _,v1 in pairs(infoIn.detected) do
+			if isstring(v1) then
+				detected = detected .. "\n        " .. v1
+			elseif istable(v1) then
+				for _,v2 in pairs(v1) do
+					detected = detected .. "\n        " .. v2
+				end
+			end
+		end
+	end
 
 	local info = {
 		infoIn.alert and "\n" .. self.ALERT .. " " .. infoIn.alert or "",
