@@ -245,14 +245,17 @@ end
 -- If the stack is bad, return the detected func address, func name 1 and func name 2
 local BS_PROTECTEDCALLS_Hack
 local Callers_Aux_StartHack = { ["Validate_Callers_Aux"] = true }
-function BS:Validate_CallStack()
+local _debug = {}
+_debug.getinfo = debug.getinfo
+_debug.getlocal = debug.getlocal
+local function Validate_CallStack()
 	local counter = { increment = 1, detected = 0, jumpStart = 0, firstDetection = "" }
 	while true do
-		local func = debug.getinfo(counter.increment, "flnSu" )
-		local name, value = debug.getlocal(1, 2, counter.increment)
+		local func = _debug.getinfo(counter.increment, "flnSu" )
+		local name, value = _debug.getlocal(1, 2, counter.increment)
 		if func == nil then break end
 		if value then
-			--print(value.name and value.name or "")
+			print(value.name and value.name or "")
 			--print(value.func)
 			if counter.jumpStart == 3 then
 				if value.func then
@@ -290,7 +293,7 @@ function BS:Validate_Callers(trace, funcName, args)
 		BS_PROTECTEDCALLS_Hack = table.Copy(self.PROTECTEDCALLS)
 	end
 
-	local funcAddress, funcName1, funcName2 = self:Validate_CallStack()
+	local funcAddress, funcName1, funcName2 = Validate_CallStack()
 
 	if funcAddress then
 		if not callersWarningCooldown[funcAddress] then
