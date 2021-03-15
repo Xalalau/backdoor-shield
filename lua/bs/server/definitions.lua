@@ -3,28 +3,29 @@
     https://xalalau.com/
 --]]
 
--- Functions that need to be protected
--- Some are scanned or serve some special purpose
+-- Game functions to protect
+--   Declaring a function in a field will keep if safe from detours
+--   Declaring filters will hook functions to execute security checks, following the given order
 BS.control = {
 --[[
-	["some.game.function"] = {                -- Max. of 2 dots. Ex, 1 dot: http.Fecth = _G["http"]["Fetch"]
-		detour = function                     -- Automatically managed, just ignore. Detour function address
-		filters = string or { string, ... }   -- Internal function names for specific protections, execution is done in order
-		failed = type                         -- Set "failed" if you have filters and need to return values other than nil
+	["some.game.function"] = {                -- Max. of 2 fields. Eg, 1 field: http.Fecth = _G["http"]["Fetch"]
+		detour = function                     -- Automatically managed, just ignore. It's the detour function address
+		filters = string or { string, ... }   -- Write internal function names to execute security checks. Execution is done in order
+		failed = type                         -- Set "failed" if you have "filters" and need to return fail values other than the default or nil
 	},
 ]]
-	["debug.getinfo"] = { filters = { "Validate_Callers", "Validate_Adrresses", "Validate_DebugGetinfo" } }, -- Isolate our environment, scan callers
-	["jit.util.funcinfo"] = { filters = { "Validate_Callers", "Validate_Adrresses" } }, -- Isolate our environment, scan callers
-	["getfenv"] = { filters = { "Validate_Callers", "Validate_Environment" } },         -- Isolate our environment, scan callers
-	["debug.getfenv"] = { filters = { "Validate_Callers", "Validate_Environment" } },   -- Isolate our environment, scan callers
-	["tostring"] = { filters = "Validate_Adrresses" },                                  -- Isolate our environment, scan callers
-	["http.Post"] = { filters = { "Validate_Callers", "Validate_HttpFetchPost" } },            -- Scan inputs, scan callers
-	["http.Fetch"] = { filters = { "Validate_Callers", "Validate_HttpFetchPost" } },           -- Scan inputs, scan callers
-	["CompileString"] = { filters = { "Validate_Callers", "Validate_StrCode" }, failed = "" }, -- Scan inputs, scan callers
-	["CompileFile"] = { filters = { "Validate_Callers", "Validate_StrCode" } },                -- Scan inputs, scan callers
-	["RunString"] = { filters = { "Validate_Callers", "Validate_StrCode" }, failed = "" },     -- Scan inputs, scan callers
-	["RunStringEx"] = { filters = { "Validate_Callers", "Validate_StrCode" }, failed = "" },   -- Scan inputs, scan callers
-	["HTTP"] = { filters = { "Validate_Callers" } }, -- scan callers
+	["debug.getinfo"] = { filters = { "Validate_Callers", "Validate_Adrresses", "Validate_DebugGetinfo" } },
+	["jit.util.funcinfo"] = { filters = { "Validate_Callers", "Validate_Adrresses" } },
+	["getfenv"] = { filters = { "Validate_Callers", "Validate_Environment" } },
+	["debug.getfenv"] = { filters = { "Validate_Callers", "Validate_Environment" } },
+	["tostring"] = { filters = "Validate_Adrresses" },
+	["http.Post"] = { filters = { "Validate_Callers", "Validate_HttpFetchPost" } },
+	["http.Fetch"] = { filters = { "Validate_Callers", "Validate_HttpFetchPost" } },
+	["CompileString"] = { filters = { "Validate_Callers", "Validate_StrCode" }, failed = "" },
+	["CompileFile"] = { filters = { "Validate_Callers", "Validate_StrCode" } },
+	["RunString"] = { filters = { "Validate_Callers", "Validate_StrCode" }, failed = "" },
+	["RunStringEx"] = { filters = { "Validate_Callers", "Validate_StrCode" }, failed = "" },
+	["HTTP"] = { filters = { "Validate_Callers" } },
 	["hook.Add"] = {},
 	["hook.Remove"] = {},
 	["hook.GetTable"] = {},
@@ -33,14 +34,14 @@ BS.control = {
 	["net.ReadHeader"] = {},
 	["net.WriteString"] = {},
 	["require"] = {},
-	["pcall"] = { filters = { "Validate_Callers" } },  -- scan callers 
-	["xpcall"] = { filters = { "Validate_Callers" } }, -- scan callers
+	["pcall"] = { filters = { "Validate_Callers" } },
+	["xpcall"] = { filters = { "Validate_Callers" } },
 	["Error"] = {},
 	["jit.util.funck"] = {},
-	["util.NetworkIDToString"] = { filters = { "Validate_Callers" } }, -- scan callers
+	["util.NetworkIDToString"] = { filters = { "Validate_Callers" } },
 	["TypeID"] = {},
-	["timer.Simple"] = { filters = { "Validate_Callers" } },
-	["timer.Create"] = { filters = { "Validate_Callers" } },
+	["timer.Simple"] = { filters = { "Validate_Callers", "Validate_Timers" } },
+	["timer.Create"] = { filters = { "Validate_Callers", "Validate_Timers" } },
 }
 
 -- SCAN LISTS
