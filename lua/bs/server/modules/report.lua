@@ -9,7 +9,7 @@ function BS:Report_Detection(infoIn)
 	local time = os.date("%Hh %Mm %Ss", Timestamp)
 	local logFile = self.folder.data .. date .. "/log_" .. infoIn.suffix .. ".txt"
 
-	local contentLogFile = infoIn.folder and self.folder.data .. date .. "/" .. infoIn.folder .. "/log_" .. infoIn.suffix .. "_(" .. time .. ").txt"
+	local contentLogFile = infoIn.content and infoIn.folder and self.folder.data .. date .. "/" .. infoIn.folder .. "/log_" .. infoIn.suffix .. "_(" .. time .. ").txt"
 	local function ValidateName(testName, i)
 		local newName = contentLogFile:gsub("%.txt", "_" .. tostring(i+1) .. ".txt")
 
