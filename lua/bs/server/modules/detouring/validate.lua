@@ -3,7 +3,7 @@
     https://xalalau.com/
 --]]
 
--- Auto check for detouring
+-- Auto detouring protection
 -- 	 First 5m running: check every 5s
 -- 	 Later: check every 60s
 function BS:Validate_AutoCheckDetouring()
@@ -30,7 +30,7 @@ function BS:Validate_AutoCheckDetouring()
 	end)
 end
 
--- Check a detour
+-- Protect a detour address
 function BS:Validate_Detour(funcName, trace)
 	local currentAddress = self:Functions_GetCurrent(funcName)
 	local detourAddress = self.control[funcName].detour
@@ -88,7 +88,8 @@ function BS:Validate_Detour(funcName, trace)
 	return true
 end
 
--- Check http.fetch calls
+-- Scan http.Fetch and http.Post contents
+-- Add persistent trace support to the called functions
 function BS:Validate_HttpFetchPost(trace, funcName, args)
 	local url = args[1]
 
@@ -137,6 +138,8 @@ function BS:Validate_HttpFetchPost(trace, funcName, args)
 		end
 
 		if #blocked[1] == 0 and #blocked[2] == 0 then
+			self:Trace_Set(args[2], funcName, trace)
+
 			self:Functions_CallProtected(funcName, args)
 		end
 	end
@@ -164,7 +167,7 @@ function BS:Validate_HttpFetchPost(trace, funcName, args)
 	return true
 end
 
--- Check CompileString, CompileFile, RunString and RunStringEX calls
+-- Check CompileString, CompileFile, RunString and RunStringEX contents
 function BS:Validate_StrCode(trace, funcName, args)
 	local code = funcName == "CompileFile" and file.Read(args[1], "LUA") or args[1]
 	local blocked = {{}, {}}
@@ -244,7 +247,7 @@ end
 -- If the stack is good, return false
 -- If the stack is bad, return the detected func address, func name 1 and func name 2
 local BS_PROTECTEDCALLS_Hack
-local Callers_Aux_StartHack = { ["Validate_Callers_Aux"] = true }
+local BS_TRACEBANK_Hack
 local _debug = {}
 _debug.getinfo = debug.getinfo
 _debug.getlocal = debug.getlocal
@@ -255,6 +258,15 @@ local function Validate_Callers_Aux()
 		local name, value = _debug.getlocal(1, 2, counter.increment)
 		if func == nil then break end
 		if value then
+			local traceBank = BS_TRACEBANK_Hack[tostring(value.func)]
+			if traceBank then
+				local func = _G
+				for k,v in ipairs(string.Explode(".", traceBank.name)) do
+					func = func[v]
+				end
+				value.func = func
+				value.name = traceBank.name
+			end
 			--print(value.name and value.name or "")
 			--print(value.func)
 			if value.func then
@@ -279,9 +291,13 @@ end
 -- Validate functions that can't call each other
 local callersWarningCooldown = {} -- Don't flood the console with messages
 function BS:Validate_Callers(trace, funcName, args)
-	-- Hack, explained above Validate_Callers_Aux()
+	-- Hacks, explained above Validate_Callers_Aux()
+	--   Expose internal values to this file local scope
 	if not BS_PROTECTEDCALLS_Hack then
 		BS_PROTECTEDCALLS_Hack = table.Copy(self.PROTECTEDCALLS)
+	end
+	if not BS_TRACEBANK_Hack then
+		BS_TRACEBANK_Hack = self.TRACEBANK
 	end
 
 	local funcAddress, funcName1, funcName2 = Validate_Callers_Aux()
@@ -309,6 +325,13 @@ function BS:Validate_Callers(trace, funcName, args)
 	else
 		return true
 	end
+end
+
+-- Add persistent trace support to the function called by timers
+function BS:Validate_Timers(trace, funcName, args)
+	self:Trace_Set(args[2], funcName, trace)
+
+	return self:Functions_CallProtected(funcName, args)
 end
 
 -- HACK: this function is as bad as Validate_Callers_Aux()
