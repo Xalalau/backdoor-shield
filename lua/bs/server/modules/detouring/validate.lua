@@ -248,7 +248,7 @@ local Callers_Aux_StartHack = { ["Validate_Callers_Aux"] = true }
 local _debug = {}
 _debug.getinfo = debug.getinfo
 _debug.getlocal = debug.getlocal
-local function Validate_CallStack()
+local function Validate_Callers_Aux()
 	local counter = { increment = 1, detected = 0, firstDetection = "" }
 	while true do
 		local func = _debug.getinfo(counter.increment, "flnSu" )
@@ -284,7 +284,7 @@ function BS:Validate_Callers(trace, funcName, args)
 		BS_PROTECTEDCALLS_Hack = table.Copy(self.PROTECTEDCALLS)
 	end
 
-	local funcAddress, funcName1, funcName2 = Validate_CallStack()
+	local funcAddress, funcName1, funcName2 = Validate_Callers_Aux()
 
 	if funcAddress then
 		if not callersWarningCooldown[funcAddress] then
