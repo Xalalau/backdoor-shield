@@ -302,6 +302,18 @@ function BS:Validate_Callers(trace, funcName, args)
 
 	local funcAddress, funcName1, funcName2 = Validate_Callers_Aux()
 
+	-- Whitelist
+	local found
+	for _,combo in pairs(self.whitelistedCallerCombos) do
+		if funcName1 == combo[1] then
+			if funcName2 == combo[2] then
+				funcAddress = nil
+			end
+
+			break
+		end
+	end
+
 	if funcAddress then
 		if not callersWarningCooldown[funcAddress] then
 			callersWarningCooldown[funcAddress] = true
