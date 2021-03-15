@@ -380,6 +380,12 @@ end
 -- Hide our detours
 --   Force getinfo to jump our functions
 function BS:Validate_DebugGetinfo(trace, funcName, args)
-	table.insert(argsPop, args)
-	return Validate_DebugGetinfo_Aux()
+	local result
+
+	if isfunction(args[1]) then
+		return self:Validate_Adrresses(trace, funcName, args)
+	else
+		table.insert(argsPop, args)
+		return Validate_DebugGetinfo_Aux()
+	end
 end
