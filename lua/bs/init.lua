@@ -48,6 +48,8 @@ if SERVER then
 
     BS.PROTECTEDCALLS = {} -- List of functions that can't call each other
 
+    BS.TRACEBANK = {} -- List traces saved from some functions. e.g { ["lua/ulib/shared/hook.lua"] = { name = "fuction name", trace = trace } }
+
     BS.DANGEROUSEXTENTIONS_Check = {} -- Auxiliar tables to check values faster
     BS.lowRiskFiles_Check = {}
     BS.suspect_suspect_Check = {}

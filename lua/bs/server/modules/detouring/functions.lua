@@ -102,7 +102,7 @@ function BS:Functions_SetDetour(funcName, filters, failed)
 		end
 		running[funcName] = true
 
-		local trace = debug.traceback()
+		local trace = self:Trace_Get() .. debug.traceback()
 
 		self:Validate_Detour(funcName, trace)
 
