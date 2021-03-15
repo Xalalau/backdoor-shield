@@ -255,7 +255,7 @@ local function Validate_Callers_Aux()
 		local name, value = _debug.getlocal(1, 2, counter.increment)
 		if func == nil then break end
 		if value then
-			print(value.name and value.name or "")
+			--print(value.name and value.name or "")
 			--print(value.func)
 			if value.func then
 				for k,v in ipairs(BS_PROTECTEDCALLS_Hack) do
