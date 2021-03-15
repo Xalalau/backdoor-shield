@@ -25,7 +25,7 @@ end
 function BS:Utils_GetFilesCreationTimes()
     local times = {}
 
-    local function parseDir(dir)
+    local function GetRecursive(dir)
         local files, dirs = file.Find(dir .. "*", "LUA")
     
         if not dirs then
@@ -33,7 +33,7 @@ function BS:Utils_GetFilesCreationTimes()
         end
     
         for _, fdir in pairs(dirs) do
-            parseDir(dir .. fdir .. "/")
+            GetRecursive(dir .. fdir .. "/")
         end
     
         for k,v in pairs(files) do
@@ -41,7 +41,7 @@ function BS:Utils_GetFilesCreationTimes()
         end 
     end
 
-    parseDir(self.FOLDER.LUA)
+    GetRecursive(self.FOLDER.LUA)
 
     return times
 end
