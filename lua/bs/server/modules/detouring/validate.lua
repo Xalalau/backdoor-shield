@@ -323,7 +323,7 @@ function BS:Validate_Callers(trace, funcName, args)
 
 			local info = {
 				suffix = "unknown",
-				alert = "Dangerous execution detected! The blocking attempt was uncertain!",
+				alert = "Warning! Dangerous execution detected! The blocking attempt was uncertain!",
 				func = funcName1,
 				trace = trace,
 				detected = { funcName2 }
