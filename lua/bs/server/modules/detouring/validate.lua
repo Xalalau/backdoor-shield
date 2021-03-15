@@ -270,13 +270,13 @@ local function Validate_Callers_Aux()
 			--print(value.name and value.name or "")
 			--print(value.func)
 			if value.func then
-				for k,v in ipairs(BS_PROTECTEDCALLS_Hack) do
+				for k,v in pairs(BS_PROTECTEDCALLS_Hack) do
 					if value.func and value.func == v then
 						counter.detected = counter.detected + 1
 						if counter.detected == 2 then
-							return value.func, value.name and value.name or "", counter.firstDetection
+							return v, k, counter.firstDetection
 						else
-							counter.firstDetection = value.name and value.name or ""
+							counter.firstDetection = k
 						end
 						break
 					end

@@ -46,7 +46,7 @@ if SERVER then
 
     BS.IGNORED_DETOURS = {} -- Ignored low risk detour detections. e.g { ["lua/ulib/shared/hook.lua"] = true }
 
-    BS.PROTECTEDCALLS = {} -- List of functions that can't call each other
+    BS.PROTECTEDCALLS = {} -- List of functions that can't call each other. e.g. { ["function name"] = detoured function address }
 
     BS.TRACEBANK = {} -- List traces saved from some functions. e.g { ["lua/ulib/shared/hook.lua"] = { name = "fuction name", trace = trace } }
 
