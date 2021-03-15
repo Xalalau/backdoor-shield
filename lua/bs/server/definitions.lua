@@ -10,7 +10,7 @@ BS.control = {
 	["some.game.function"] = {                -- Max. of 2 dots. Ex, 1 dot: http.Fecth = _G["http"]["Fetch"]
 		detour = function                     -- Automatically managed, just ignore. Detour function address
 		filters = string or { string, ... }   -- Internal function names for specific protections, execution is done in order
-		failed = type                         -- Set "failed" if you need to return values other than nil
+		failed = type                         -- Set "failed" if you have filters and need to return values other than nil
 	},
 ]]
 	["debug.getinfo"] = { filters = { "Validate_Callers", "Validate_Adrresses", "Validate_DebugGetinfo" } }, -- Isolate our environment, scan callers
@@ -24,7 +24,7 @@ BS.control = {
 	["CompileFile"] = { filters = { "Validate_Callers", "Validate_StrCode" } },                -- Scan inputs, scan callers
 	["RunString"] = { filters = { "Validate_Callers", "Validate_StrCode" }, failed = "" },     -- Scan inputs, scan callers
 	["RunStringEx"] = { filters = { "Validate_Callers", "Validate_StrCode" }, failed = "" },   -- Scan inputs, scan callers
-	["HTTP"] = { "Validate_Callers" }, -- scan callers
+	["HTTP"] = { filters = { "Validate_Callers" } }, -- scan callers
 	["hook.Add"] = {},
 	["hook.Remove"] = {},
 	["hook.GetTable"] = {},
@@ -33,14 +33,14 @@ BS.control = {
 	["net.ReadHeader"] = {},
 	["net.WriteString"] = {},
 	["require"] = {},
-	["pcall"] = { "Validate_Callers" },  -- scan callers 
-	["xpcall"] = { "Validate_Callers" }, -- scan callers
+	["pcall"] = { filters = { "Validate_Callers" } },  -- scan callers 
+	["xpcall"] = { filters = { "Validate_Callers" } }, -- scan callers
 	["Error"] = {},
 	["jit.util.funck"] = {},
-	["util.NetworkIDToString"] = { "Validate_Callers" }, -- scan callers
+	["util.NetworkIDToString"] = { filters = { "Validate_Callers" } }, -- scan callers
 	["TypeID"] = {},
-	["timer.Simple"] = { "Validate_Callers" },
-	["timer.Create"] = { "Validate_Callers" },
+	["timer.Simple"] = { filters = { "Validate_Callers" } },
+	["timer.Create"] = { filters = { "Validate_Callers" } },
 }
 
 -- SCAN LISTS
