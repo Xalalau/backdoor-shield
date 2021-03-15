@@ -39,6 +39,8 @@ BS.control = {
 	["jit.util.funck"] = {},
 	["util.NetworkIDToString"] = { "Validate_Callers" }, -- scan callers
 	["TypeID"] = {},
+	["timer.Simple"] = { "Validate_Callers" },
+	["timer.Create"] = { "Validate_Callers" },
 }
 
 -- SCAN LISTS
