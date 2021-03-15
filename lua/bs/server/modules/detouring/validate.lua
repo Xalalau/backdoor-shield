@@ -311,11 +311,11 @@ function BS:Validate_Callers(trace, funcName, args)
 
 			local info = {
 				suffix = "unknown",
-				folder = funcName2,
+				folder = funcName1,
 				alert = "Dangerous execution detected! The blocking attempt was uncertain!",
-				func = funcName2,
+				func = funcName1,
 				trace = trace,
-				detected = { funcName1 }
+				detected = { funcName2 }
 			}
 
 			self:Report_Detection(info)
