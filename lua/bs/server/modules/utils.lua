@@ -72,9 +72,10 @@ function BS:Utils_RunTests()
 
     local bak = self.__G["http"]["Post"]
     print("\n-----> Detour a function and call it")
-    local function detour() return bak() end
+    local function detour() return end
     self.__G["http"]["Post"] = detour
     detour()
+    self.__G["http"]["Post"] = bak -- Restore to ensure correct operation in case of a failure
 
     print("\n-----> Detour a function without calling it")
     local function detourSilent() end
