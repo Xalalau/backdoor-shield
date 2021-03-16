@@ -84,7 +84,7 @@ function BS:Initialize()
     if self.devMode then
         concommand.Add("bs_tests", function(ply, cmd, args)
             if not ply:IsValid() or ply:IsAdmin() then
-                self:Utils_RunTests()
+                self:Utils_RunTests(args)
             end
         end)
     end
