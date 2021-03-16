@@ -236,7 +236,7 @@ function BS:Filters_CheckStack(trace, funcName, args)
 				local info = {
 					suffix = "blocked",
 					folder = protectedFuncName,
-					alert = "Execution blocked! The damaged function may have performed something improper, analyze this incident!",
+					alert = "Execution blocked!",
 					func = protectedFuncName,
 					trace = trace,
 					detected = { detectedFuncName },
