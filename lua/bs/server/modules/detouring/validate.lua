@@ -253,6 +253,7 @@ local BS_traceBank_Hack
 local _debug = {}
 _debug.getinfo = debug.getinfo
 _debug.getlocal = debug.getlocal
+local hack_Callers_identify ={ [tostring(_debug.getinfo)] = true }
 local function Validate_Callers_Aux()
 	local counter = { increment = 1, detected = 0, firstDetection = "" }
 	while true do
@@ -364,7 +365,7 @@ end
 -- HACK: this function is as bad as Validate_Callers_Aux()
 local argsPop = {}
 local function Validate_DebugGetinfo_Aux()
-	local vars = { increment = 1, foundDebug = false, args }
+	local vars = { increment = 1, foundGetinfo = false, args }
 	for k,v in ipairs(argsPop) do -- This is how I'm passing arguments
 		vars.args = v
 		argsPop[k] = nil
@@ -375,16 +376,18 @@ local function Validate_DebugGetinfo_Aux()
 		local name, value = _debug.getlocal(1, 2, vars.increment)
 		if func == nil then break end
 		--print(value.name)
-		if value and value.name then
-			if vars.foundDebug then
+		if value then
+			local isGetinfo = hack_Callers_identify[tostring(value.func)]
+			if vars.foundGetinfo then
 				if vars.args[1] == 1 then
 					return _debug.getinfo(vars.increment, vars.args[2])
 				end
-			elseif value.name == "getinfo" then
+				vars.args[1] = vars.args[1] - 1
+			elseif isGetinfo then
 				if vars.args[1] == 1 then
 					return _debug.getinfo(vars.increment, vars.args[2])
 				else
-					vars.foundDebug = true
+					vars.foundGetinfo = true
 					vars.args[1] = vars.args[1] - 1
 				end
 			end
