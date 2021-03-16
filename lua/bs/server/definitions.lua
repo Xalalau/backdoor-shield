@@ -24,7 +24,7 @@ BS.control = {
 		failed = type                         -- Set "failed" if you have "filters" and need to return fail values other than the default or nil
 	},
 ]]
-	["debug.getinfo"] = { filters = { "Validate_Callers", "Validate_DebugGetinfo" } },
+	["debug.getinfo"] = { filters = { "Validate_Callers", "Validate_DebugGetinfo" }, failed = {} },
 	["jit.util.funcinfo"] = { filters = { "Validate_Callers", "Validate_Adrresses" } },
 	["getfenv"] = { filters = { "Validate_Callers", "Validate_Environment" } },
 	["debug.getfenv"] = { filters = { "Validate_Callers", "Validate_Environment" } },
