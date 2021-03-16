@@ -88,7 +88,7 @@ function BS:Functions_SetDetour_Aux(funcName, newfunc, env)
 		return newTable
 	end
 
-	table.Merge(env, RecursiveRebuild(funcName, env, newTable))
+	table.Merge(env, RecursiveRebuild(funcName, env))
 end
 
 function BS:Functions_SetDetour(funcName, filters, failed)
