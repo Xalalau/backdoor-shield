@@ -53,8 +53,10 @@ BS.control = {
 	["TypeID"] = {},
 	["timer.Simple"] = { filters = { "Filters_CheckStack", "Filters_CheckTimers" } },
 	["timer.Create"] = { filters = { "Filters_CheckStack", "Filters_CheckTimers" } },
+	["file.Read"] = {},
+	["file.Write"] = {},
 }
--- 
+
 -- Whitelist for Filters_CheckStack combinations.
 -- e.g. { "timer.Simple", "timer.Create" } means that a timer.Create() inside a timer.Simple() will not generate a detection
 BS.whitelistedCallerCombos = {
