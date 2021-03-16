@@ -199,6 +199,8 @@ function BS:Validate_StrCode(trace, funcName, args)
 end
 
 -- Protect our custom environment
+--   Don't return it!
+--     getfenv and debug.getfenv
 function BS:Validate_Environment(trace, funcName, args)
 	local result = self:Functions_CallProtected(funcName, args)
 	result = result == _G and self.__G or result
