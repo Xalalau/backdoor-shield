@@ -59,7 +59,7 @@ BS.control = {
 -- e.g. { "timer.Simple", "timer.Create" } means that a timer.Create() inside a timer.Simple() will not generate a detection
 BS.whitelistedCallerCombos = {
 	{ "timer.Simple", "timer.Create" },
-	{ "timer.Create", "timer.Simple" }
+	{ "timer.Create", "timer.Simple" },
 }
 
 -- SCAN LISTS
