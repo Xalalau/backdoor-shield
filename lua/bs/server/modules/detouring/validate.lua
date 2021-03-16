@@ -46,7 +46,7 @@ function BS:Validate_Detour(funcName, trace)
 		local lowRisk = false
 
 		if not trace_aux or string.len(trace_aux) == 4 then
-			trace_aux = self:Utils_ConvertAddonPath(string.Trim(string.Explode(":", string.Explode("\n", trace or debug.traceback())[2])[1]))
+			trace_aux = self:Utils_GetLuaFileFromTrace(trace or debug.traceback())
 		else
 			trace_aux = self:Utils_ConvertAddonPath(string.sub(trace_aux, 1, 1) == "@" and string.sub(trace_aux, 2))
 		end
