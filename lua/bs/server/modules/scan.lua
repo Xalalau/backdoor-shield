@@ -4,8 +4,6 @@
 --]]
 
 -- Check if a file isn't suspicious at first 
-
-
 function BS:Scan_CheckWhitelist(str, whitelist)
 	local found = false
 
