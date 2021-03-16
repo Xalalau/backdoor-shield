@@ -1,3 +1,8 @@
+--[[
+    2020-2021 Xalalau Xubilozo. MIT License
+    https://xalalau.com/
+--]]
+
 function BS:Debug_RunTests(args)
     local tests = {}
     tests.aux = {}
