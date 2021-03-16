@@ -323,12 +323,26 @@ function BS:Validate_Callers(trace, funcName, args)
 				callersWarningCooldown[funcAddress] = nil
 			end)
 
+			local path = self:Utils_GetLuaFileFromTrace(trace)
+			local content
+
+			if file.Exists(path, "GAME") then
+				local f = file.Open(path, "r", "GAME")
+				if not f then return end
+			
+				content = f:Read(f:Size())
+
+				f:Close()
+			end
+
 			local info = {
-				suffix = "unknown",
-				alert = "Warning! Dangerous execution detected! The blocking attempt was uncertain!",
+				suffix = "blocked",
+				folder = funcName1,
+				alert = "Execution blocked! The damaged function may have performed something improper, analyze this incident!",
 				func = funcName1,
 				trace = trace,
-				detected = { funcName2 }
+				detected = { funcName2 },
+				content = content
 			}
 
 			self:Report_Detection(info)
