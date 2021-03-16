@@ -96,9 +96,9 @@ function BS:Initialize()
     -- Set live protection
 
     if self.liveProtection then
-        self:Functions_InitDetouring()
-
         self:Functions_InitCallsProtection()
+
+        self:Functions_InitDetouring()
 
         self:Validate_AutoCheckDetouring()
 

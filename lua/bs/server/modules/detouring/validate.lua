@@ -245,9 +245,9 @@ end
 -- HACKS: For some reason this function is EXTREMELY temperamental! I was unable to use the
 -- code inside the orignal function, to pass parameters and even to freely write variables
 -- or acceptable syntax. It only works when it's this mess. Test each changed line if you
--- want to touch it.
+-- want to touch it, or you will regret it bitterly.
 -- If the stack is good, return false
--- If the stack is bad, return the detected func address, func name 1 and func name 2
+-- If the stack is bad, return "protected func name" and "detected func name"
 local BS_protectedCalls_Hack
 local BS_traceBank_Hack
 local _debug = {}
@@ -255,36 +255,40 @@ _debug.getinfo = debug.getinfo
 _debug.getlocal = debug.getlocal
 local hack_Callers_identify ={ [tostring(_debug.getinfo)] = true }
 local function Validate_Callers_Aux()
-	local counter = { increment = 1, detected = 0, firstDetection = "" }
+	local counter = { increment = 1, detected = 0, firstDetection = "" } -- Do NOT add more variables other than inside this table, or the function is going to stop working
 	while true do
 		local func = _debug.getinfo(counter.increment, "flnSu" )
 		local name, value = _debug.getlocal(1, 2, counter.increment)
 		if func == nil then break end
 		if value then
+			-- Update the name and address using info from the trace bank, if it's the case
 			local traceBank = BS_traceBank_Hack[tostring(value.func)]
 			if traceBank then
 				local func = _G
 				for k,v in ipairs(string.Explode(".", traceBank.name)) do
 					func = func[v]
 				end
-				value.func = func
-				value.name = traceBank.name
+				value.func = func -- Use the address of the last function from the older stack, so we can keep track of what's happening
+				value.name = traceBank.name -- Update the name just to make prints nicer in here
 			end
-			--print(value.name and value.name or "")
-			--print(value.func)
+			-- Now we are going to check if it's a protected function call
 			if value.func then
-				for k,v in pairs(BS_protectedCalls_Hack) do
-					if value.func and value.func == v then
+				for funcName,funcAddress in pairs(BS_protectedCalls_Hack) do -- I tried to use the function address as index, and it doesn't work here
+					if tostring(value.func) == tostring(funcAddress) then -- I tried to compare the addresses directly, and it doesn't work here
+						value.name = funcName -- Update the name just to make prints nicer in here
 						counter.detected = counter.detected + 1
-						if counter.detected == 2 then
-							return v, k, counter.firstDetection
+						if counter.detected == 2 then  -- The rule is that we can't have 2 protected calls stacked, so return what we've found
+							return counter.firstDetection, funcName
 						else
-							counter.firstDetection = k
+							counter.firstDetection = funcName -- Get the pretty name of the first protected call to return it later, if it's the case
 						end
 						break
 					end
 				end
 			end
+			-- Debug
+			--print(value.name and value.name or "")
+			--print(value.func)
 		end
 		counter.increment = counter.increment + 1
 	end
@@ -303,50 +307,50 @@ function BS:Validate_Callers(trace, funcName, args)
 		BS_traceBank_Hack = self.traceBank
 	end
 
-	local funcAddress, funcName1, funcName2 = Validate_Callers_Aux()
+	local detectedFuncName, protectedFuncName = Validate_Callers_Aux()
 
-	-- Whitelist
-	local found
-	for _,combo in pairs(self.whitelistedCallerCombos) do
-		if funcName1 == combo[1] then
-			if funcName2 == combo[2] then
-				funcAddress = nil
-			end
-
-			break
-		end
-	end
-
-	if funcAddress then
-		if not callersWarningCooldown[funcAddress] then
-			callersWarningCooldown[funcAddress] = true
-			timer.Simple(0.1, function()
-				callersWarningCooldown[funcAddress] = nil
+	if protectedFuncName then
+		if not callersWarningCooldown[protectedFuncName] then
+			callersWarningCooldown[protectedFuncName] = true
+			timer.Simple(0.01, function()
+				callersWarningCooldown[protectedFuncName] = nil
 			end)
 
-			local path = self:Utils_GetLuaFileFromTrace(trace)
-			local content
+			-- Whitelist
+			local whitelisted
+			for _,combo in pairs(self.whitelistedCallerCombos) do
+				if protectedFuncName == combo[1] then
+					if detectedFuncName == combo[2] then
+						whitelisted = true
+					end
+				end
+			end		
 
-			if file.Exists(path, "GAME") then
-				local f = file.Open(path, "r", "GAME")
-				if not f then return end
-			
-				content = f:Read(f:Size())
+			if not whitelisted then
+				local path = self:Utils_GetLuaFileFromTrace(trace)
+				local content
 
-				f:Close()
+				if file.Exists(path, "GAME") then
+					local f = file.Open(path, "r", "GAME")
+					if not f then return end
+				
+					content = f:Read(f:Size())
+
+					f:Close()
+				end
+
+				local info = {
+					suffix = "blocked",
+					folder = protectedFuncName,
+					alert = "Execution blocked! The damaged function may have performed something improper, analyze this incident!",
+					func = protectedFuncName,
+					trace = trace,
+					detected = { detectedFuncName },
+					content = content
+				}
+
+				self:Report_Detection(info)
 			end
-
-			local info = {
-				suffix = "blocked",
-				folder = funcName1,
-				alert = "Execution blocked! The damaged function may have performed something improper, analyze this incident!",
-				func = funcName1,
-				trace = trace,
-				detected = { funcName2 },
-				content = content
-			}
-
-			self:Report_Detection(info)
 		end
 
 		return false
