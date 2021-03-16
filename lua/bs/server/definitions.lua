@@ -44,6 +44,7 @@ BS.control = {
 	["net.ReadHeader"] = {},
 	["net.WriteString"] = {},
 	["require"] = {},
+	["BroadcastLua"] = { filters = { "Validate_Callers" } },
 	["pcall"] = { filters = { "Validate_Callers" } },
 	["xpcall"] = { filters = { "Validate_Callers" } },
 	["Error"] = {},
@@ -53,7 +54,7 @@ BS.control = {
 	["timer.Simple"] = { filters = { "Validate_Callers", "Validate_Timers" } },
 	["timer.Create"] = { filters = { "Validate_Callers", "Validate_Timers" } },
 }
-
+-- 
 -- Whitelist for Validate_Callers combinations.
 -- e.g. { "timer.Simple", "timer.Create" } means that a timer.Create() inside a timer.Simple() will not generate a detection
 BS.whitelistedCallerCombos = {
