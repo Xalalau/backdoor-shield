@@ -62,6 +62,8 @@ BS.control = {
 BS.whitelistedCallerCombos = {
 	{ "timer.Simple", "timer.Create" },
 	{ "timer.Create", "timer.Simple" },
+	{ "timer.Simple", "timer.Simple" },
+	{ "timer.Create", "timer.Create" },
 }
 
 -- SCAN LISTS
