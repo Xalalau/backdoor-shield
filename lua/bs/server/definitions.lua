@@ -84,7 +84,8 @@ BS.lowRiskFolders = {
 	"lua/xlib/",
 	"lua/_awesome/",
 	"lua/serverguard/",
-	"lua/klib/"
+	"lua/klib/",
+	"lua/pac3/"
 }
 
 BS.lowRiskFiles = {
