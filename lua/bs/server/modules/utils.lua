@@ -78,6 +78,7 @@ function BS:Utils_RunTests(args)
         ["debug.getfenv"] = "Try to get our custom environment",
         ["http.Fetch"] = "Run a prohibited code combination",
         ["RunString"] = "Run a prohibited code combination",
+        ["RunString2"] = "Run a prohibited code combination with fake function names",
         ["RunStringEx"] = "Run a prohibited code combination",
         ["debug.getinfo"] = "Try to check if a detoured function is valid",
         ["jit.util.funcinfo"] = "Try to check if a detoured function is valid",
@@ -165,6 +166,14 @@ function BS:Utils_RunTests(args)
         print("\n-----> RunString: " .. tests.text["RunString"])
         self.__G.RunString([[ BroadcastLua("print('')") print("\nProhibited code is running!")]]);
         print("\n (Result) Pass = block execution; Fail = Print a message.\n")
+    end
+
+    function tests.RunString2()
+        print("\n-----> RunString 2: " .. tests.text["RunString2"])
+        self.__G.CompStrBypass = self.__G.CompileString
+        self.__G.RunString([[ print("\n1") local two = CompStrBypass("print(2)") if isfunction(two) then two() end print(3)]]);
+        self.__G.CompStrBypass = nil
+         print("\n (Result) Pass = Print 1 then print blocked execution then print 3; Fail = Print 1, 2 and 3.\n")
     end
 
     function tests.RunStringEx()
