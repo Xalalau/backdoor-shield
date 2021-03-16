@@ -41,7 +41,7 @@ if SERVER then
 
     BS.protectedCalls = {} -- List of functions that can't call each other. e.g. { ["function name"] = detoured function address }
 
-    BS.traceBank = {} -- List traces saved from some functions. e.g { ["lua/ulib/shared/hook.lua"] = { name = "fuction name", trace = trace } }
+    BS.traceBank = {} -- List traces saved from some functions. e.g { ["function address"] = { name = "fuction name", trace = trace } }
 
     BS.dangerousExtensions_Check = {} -- Auxiliar tables to check values faster
     BS.lowRiskFiles_Check = {}
