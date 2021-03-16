@@ -171,9 +171,9 @@ function BS:Utils_RunTests(args)
     function tests.RunString2()
         print("\n-----> RunString 2: " .. tests.text["RunString2"])
         self.__G.CompStrBypass = self.__G.CompileString
-        self.__G.RunString([[ print("\n1") local two = CompStrBypass("print(2)") if isfunction(two) then two() end print(3)]]);
+        self.__G.RunString([[ print("\n1") local two = CompStrBypass("print(2)") if isfunction(two) then two() end print("\n3")]]);
         self.__G.CompStrBypass = nil
-         print("\n (Result) Pass = Print 1 then print blocked execution then print 3; Fail = Print 1, 2 and 3.\n")
+         print("\n (Result) Pass = 1 and 3 are visible but 2 is blocked; Fail = 1, 2 and 3 are visible.\n")
     end
 
     function tests.RunStringEx()
