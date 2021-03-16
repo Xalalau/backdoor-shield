@@ -84,7 +84,7 @@ function BS:Initialize()
     if self.devMode then
         concommand.Add("bs_tests", function(ply, cmd, args)
             if not ply:IsValid() or ply:IsAdmin() then
-                self:Utils_RunTests(args)
+                self:Debug_RunTests(args)
             end
         end)
     end
@@ -96,11 +96,11 @@ function BS:Initialize()
     -- Set live protection
 
     if self.liveProtection then
-        self:Functions_InitCallsProtection()
+        self:Filters_CheckStack_Init()
 
-        self:Functions_InitDetouring()
+        self:Detours_Init()
 
-        self:Validate_AutoCheckDetouring()
+        self:Detours_SetAutoCheck()
 
         if not GetConVar("sv_hibernate_think"):GetBool() then
             hook.Add("Initialize", self:Utils_GetRandomName(), function()

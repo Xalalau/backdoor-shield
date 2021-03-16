@@ -16,7 +16,7 @@ function BS:LiveReloading_Set()
                 if v ~= self.filenames[k] then
                     print(self.alert .. " Reloading...")
 
-                    self:Functions_RemoveDetours()
+                    self:Detours_Remove()
 
                     self.__G.BS_reloaded = true
                     self.reloaded = true

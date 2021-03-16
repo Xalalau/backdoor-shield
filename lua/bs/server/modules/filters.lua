@@ -3,94 +3,9 @@
     https://xalalau.com/
 --]]
 
--- Auto detouring protection
--- 	 First 5m running: check every 5s
--- 	 Later: check every 60s
-function BS:Validate_AutoCheckDetouring()
-	local function SetAuto(name, delay)
-		timer.Create(name, delay, 0, function()
-			if self.reloaded then
-				timer.Remove(name)
-
-				return
-			end
-
-			for funcName,_ in pairs(self.control) do
-				self:Validate_Detour(funcName)
-			end
-		end)
-	end
-
-	local name = self:Utils_GetRandomName()
-
-	SetAuto(name, 5)
-
-	timer.Simple(300, function()
-		SetAuto(name, 60)
-	end)
-end
-
--- Protect a detour address
-function BS:Validate_Detour(funcName, trace)
-	local currentAddress = self:Functions_GetCurrent(funcName)
-	local detourAddress = self.control[funcName].detour
-	local trace_aux = debug.getinfo(currentAddress, "S").source
-
-	if detourAddress ~= currentAddress then
-		local info = {
-			func = name,
-			trace = trace or trace_aux
-		}
-
-		-- Check if it's a low risk detection. If so, only report
-		local lowRisk = false
-
-		if not trace_aux or string.len(trace_aux) == 4 then
-			trace_aux = self:Utils_GetLuaFileFromTrace(trace or debug.traceback())
-		else
-			trace_aux = self:Utils_ConvertAddonPath(string.sub(trace_aux, 1, 1) == "@" and string.sub(trace_aux, 2))
-		end
-
-		if self.lowRiskFiles_Check[trace_aux] then
-			lowRisk = true
-		else
-			for _,v in pairs(self.lowRiskFolders) do
-				local start = string.find(trace_aux, v, nil, true)
-
-				if start == 1 then
-					lowRisk = true
-
-					break
-				end
-			end
-		end
-
-		if lowRisk then
-			if self.ignoredDetours[trace_aux] then
-				return true
-			end
-
-			info.suffix = "warning"
-			info.alert = "Warning! Detour detected in a low risk location. Ignoring it..."
-			self.ignoredDetours[trace_aux] = true
-		else
-			info.suffix = "detour"
-			info.alert = "Detour captured and undone!"
-
-			self:Functions_SetDetour_Aux(funcName, detourAddress)
-		end
-
-		self:Report_Detection(info)
-
-		return false
-	end
-
-	return true
-end
-
 -- Scan http.Fetch and http.Post contents
 -- Add persistent trace support to the called functions
-function BS:Validate_HttpFetchPost(trace, funcName, args)
+function BS:Filters_CheckHttpFetchPost(trace, funcName, args)
 	local url = args[1]
 
 	local function Scan(args2)
@@ -102,7 +17,7 @@ function BS:Validate_HttpFetchPost(trace, funcName, args)
 			local urlStart = string.find(url, v)
 
 			if urlStart and urlStart == 1 then
-				return self:Functions_CallProtected(funcName, args)
+				return self:Detours_CallOriginalFunction(funcName, args)
 			end
 		end
 
@@ -140,7 +55,7 @@ function BS:Validate_HttpFetchPost(trace, funcName, args)
 		if #blocked[1] == 0 and #blocked[2] == 0 then
 			self:Trace_Set(args[2], funcName, trace)
 
-			self:Functions_CallProtected(funcName, args)
+			self:Detours_CallOriginalFunction(funcName, args)
 		end
 	end
 
@@ -168,7 +83,7 @@ function BS:Validate_HttpFetchPost(trace, funcName, args)
 end
 
 -- Check CompileString, CompileFile, RunString and RunStringEX contents
-function BS:Validate_StrCode(trace, funcName, args)
+function BS:Filters_CheckStrCode(trace, funcName, args)
 	local code = funcName == "CompileFile" and file.Read(args[1], "LUA") or args[1]
 	local blocked = {{}, {}}
 	local warning = {}
@@ -195,51 +110,30 @@ function BS:Validate_StrCode(trace, funcName, args)
 		self:Report_Detection(info)
 	end
 
-	return #blocked[1] == 0 and #blocked[2] == 0 and self:Functions_CallProtected(funcName, #args > 0 and args or {""})
+	return #blocked[1] == 0 and #blocked[2] == 0 and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
 end
 
--- Protect our custom environment
---   Don't return it!
---     getfenv and debug.getfenv
-function BS:Validate_Environment(trace, funcName, args)
-	local result = self:Functions_CallProtected(funcName, args)
-	result = result == _G and self.__G or result
-
-	if result == self.__G then
-		local info = {
-			suffix = "warning",
-			alert = "A script got _G through " .. funcName .. "!",
-			func = funcName,
-			trace = trace,
-		}
-
-		self:Report_Detection(info)
+function BS:Filters_CheckStack_Init()
+	local function setField(protectedFunc)
+		self.protectedCalls[protectedFunc] = self:Detours_GetFunction(protectedFunc)
 	end
 
-	return result
-end
+	for protectedFunc,_ in pairs(self.controlsBackup) do
+		local filters = self.controlsBackup[protectedFunc].filters
 
--- Hide our detours
---   These functions are used to verify if other functions have valid addresses:
---     debug.getinfo, jit.util.funcinfo and tostring
-local checking = {}
-function BS:Validate_Adrresses(trace, funcName, args)
-	if checking[funcName] then -- Avoid loops
-		return self:Functions_CallProtected(funcName, args)
-	end
-	checking[funcName] = true
-
-	if args[1] and isfunction(args[1]) then
-		for k,v in pairs(self.control) do
-			if args[1] == v.detour then
-				args[1] = self:Functions_GetCurrent(k, _G)
-				break
+		if isstring(filters) then
+			if filters == "Filters_CheckStack" then
+				setField(protectedFunc)
+			end
+		elseif istable(filters) then
+			for k,filters2 in ipairs(filters) do
+				if filters2 == "Filters_CheckStack" then
+					setField(protectedFunc)
+					break
+				end
 			end
 		end
 	end
-
-	checking[funcName] = nil
-	return self:Functions_CallProtected(funcName, args)
 end
 
 -- HACKS: For some reason this function is EXTREMELY temperamental! I was unable to use the
@@ -254,7 +148,7 @@ local _debug = {}
 _debug.getinfo = debug.getinfo
 _debug.getlocal = debug.getlocal
 local hack_Callers_identify ={ [tostring(_debug.getinfo)] = true }
-local function Validate_Callers_Aux()
+local function Filters_CheckStack_Aux()
 	local counter = { increment = 1, detected = 0, firstDetection = "" } -- Do NOT add more variables other than inside this table, or the function is going to stop working
 	while true do
 		local func = _debug.getinfo(counter.increment, "flnSu" )
@@ -297,8 +191,8 @@ end
 
 -- Validate functions that can't call each other
 local callersWarningCooldown = {} -- Don't flood the console with messages
-function BS:Validate_Callers(trace, funcName, args)
-	-- Hacks, explained above Validate_Callers_Aux()
+function BS:Filters_CheckStack(trace, funcName, args)
+	-- Hacks, explained above Filters_CheckStack_Aux()
 	--   Expose internal values to this file local scope
 	if not BS_protectedCalls_Hack then
 		BS_protectedCalls_Hack = table.Copy(self.protectedCalls)
@@ -307,7 +201,7 @@ function BS:Validate_Callers(trace, funcName, args)
 		BS_traceBank_Hack = self.traceBank
 	end
 
-	local detectedFuncName, protectedFuncName = Validate_Callers_Aux()
+	local detectedFuncName, protectedFuncName = Filters_CheckStack_Aux()
 
 	if protectedFuncName then
 		if not callersWarningCooldown[protectedFuncName] then
@@ -360,15 +254,15 @@ function BS:Validate_Callers(trace, funcName, args)
 end
 
 -- Add persistent trace support to the function called by timers
-function BS:Validate_Timers(trace, funcName, args)
+function BS:Filters_CheckTimers(trace, funcName, args)
 	self:Trace_Set(args[2], funcName, trace)
 
-	return self:Functions_CallProtected(funcName, args)
+	return self:Detours_CallOriginalFunction(funcName, args)
 end
 
--- HACK: this function is as bad as Validate_Callers_Aux()
+-- HACK: this function is as bad as Filters_CheckStack_Aux()
 local argsPop = {}
-local function Validate_DebugGetinfo_Aux()
+local function Filters_ProtectDebugGetinfo_Aux()
 	local vars = { increment = 1, foundGetinfo = false, args }
 	for k,v in ipairs(argsPop) do -- This is how I'm passing arguments
 		vars.args = v
@@ -402,11 +296,55 @@ end
 
 -- Hide our detours
 --   Force getinfo to jump our functions
-function BS:Validate_DebugGetinfo(trace, funcName, args)
+function BS:Filters_ProtectDebugGetinfo(trace, funcName, args)
 	if isfunction(args[1]) then
-		return self:Validate_Adrresses(trace, funcName, args)
+		return self:Filters_ProtectAddresses(trace, funcName, args)
 	else
 		table.insert(argsPop, args)
-		return Validate_DebugGetinfo_Aux()
+		return Filters_ProtectDebugGetinfo_Aux()
 	end
+end
+
+-- Hide our detours
+--   These functions are used to verify if other functions have valid addresses:
+--     debug.getinfo, jit.util.funcinfo and tostring
+local checking = {}
+function BS:Filters_ProtectAddresses(trace, funcName, args)
+	if checking[funcName] then -- Avoid loops
+		return self:Detours_CallOriginalFunction(funcName, args)
+	end
+	checking[funcName] = true
+
+	if args[1] and isfunction(args[1]) then
+		for k,v in pairs(self.control) do
+			if args[1] == v.detour then
+				args[1] = self:Detours_GetFunction(k, _G)
+				break
+			end
+		end
+	end
+
+	checking[funcName] = nil
+	return self:Detours_CallOriginalFunction(funcName, args)
+end
+
+-- Protect our custom environment
+--   Don't return it!
+--     getfenv and debug.getfenv
+function BS:Filters_ProtectEnvironment(trace, funcName, args)
+	local result = self:Detours_CallOriginalFunction(funcName, args)
+	result = result == _G and self.__G or result
+
+	if result == self.__G then
+		local info = {
+			suffix = "warning",
+			alert = "A script got _G through " .. funcName .. "!",
+			func = funcName,
+			trace = trace,
+		}
+
+		self:Report_Detection(info)
+	end
+
+	return result
 end
