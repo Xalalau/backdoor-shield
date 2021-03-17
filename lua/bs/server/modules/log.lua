@@ -56,7 +56,7 @@ local function FormatDetectedList(inDetected)
 		end
 	end
 
-	return
+	return detected
 end
 table.insert(BS.locals, FormatDetectedList)
 
