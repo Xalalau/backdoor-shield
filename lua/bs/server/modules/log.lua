@@ -26,6 +26,8 @@ table.insert(BS.locals, ValidateFolderName)
 
 -- Make a nice format to the included code types 
 local function FormatTypesList(snippet, file)
+	if not snippet and not file then return end
+
 	local messages = {
 		["snippet"] = "Blocked code snippet",
 		["file"] = "Full Lua file: " ,
@@ -36,7 +38,7 @@ local function FormatTypesList(snippet, file)
         ]] .. (snippet and (messages["snippet"] .. "\n") or "") .. [[
         ]] .. (file and (messages["file"] .. file) or "")
 
-	return not result:gsub(" ", "") == "" and result
+	return result
 end
 table.insert(BS.locals, FormatTypesList)
 
