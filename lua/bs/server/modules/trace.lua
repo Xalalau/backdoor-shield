@@ -73,11 +73,11 @@ function BS:Trace_GetLuaFile(trace)
     local traceParts = string.Explode("\n", trace)
     local index
 
-    local checkForBS
+    local foundStackStart
     for k,v in ipairs(traceParts) do
-        if not checkForBS and string.Trim(v) == "stack traceback:" then
-            checkForBS = true
-        elseif checkForBS then
+        if not foundStackStart and string.Trim(v) == "stack traceback:" then
+            foundStackStart = true
+        elseif foundStackStart then
             if not string.find(v, "/lua/bs/") and string.find(v, ".lua") then
                 index = k
                 break
