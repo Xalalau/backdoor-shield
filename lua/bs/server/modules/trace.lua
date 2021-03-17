@@ -7,7 +7,7 @@
 local _debug = {}
 _debug.getinfo = debug.getinfo
 _debug.getlocal = debug.getlocal
-local function Trace_Get__Aux()
+local function Trace_Get_Aux()
 	local vars = { increment = 1, func = nil }
 	while true do
 		local func = _debug.getinfo(vars.increment, "flnSu")
@@ -23,13 +23,13 @@ end
 
 -- Try to get a stored trace given any function address
 function BS:Trace_Get()
-    local bankedTrace = self.traceBank[tostring(Trace_Get__Aux())]
+    local bankedTrace = self.traceBank[tostring(Trace_Get_Aux())]
     return bankedTrace and bankedTrace.trace or ""
 end
 
 -- Store a trace associated to a specific function that will lose it
 function BS:Trace_Set(func, name, trace)
-    local bankedTrace = self.traceBank[tostring(Trace_Get__Aux())]
+    local bankedTrace = self.traceBank[tostring(Trace_Get_Aux())]
 
     if bankedTrace then
         trace = bankedTrace.trace .. trace
