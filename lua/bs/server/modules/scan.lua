@@ -3,6 +3,10 @@
     https://xalalau.com/
 --]]
 
+-- !!WARNING!! DON'T use string.find() with Patterns ON!
+-- Due to the backdoor nature of using problematic characters,
+-- such as non-ascii, scanning strings with patterns can fail.
+
 -- Check if a file isn't suspicious at first 
 function BS:Scan_CheckWhitelist(str, whitelist)
 	local found = false
