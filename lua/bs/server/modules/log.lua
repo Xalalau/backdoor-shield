@@ -174,7 +174,9 @@ function BS:Report_Detection(infoIn)
 ]]
 
 	-- Print to console
-	print(partialLog or fullLog)
+	for _,line in ipairs(string.Explode("\n", partialLog or fullLog)) do
+		print(line)
+	end
 
 	-- Update counter
 	if infoIn.type == "warning" then
