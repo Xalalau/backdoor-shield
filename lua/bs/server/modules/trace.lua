@@ -78,7 +78,7 @@ function BS:Trace_GetLuaFile(trace)
         if not checkForBS and string.Trim(v) == "stack traceback:" then
             checkForBS = true
         elseif checkForBS then
-            if not string.find(v, "/lua/bs/") then
+            if not string.find(v, "/lua/bs/") and string.find(v, ".lua") then
                 index = k
                 break
             end
