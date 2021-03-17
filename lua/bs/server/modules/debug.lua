@@ -174,14 +174,12 @@ function BS:Debug_RunTests(args)
         print("[STARTING TESTS]\n")
     end
 
-    local printDelayedMsg1 = #args == 0 and true 
-    local printDelayedMsg2 = #args == 0 and true 
+    local isRunningAll = #args == 0 and true 
+    local printDelayedMsg = {}
 
-    if #args == 0 then
+    if isRunningAll then
         for k,v in pairs(tests) do
             if v and isfunction(v) and v ~= tests.help then
-                if v == tests["http.Fetch"] then printDelayedMsg1 = true end
-                if v == tests["detour2"] then printDelayedMsg2 = true end
                 v()
             end
         end
@@ -189,6 +187,9 @@ function BS:Debug_RunTests(args)
         local found
         for _,testName in ipairs(args) do
             if tests[testName] then
+                if testName == "http.Fetch" or testName == "detour2" then
+                    printDelayedMsg[testName] = true
+                end
                 found = true
                 tests[testName]()
             end
@@ -199,17 +200,17 @@ function BS:Debug_RunTests(args)
         end
     end
 
-    if #args == 0 or args[1] ~= "help" then
-        print("\n[FINISHED TESTS]")
+    if isRunningAll or args[1] ~= "help" then
+        print("\n[FINISHING TESTS]")
         print("---------------------------------------------------------")
-        if printDelayedMsg1 or printDelayedMsg2 then
+        if table.Count(printDelayedMsg) > 0 then
             print("[WAITING FOR]\n")
         end
 
-        if printDelayedMsg1 then
+        if isRunningAll or printDelayedMsg["http.Fetch"] then
             print("--> http.Fetch test result...")
         end
-        if printDelayedMsg2 then
+        if isRunningAll or printDelayedMsg["detour2"] then
             print("--> Detouring auto check test result...")
         end
     end
