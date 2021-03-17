@@ -46,25 +46,6 @@ function BS:Utils_GetFilesCreationTimes()
     return times
 end
 
-function BS:Utils_GetLuaFileFromTrace(trace)
-    local traceParts = string.Explode("\n", trace)
-    local index
-
-    local checkForBS
-    for k,v in ipairs(traceParts) do
-        if not checkForBS and string.Trim(v) == "stack traceback:" then
-            checkForBS = true
-        elseif checkForBS then
-            if not string.find(v, "/lua/bs/") then
-                index = k
-                break
-            end
-        end
-    end
-
-    return self:Utils_ConvertAddonPath(string.Trim(string.Explode(":",traceParts[index])[1]))
-end
-
 -- Convert the path of a file in the addons folder to a game's mounted one.
 -- I'll save it and prevent us from scanning twice.
 function BS:Utils_ConvertAddonPath(path, forceConvertion)

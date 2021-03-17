@@ -66,7 +66,7 @@ function BS:Detours_Validate(funcName, trace)
 		local lowRisk = false
 
 		if not trace_aux or string.len(trace_aux) == 4 then
-			trace_aux = self:Utils_GetLuaFileFromTrace(trace or debug.traceback())
+			trace_aux = self:Trace_GetLuaFile(trace or debug.traceback())
 		else
 			trace_aux = self:Utils_ConvertAddonPath(string.sub(trace_aux, 1, 1) == "@" and string.sub(trace_aux, 2))
 		end

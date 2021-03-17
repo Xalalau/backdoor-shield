@@ -47,7 +47,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args)
 				url = url,
 				detected = detected[3],
 				snippet = table.ToString(args2, "arguments", true),
-				file = self:Utils_GetLuaFileFromTrace(trace)
+				file = self:Trace_GetLuaFile(trace)
 			}
 
 			self:Report_Detection(info)
@@ -106,7 +106,7 @@ function BS:Filters_CheckStrCode(trace, funcName, args)
 			trace = trace,
 			detected = detected[3],
 			snippet = code,
-			file = self:Utils_GetLuaFileFromTrace(trace)
+			file = self:Trace_GetLuaFile(trace)
 		}
 
 		self:Report_Detection(info)
@@ -231,7 +231,7 @@ function BS:Filters_CheckStack(trace, funcName, args)
 					func = protectedFuncName,
 					trace = trace,
 					detected = { detectedFuncName },
-					file = self:Utils_GetLuaFileFromTrace(trace)
+					file = self:Trace_GetLuaFile(trace)
 				}
 
 				self:Report_Detection(info)
@@ -333,7 +333,7 @@ function BS:Filters_ProtectEnvironment(trace, funcName, args)
 			alert = "A script got _G through " .. funcName .. "!",
 			func = funcName,
 			trace = trace,
-			file = self:Utils_GetLuaFileFromTrace(trace)
+			file = self:Trace_GetLuaFile(trace)
 		}
 
 		self:Report_Detection(info)

@@ -67,3 +67,23 @@ function BS:Trace_Set(func, name, trace)
 
     self.traceBank[tostring(func)] = { name = name, trace = trace }
 end
+
+-- Get the correct bad lua file from a trace stack
+function BS:Trace_GetLuaFile(trace)
+    local traceParts = string.Explode("\n", trace)
+    local index
+
+    local checkForBS
+    for k,v in ipairs(traceParts) do
+        if not checkForBS and string.Trim(v) == "stack traceback:" then
+            checkForBS = true
+        elseif checkForBS then
+            if not string.find(v, "/lua/bs/") then
+                index = k
+                break
+            end
+        end
+    end
+
+    return self:Utils_ConvertAddonPath(string.Trim(string.Explode(":",traceParts[index])[1]))
+end
