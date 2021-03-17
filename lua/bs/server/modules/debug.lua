@@ -21,8 +21,9 @@ function BS:Debug_RunTests(args)
         ["jit.util.funcinfo"] = "Try to check if a detoured function is valid",
         ["CompileFile"] = "Run a prohibited code combination",
         ["CompileString"] = "Run a prohibited code combination",
+        ["PersistentTrace"] = "Run a prohibited code combination with fake function names inside two timers",
     }
-
+    
     function tests.help()
         print("\n  Available tests:\n")
         for k,v in SortedPairs(tests.text) do
@@ -167,6 +168,22 @@ function BS:Debug_RunTests(args)
             print(" (Fail) A string with prohibited code combinations was compiled!")
         end
         print()
+    end
+
+    function tests.PersistentTrace()
+        print("\n-----> PersistentTrace: " .. tests.text["PersistentTrace"])
+        self.__G.CompStr = self.__G.CompileString
+        self.__G.code = [[ return "2" ]]
+        self.__G.timer.Simple(0, function()
+            self.__G.timer.Simple(0, function()
+                self.__G.RunString([[
+                    --print("1")
+                    print(CompStr(code))
+                    --print("3")
+                ]])
+            end)
+        end)
+        print("\n (Result) Pass = Consistent trace starting with \"(+) BS - Persistent Trace\"; Fail = Any other trace.\n")
     end
 
     if #args == 0 or args[1] ~= "help" then
