@@ -265,14 +265,14 @@ local function Filters_ProtectDebugGetinfo_Aux()
 		local name, value = _debug.getlocal(1, 2, vars.increment)
 		if func == nil then break end
 		--print(value.name)
+		--print(value.func == debug.getinfo)
 		if value then
-			local isGetinfo = hack_Callers_identify[tostring(value.func)]
 			if vars.foundGetinfo then
 				if vars.args[1] == 1 then
 					return _debug.getinfo(vars.increment, vars.args[2])
 				end
 				vars.args[1] = vars.args[1] - 1
-			elseif isGetinfo then
+			elseif value.func == debug.getinfo then
 				if vars.args[1] == 1 then
 					return _debug.getinfo(vars.increment, vars.args[2])
 				else
