@@ -132,7 +132,7 @@ BS.whitelistTraceErrors = {
 -- Whitelist contents
 -- Detections containing the listed snippets will be ignored
 -- Note: if misused it'll whitelist all types of files! Be very careful and Don't show it to anyone!
-BS.whitelistContents = {
+BS.whitelistSnippets = {
 }
 
 -- Detections with these chars will be considered as not suspect at first
