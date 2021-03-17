@@ -33,10 +33,11 @@ local function FormatTypesList(snippet, file)
 		["file"] = "Full Lua file: " ,
 	}
 
+	local indent = "        "
 	local result = [[
 
-        ]] .. (snippet and (messages["snippet"] .. "\n") or "") .. [[
-        ]] .. (file and (messages["file"] .. file) or "")
+]] .. (snippet and indent .. (messages["snippet"] .. "\n") or "") .. [[
+]] .. (file and indent .. (messages["file"] .. file) or "")
 
 	return result
 end
