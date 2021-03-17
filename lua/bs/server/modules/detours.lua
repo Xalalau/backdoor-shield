@@ -58,7 +58,7 @@ function BS:Detours_Validate(funcName, trace)
 
 	if detourAddress ~= currentAddress then
 		local info = {
-			func = name,
+			func = funcName,
 			trace = trace or trace_aux
 		}
 
