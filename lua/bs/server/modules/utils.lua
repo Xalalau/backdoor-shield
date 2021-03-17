@@ -48,7 +48,7 @@ end
 
 function BS:Utils_GetLuaFileFromTrace(trace)
     local traceParts = string.Explode("\n", trace)
-    return self:Utils_ConvertAddonPath(string.Trim(string.Explode(":",traceParts[#traceParts])[1]))
+    return self:Utils_ConvertAddonPath(string.Trim(string.Explode(":",traceParts[3])[1]))
 end
 
 -- Convert the path of a file in the addons folder to a game's mounted one.
