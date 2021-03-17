@@ -33,7 +33,7 @@ function BS:Debug_RunTests(args)
 
     function tests.detour()
         local bak = self.__G["timer"]["Simple"]
-        print("\n-----> Detour:" .. tests.text["detour"])
+        print("\n-----> Detour: " .. tests.text["detour"])
         local function detour()
             bak(0, function() end)
         end
@@ -49,7 +49,7 @@ function BS:Debug_RunTests(args)
     end
 
     function tests.detour2()
-        print("\n-----> Detour 2:" .. tests.text["detour2"])
+        print("\n-----> Detour 2: " .. tests.text["detour2"])
         local function detourSilent() end
         self.__G["http"]["Post"] = detourSilent
         print("\n (Wainting) Detouring auto check test result pending... After some seconds: Pass = block execution; Fail = no alerts.\n")
