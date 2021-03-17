@@ -70,7 +70,7 @@ function BS:Debug_RunTests(args)
     function tests.tostring()
         print("\n-----> tostring: " .. tests.text["tostring"] .. "\n")
 
-        if string.find(self.__G.tostring(self.__G["jit"]["util"]["funcinfo"]), "builtin", nil, true) then
+        if string.find(self.__G.tostring(self.__G["jit"]["util"]["funcinfo"]), "builtin") then
             print(" (Pass) A selected detour (jit.util.funcinfo) is invisible.")
         else
             print(" (Fail) A selected detour (jit.util.funcinfo) is visible!")

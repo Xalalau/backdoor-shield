@@ -3,9 +3,9 @@
     https://xalalau.com/
 --]]
 
--- !!WARNING!! DON'T use string.find() with Patterns ON!
--- Due to the backdoor nature of using problematic characters,
--- such as non-ascii, scanning strings with patterns can fail.
+-- !! WARNING !! I'm using string.find() with patterns disabled in some functions!
+-- I could enable them running string.PatternSafe() but this calls string.gsub()
+-- with 13 pattern escape replacements and my scanner is already intensive enouth.
 
 -- Check if a file isn't suspicious at first 
 function BS:Scan_CheckWhitelist(str, whitelist)
@@ -43,7 +43,7 @@ local function ProcessList(BS, trace, str, IsSuspicious, list, list2)
 		   not BS:Scan_CheckWhitelist(trace, BS.whitelistTraceErrors) and
 		   not BS:Scan_CheckWhitelist(str, BS.whitelistSnippets) then
 
-			if v == "=_G" then -- Hack: recheck _G with some spaces
+			if v == "=_G" then -- Since I'm not using patterns, I do some extra checks on _G to avoid false positives.
 				local check = string.gsub(str, "%s+", " ")
 				local strStart, strEnd = string.find(check, "=_G", nil, true)
 				if not strStart then
@@ -140,7 +140,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 	if not dirs then
 		return
 	-- List lua/bs/ results as low risk
-	elseif string.find(dir, "lua/" .. BS.folder.lua, nil, true) == 1 then
+	elseif string.find(dir, "lua/" .. BS.folder.lua) == 1 then
 		forceLowRisk = true
 	-- Ignore our own addons folder(s) results
 	elseif not dirs or
@@ -248,7 +248,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 				-- Files inside low risk folders
 				if not resultsList then
 					for _,v in pairs(BS.lowRiskFolders) do
-						local start = string.find(pathAux, v, nil, true)
+						local start = string.find(pathAux, v)
 						if start == 1 then
 							resultsList = results.lowRisk
 

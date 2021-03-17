@@ -75,7 +75,7 @@ function BS:Detours_Validate(funcName, trace)
 			lowRisk = true
 		else
 			for _,v in pairs(self.lowRiskFolders) do
-				local start = string.find(trace_aux, v, nil, true)
+				local start = string.find(trace_aux, v)
 
 				if start == 1 then
 					lowRisk = true
