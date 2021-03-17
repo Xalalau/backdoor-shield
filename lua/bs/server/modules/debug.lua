@@ -202,7 +202,9 @@ function BS:Debug_RunTests(args)
     if #args == 0 or args[1] ~= "help" then
         print("\n[FINISHED TESTS]")
         print("---------------------------------------------------------")
-        print("[WAITING FOR]\n")
+        if printDelayedMsg1 or printDelayedMsg2 then
+            print("[WAITING FOR]\n")
+        end
 
         if printDelayedMsg1 then
             print("--> http.Fetch test result...")
