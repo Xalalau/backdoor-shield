@@ -39,14 +39,15 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args)
 
 		if detected then
 			local info = {
-				suffix = detected[1],
+				type = detected[1],
 				folder = funcName,
 				alert = detected[2],
 				func = funcName,
 				trace = trace,
 				url = url,
 				detected = detected[3],
-				content = table.ToString(args2, "arguments", true)
+				snippet = table.ToString(args2, "arguments", true),
+				file = self:Utils_GetLuaFileFromTrace(trace)
 			}
 
 			self:Report_Detection(info)
@@ -98,13 +99,14 @@ function BS:Filters_CheckStrCode(trace, funcName, args)
 
 	if detected then
 		local info = {
-			suffix = detected[1],
+			type = detected[1],
 			folder = funcName,
 			alert = detected[2],
 			func = funcName,
 			trace = trace,
 			detected = detected[3],
-			content = code
+			snippet = code,
+			file = self:Utils_GetLuaFileFromTrace(trace)
 		}
 
 		self:Report_Detection(info)
@@ -221,26 +223,14 @@ function BS:Filters_CheckStack(trace, funcName, args)
 			end		
 
 			if not whitelisted then
-				local path = self:Utils_GetLuaFileFromTrace(trace)
-				local content
-
-				if file.Exists(path, "GAME") then
-					local f = file.Open(path, "r", "GAME")
-					if not f then return end
-				
-					content = f:Read(f:Size())
-
-					f:Close()
-				end
-
 				local info = {
-					suffix = "blocked",
+					type = "blocked",
 					folder = protectedFuncName,
-					alert = "Execution blocked!",
+					alert = "Blocked function call!",
 					func = protectedFuncName,
 					trace = trace,
 					detected = { detectedFuncName },
-					content = content
+					file = self:Utils_GetLuaFileFromTrace(trace)
 				}
 
 				self:Report_Detection(info)
@@ -337,10 +327,11 @@ function BS:Filters_ProtectEnvironment(trace, funcName, args)
 
 	if result == self.__G then
 		local info = {
-			suffix = "warning",
+			type = "warning",
 			alert = "A script got _G through " .. funcName .. "!",
 			func = funcName,
 			trace = trace,
+			file = self:Utils_GetLuaFileFromTrace(trace)
 		}
 
 		self:Report_Detection(info)

@@ -90,11 +90,11 @@ function BS:Detours_Validate(funcName, trace)
 				return true
 			end
 
-			info.suffix = "warning"
+			info.type = "warning"
 			info.alert = "Warning! Detour detected in a low risk location. Ignoring it..."
 			self.ignoredDetours[trace_aux] = true
 		else
-			info.suffix = "detour"
+			info.type = "detour"
 			info.alert = "Detour captured and undone!"
 
 			self:Detours_Set_Aux(funcName, detourAddress)
