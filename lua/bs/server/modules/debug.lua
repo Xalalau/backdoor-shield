@@ -122,7 +122,6 @@ function BS:Debug_RunTests(args)
     function tests.aux.debuggetinfo()
         print("\n-----> debug.getinfo: " .. tests.text["debug.getinfo"] .. "\n")
         PrintTable(self.__G.debug.getinfo(self.__G.RunString, "flnSu"))
-        print(self.__G.debug.getinfo(self.__G.RunString).short_src)
         print()
         if self.__G.debug.getinfo(self.__G.RunString).short_src == "[C]" then
             print(" (Pass) A selected detour (RunString) is invisible.")
