@@ -195,7 +195,7 @@ function BS:Debug_RunTests(args)
             end
         end
         if not found then
-            print("\n" .. testName .. "not found...\n")
+            print("\nTest \"" .. args[1] .. "\" not found...\n")
             tests.help()
         end
     end
