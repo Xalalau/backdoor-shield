@@ -23,7 +23,7 @@ end
 --table.insert(BS.locals, Trace_Get_Aux) -- I can't check the stack in the wrong environment
 
 -- Try to get a stored trace given any function address
-function BS:Trace_Get(currentTrace, funcName)
+function BS:Trace_Get(currentTrace)
     local bankedTraceTab = self.traceBank[tostring(Trace_Get_Aux())]
     local bankedTrace = bankedTraceTab and bankedTraceTab.trace
     local newFullTrace = (bankedTrace and ("      (+) BS - Persistent Trace" .. bankedTrace .. "") or "\n") .. "      " .. currentTrace .. "\n"
