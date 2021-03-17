@@ -148,7 +148,8 @@ function BS:Debug_RunTests(args)
 
     function tests.CompileFile()
         print("\n-----> CompileFile: " .. tests.text["CompileFile"])
-        local compFile = self.__G.CompileFile("bs/server/modules/utils.lua")
+        local compFile = self.__G.CompileFile("bs/server/modules/debug.lua")
+        print()
         if not compFile then
             print(" (Pass) A file full of prohibited code combinations wasn't compiled.")
         else
