@@ -62,7 +62,7 @@ function BS:Trace_Set(func, name, trace)
     self.traceBank[tostring(func)] = { name = name, trace = trace }
 end
 
--- Get the correct bad lua file from a trace stack
+-- Get the correct detected lua file from a trace stack
 function BS:Trace_GetLuaFile(trace)
     local traceParts = string.Explode("\n", trace)
     local index
