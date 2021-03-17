@@ -89,15 +89,17 @@ table.insert(BS.locals, FormatLog)
 	Structure:
 
 		infoIn = {
-			alert = Message explaining the detection
+		*	alert =  Message explaining the detection
 			func = Name of the bad function
 			detected = List of the prohibited calls detected inside the blocked function
-			type = Detection type. I commonly use "blocked", "warning" and "detour"
+		*	type = Detection type. I commonly use "blocked", "warning" and "detour"
 			folder = Main folder to store this dectetion. I commonly use the detected function name, so it's easier to find the real threats
 			trace = Lua function call stack. Due to my persistent trace system, it can contain multiple stacks
 			snippet = Blocked code snippet
 			file = File where detection occurred
 		}
+
+		* Required fields
 
 	Note: Using the type "warning" will generate full file logs but smaller console prints
 ]]
@@ -119,22 +121,23 @@ function BS:Report_Detection(infoIn)
 	]]
 	local dayFolder = self.folder.data .. date .. "/"
 	local typeFile = dayFolder .. "/log_" .. infoIn.type .. ".txt"
-	local mainFolder = infoIn.folder and dayFolder .. infoIn.folder .. "/" or dayFolder
-	local logFolder = ValidateFolderName(mainFolder .. timeFormat1 .. " - " .. infoIn.type .. "/")
-	local logFile = logFolder .. "/[Log].txt"
-	local luaFile =  infoIn.file and logFolder .. "Full_Lua_file.txt" or ""
-	local snippetFile =  infoIn.snippet and logFolder .. "Blocked_code_snippet.txt" or ""	
+	local mainFolder = infoIn.folder and dayFolder .. infoIn.folder .. "/"
+	local logFolder = mainFolder and ValidateFolderName(mainFolder .. timeFormat1 .. " - " .. infoIn.type .. "/")
+	local logFile = logFolder and logFolder .. "/[Log].txt"
+	local luaFile =  logFolder and infoIn.file and logFolder .. "Full Lua file.txt"
+	local snippetFile =  logFolder and infoIn.snippet and logFolder .. "Blocked code snippet.txt"
 
-	local filesGenerated = FormatTypesList(infoIn.snippet, infoIn.file)
+	local filesGenerated = logFolder and FormatTypesList(infoIn.snippet, infoIn.file)
+
 	local detected = FormatDetectedList(infoIn.detected)
 
 	local info = { -- If you change the fields order, update FormatLog()
-		infoIn.alert and "\n" .. self.alert .. " " .. infoIn.alert or "",
+		"\n" .. self.alert .. " " .. infoIn.alert or "",
 		"\n    Date & time: " .. date .. " | " .. timeFormat2,
 		infoIn.func and "\n    Function: " .. infoIn.func or "",
 		detected and "\n    Detected:" .. detected or "",
 		infoIn.url and "\n    Url: " .. infoIn.url or "",
-		logFolder and "\n    Log Folder: data/" .. logFolder or "",
+		"\n    Log Folder: data/" .. (logFolder or dayFolder),
 		filesGenerated and "\n    Log Contents: " .. filesGenerated or "",
 		infoIn.trace and "\n    Location: " .. infoIn.trace or ""
 	}
@@ -197,10 +200,12 @@ function BS:Report_Detection(infoIn)
 	file.Append(typeFile, fullLog)
 
 	-- Create log file
-	file.Write(logFile, fullLog)
+	if logFile then 
+		file.Write(logFile, fullLog)
+	end
 
 	-- Copy Lua file
-	if infoIn.file and file.Exists(infoIn.file, "GAME") then
+	if luaFile and infoIn.file and file.Exists(infoIn.file, "GAME") then
 		local f = file.Open(infoIn.file, "r", "GAME")
 		if not f then return end
 
@@ -210,7 +215,9 @@ function BS:Report_Detection(infoIn)
 	end
 
 	-- Create snippet file
-	if infoIn.snippet then file.Write(snippetFile, infoIn.snippet) end
+	if snippetFile and infoIn.snippet then
+		file.Write(snippetFile, infoIn.snippet)
+	end
 end
 
 -- Print scan detections to a file
