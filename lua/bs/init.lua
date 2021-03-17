@@ -46,6 +46,8 @@ if SERVER then
     BS.dangerousExtensions_Check = {} -- Auxiliar tables to check values faster
     BS.lowRiskFiles_Check = {}
     BS.suspect_suspect_Check = {}
+
+    BS.locals = {} -- Register local functions addresses, set their environment to protected, cease to exist
 end
 
 local function GetFilesCreationTimes(BS)
@@ -102,13 +104,19 @@ local BS_AUX = table.Copy(BS)
 BS = nil
 local BS = BS_AUX
 
--- Set our custom environment
+-- Set our custom environment to main functions
 local __G_SAFE = table.Copy(_G)
-for k,v in pairs(BS)do
+for _,v in pairs(BS)do
     if isfunction(v) then
         setfenv(v, __G_SAFE)
     end
 end
+
+-- Set our custom environment to local functions
+for _,v in pairs(BS.locals)do
+    setfenv(v, __G_SAFE)
+end
+BS.locals = nil
 
 -- Access the global table inside our custom environment
 BS.__G = _G 
