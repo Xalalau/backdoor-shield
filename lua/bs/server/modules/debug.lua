@@ -49,7 +49,7 @@ function BS:Debug_RunTests(args)
     end
 
     function tests.detour2()
-        print("\n-----> Detour 2: " .. tests.text["detour2"])
+        print("\n-----> Detour2: " .. tests.text["detour2"])
         local function detourSilent() end
         self.__G["http"]["Post"] = detourSilent
         print("\n (Wainting) Detouring auto check test result pending... After some seconds: Pass = block execution; Fail = no alerts.\n")
@@ -106,7 +106,7 @@ function BS:Debug_RunTests(args)
     end
 
     function tests.RunString2()
-        print("\n-----> RunString 2: " .. tests.text["RunString2"])
+        print("\n-----> RunString2: " .. tests.text["RunString2"])
         self.__G.CompStrBypass = self.__G.CompileString
         self.__G.RunString([[ print("\n1") local two = CompStrBypass("print(2)") if isfunction(two) then two() end print("\n3")]]);
         self.__G.CompStrBypass = nil
