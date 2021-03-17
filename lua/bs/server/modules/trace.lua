@@ -23,9 +23,38 @@ end
 --table.insert(BS.locals, Trace_Get_Aux) -- I can't check the stack in the wrong environment
 
 -- Try to get a stored trace given any function address
-function BS:Trace_Get()
-    local bankedTrace = self.traceBank[tostring(Trace_Get_Aux())]
-    return bankedTrace and bankedTrace.trace or ""
+function BS:Trace_Get(currentTrace, funcName)
+    local bankedTraceTab = self.traceBank[tostring(Trace_Get_Aux())]
+    local bankedTrace = bankedTraceTab and bankedTraceTab.trace
+    local newFullTrace = (bankedTrace and ("      (+) BS - Persistent Trace" .. bankedTrace .. "") or "\n") .. "      " .. currentTrace .. "\n"
+    local newFullTraceClean
+
+    -- Let's remove older banked traces from the result if they exist
+    if bankedTrace ~= "" then
+        local _, countBankedTraces = string.gsub(newFullTrace, "(+)", "")
+
+        if countBankedTraces >= 2 then
+            local bankedTracesCounter = 0
+            newFullTraceClean = "\n"
+
+            for k,v in ipairs(string.Explode("\n", newFullTrace)) do
+                if string.find(v, "(+)") then
+                    bankedTracesCounter = bankedTracesCounter + 1
+                end
+                if bankedTracesCounter > countBankedTraces - 1 then
+                    newFullTraceClean = newFullTraceClean .. v .. "\n"
+                end
+            end
+        end
+    end
+
+    if funcName == "RunString" then
+        --print("RunString")
+
+        --print(newFullTraceClean or newFullTrace)
+    end
+
+    return newFullTraceClean or newFullTrace
 end
 
 -- Store a trace associated to a specific function that will lose it

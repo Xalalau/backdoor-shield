@@ -168,8 +168,7 @@ function BS:Detours_Set(funcName, filters, failed)
 		end
 		running[funcName] = true
 
-		local bankedTrace = self:Trace_Get()
-		local trace = (bankedTrace ~= "" and ("\n      [+] " .. bankedTrace .. "\n") or "") .. "\n      " .. debug.traceback()
+		local trace = self:Trace_Get(debug.traceback())
 
 		self:Detours_Validate(funcName, trace)
 
