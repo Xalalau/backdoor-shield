@@ -28,7 +28,7 @@ function BS:Debug_RunTests(args)
         for k,v in SortedPairs(tests.text) do
             print(string.format("     %-18s %s", k, v))
         end
-        print("\n  Usage: bs_tests test1 test2 test3 ...\n\n  Leave empty to run all tests.")
+        print("\n  Usage: bs_tests test1 test2 test3 ...\n\n  Leave empty to run all tests.\n")
     end
 
     function tests.detour()
