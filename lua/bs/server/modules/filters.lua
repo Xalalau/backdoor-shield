@@ -146,15 +146,12 @@ end
 -- If the stack is bad, return "protected func name" and "detected func name"
 local BS_protectedCalls_Hack
 local BS_traceBank_Hack
-local _debug = {}
-_debug.getinfo = debug.getinfo
-_debug.getlocal = debug.getlocal
-local hack_Callers_identify ={ [tostring(_debug.getinfo)] = true }
+local hack_Callers_identify ={ [tostring(debug.getinfo)] = true }
 local function Filters_CheckStack_Aux()
 	local counter = { increment = 1, detected = 0, firstDetection = "" } -- Do NOT add more variables other than inside this table, or the function is going to stop working
 	while true do
-		local func = _debug.getinfo(counter.increment, "flnSu" )
-		local name, value = _debug.getlocal(1, 2, counter.increment)
+		local func = debug.getinfo(counter.increment, "flnSu" )
+		local name, value = debug.getlocal(1, 2, counter.increment)
 		if func == nil then break end
 		if value then
 			-- Update the name and address using info from the trace bank, if it's the case
@@ -190,6 +187,7 @@ local function Filters_CheckStack_Aux()
 	end
 	return false
 end
+table.insert(BS.locals, Filters_CheckStack_Aux)
 
 -- Validate functions that can't call each other
 local callersWarningCooldown = {} -- Don't flood the console with messages
@@ -260,20 +258,20 @@ local function Filters_ProtectDebugGetinfo_Aux()
 		break
 	end
 	while true do
-		local func = _debug.getinfo(vars.increment, "flnSu" )
-		local name, value = _debug.getlocal(1, 2, vars.increment)
+		local func = debug.getinfo(vars.increment, "flnSu" )
+		local name, value = debug.getlocal(1, 2, vars.increment)
 		if func == nil then break end
 		--print(value.name)
 		if value then
 			local isGetinfo = hack_Callers_identify[tostring(value.func)]
 			if vars.foundGetinfo then
 				if vars.args[1] == 1 then
-					return _debug.getinfo(vars.increment, vars.args[2])
+					return debug.getinfo(vars.increment, vars.args[2])
 				end
 				vars.args[1] = vars.args[1] - 1
 			elseif isGetinfo then
 				if vars.args[1] == 1 then
-					return _debug.getinfo(vars.increment, vars.args[2])
+					return debug.getinfo(vars.increment, vars.args[2])
 				else
 					vars.foundGetinfo = true
 					vars.args[1] = vars.args[1] - 1
@@ -283,6 +281,7 @@ local function Filters_ProtectDebugGetinfo_Aux()
 		vars.increment = vars.increment + 1
 	end
 end
+table.insert(BS.locals, Filters_ProtectDebugGetinfo_Aux)
 
 -- Hide our detours
 --   Force getinfo to jump our functions
