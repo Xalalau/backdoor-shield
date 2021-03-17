@@ -48,12 +48,6 @@ function BS:Trace_Get(currentTrace, funcName)
         end
     end
 
-    if funcName == "RunString" then
-        --print("RunString")
-
-        --print(newFullTraceClean or newFullTrace)
-    end
-
     return newFullTraceClean or newFullTrace
 end
 
