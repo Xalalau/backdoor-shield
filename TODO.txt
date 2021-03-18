@@ -19,3 +19,10 @@ add whitelistFiles and tell not to use it?
 -- It wouldn't happen if I check the string for a number after the :
 -- But, also, there will be no easy way to do simplerr compatible...
 
+
+Run scan_fast with only bs loaded:
+[[[ HIGH RISK ]]] ---------------------------------------------------------------------------- <<<
+addons/chess/reslist.lst
+     [!] _G.
+
+This is ugly and bad
