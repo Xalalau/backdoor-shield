@@ -115,6 +115,7 @@ function BS:Filters_CheckStrCode(trace, funcName, args)
 	return #blocked[1] == 0 and #blocked[2] == 0 and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
 end
 
+-- Create our protectedCalls table
 function BS:Filters_CheckStack_Init()
 	local function setField(protectedFunc)
 		self.protectedCalls[protectedFunc] = self:Detours_GetFunction(protectedFunc)
@@ -147,8 +148,8 @@ end
 local BS_protectedCalls_Hack
 local BS_traceBank_Hack
 local _debug = {}
-_debug.getinfo = debug.getinfo
-_debug.getlocal = debug.getlocal
+_debug.getinfo = debug.getinfo   -- Store original function addresses during the addon initialization
+_debug.getlocal = debug.getlocal -- It's done this way to work around a function address verification problem specific of that function crazy
 local hack_Callers_identify ={ [tostring(_debug.getinfo)] = true }
 local function Filters_CheckStack_Aux()
 	local counter = { increment = 1, detected = 0, firstDetection = "" } -- Do NOT add more variables other than inside this table, or the function is going to stop working
@@ -169,8 +170,8 @@ local function Filters_CheckStack_Aux()
 			end
 			-- Now we are going to check if it's a protected function call
 			if value.func then
-				for funcName,funcAddress in pairs(BS_protectedCalls_Hack) do -- I tried to use the function address as index, and it doesn't work here
-					if tostring(value.func) == tostring(funcAddress) then -- I tried to compare the addresses directly, and it doesn't work here
+				for funcName,funcAddress in pairs(BS_protectedCalls_Hack) do -- I tried to use the function address as index but it doesn't work here
+					if tostring(value.func) == tostring(funcAddress) then -- I tried to compare the addresses directly but it also doesn't work here
 						value.name = funcName -- Update the name just to make prints nicer in here
 						counter.detected = counter.detected + 1
 						if counter.detected == 2 then  -- The rule is that we can't have 2 protected calls stacked, so return what we've found

@@ -3,6 +3,7 @@
     https://xalalau.com/
 --]]
 
+-- Run synthetic tests to easyly check if code changes are working
 function BS:Debug_RunTests(args)
     local tests = {}
     tests.aux = {}

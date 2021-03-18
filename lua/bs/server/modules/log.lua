@@ -3,7 +3,8 @@
     https://xalalau.com/
 --]]
 
--- Check if log folder names are unique (they can repeat if detections occur too fast)
+-- Check if a log folder name is unique and, if it's not the case, return a unique one 
+-- These names can repeat if detections occur too fast
 local function ValidateFolderName(testName)
 	local function ValidateFolderNameAux(testName, i)
 		local newName = testName:gsub("/:", "_" .. tostring(i + 1) .. "/")
@@ -24,7 +25,7 @@ local function ValidateFolderName(testName)
 end
 table.insert(BS.locals, ValidateFolderName)
 
--- Make a nice format to the included code types 
+-- Make a nice format to the included codes
 local function FormatTypesList(snippet, file)
 	if not snippet and not file then return end
 
@@ -64,7 +65,7 @@ end
 table.insert(BS.locals, FormatDetectedList)
 
 -- Build the log message
--- I need this to print smaller report for warnings while saving a full log
+-- I need this to print smaller console logs for warnings while saving the full log
 local function FormatLog(info)
 	local partialLog
 	local fullLog = ""

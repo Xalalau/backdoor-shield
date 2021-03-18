@@ -7,7 +7,7 @@
 -- I could enable them running string.PatternSafe() but this calls string.gsub()
 -- with 13 pattern escape replacements and my scanner is already intensive enouth.
 
--- Check if a file isn't suspicious at first 
+-- Find whitelisted detetections
 function BS:Scan_CheckWhitelist(str, whitelist)
 	local found = false
 
@@ -24,6 +24,7 @@ function BS:Scan_CheckWhitelist(str, whitelist)
 	return found
 end
 
+-- Check if a file isn't suspicious (at first)
 local function IsSuspicious(str, ext, dangerousExtensions, notSuspect)
 	if dangerousExtensions[ext] then return true end
 
@@ -37,6 +38,7 @@ local function IsSuspicious(str, ext, dangerousExtensions, notSuspect)
 end
 table.insert(BS.locals, IsSuspicious)
 
+-- Process a string according to our white, black and suspect lists
 local function ProcessList(BS, trace, str, IsSuspicious, list, list2)
 	for k,v in pairs(list) do
 		if string.find(string.gsub(str, " ", ""), v, nil, true) and
@@ -109,7 +111,7 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	return blocked, warning
 end
 
--- Build a message with the detections in a file
+-- Build a message with the detections
 local function JoinResults(tab, alert)
 	local resultString = ""
 
@@ -168,6 +170,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 			local pathAux = path
 
 			-- Filter by extension (if they are specified)
+			-- Note: used by bs_scan_fast
 			if extensions then
 				local isValid = false
 
@@ -181,8 +184,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 				if not isValid then return end
 			end
 
-			-- Convert the path of a file in the addons folder to a game's mounted one.
-			-- I'll save it and prevent us from scanning twice.
+			-- Convert a addons/ path to a lua/ path and save the result to prevent a repeated scanning later
 			if cfgs.addonsFolderScan or forceIgnore then
 				local correctPath = BS:Utils_ConvertAddonPath(path, true)
 
@@ -206,7 +208,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 				results.lastTotalPrinted = results.totalScanned
 			end
 
-			-- Scanning
+			-- Scan file
 			BS:Scan_String(nil, file.Read(path, "GAME"), ext, blocked, warning)
 
 			local resultString = ""
@@ -232,8 +234,8 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 					end
 				end
 
-				-- If it's a non Lua file with only one suspect detection or a suspect detection from
-				-- BS.suspect and other from BS.suspect_suscpec, discard it
+				-- If it's a non Lua file with only one suspect detection or a suspect detection
+				-- from BS.suspect and other from BS.suspect_suscpect, discard it
 				if ext ~= "lua" and (#blocked[1] + #blocked[2] == 0) and (#warning == 1 or #warning == 2 and notImportant) then
 					return
 				end
@@ -245,7 +247,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 					resultsList = results.lowRisk
 				end
 
-				-- Files inside low risk folders
+				-- Check for files inside low risk folders
 				if not resultsList then
 					for _,v in pairs(BS.lowRiskFolders) do
 						local start = string.find(pathAux, v)
@@ -257,16 +259,15 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 					end
 				end
 
-				-- Or if it's not a low risk folder
-				-- let's set a default risk to modify later
+				-- Or if it's not a file in a low risk folder, set a default risk to maybe modify later
 				if not resultsList then
-					-- non Lua detections are VERY unsafe
+					-- Non Lua detections, if they aren't false positive, are VERY unsafe
 					if ext ~= "lua" then
 						resultsList = results.highRisk
-					-- or check if it's a low risk file
+					-- Low risk file
 					elseif BS.lowRiskFiles_Check[pathAux] then
 						resultsList = results.lowRisk
-					-- or set the risk based on the detection precedence
+					-- Set the risk based on the detection precedence
 					else
 						if #blocked[1] > 0 then resultsList = results.highRisk end
 						if not resultsList and #blocked[2] > 0 then resultsList = results.mediumRisk end
@@ -316,7 +317,7 @@ end
 table.insert(BS.locals, RecursiveScan)
 
 -- Process the files recusively inside the aimed folders according to our white, black and suspect lists
--- Low risk files will be reported in the logs as well, but they won't flood the console with warnings
+-- Note: Low risk files will be reported in the logs as well, but they won't flood the console with warnings
 function BS:Scan_Folders(args, extensions)
 	-- All results
 	local results = {
@@ -328,7 +329,7 @@ function BS:Scan_Folders(args, extensions)
 	}
 
 	local cfgs = {
-		addonsFolder = {}, 	-- Note: results from addons folder have precedence.
+		addonsFolder = {}, 	-- Note: results from addons folder take precedence over lua folder.
 		addonsFolderScan = #args == 0 and true -- The addons folder will not be scanned if args is set
 	}
 
@@ -350,6 +351,7 @@ function BS:Scan_Folders(args, extensions)
 	print("\n\n -------------------------------------------------------------------")
 	print(self.alert .. " Scanning GMod and all the mounted contents...\n")
 
+	-- Scan addons folder
 	-- Manually installed addons have a much higher chance of infection.
 	-- Results from the addons folder always have the the full file paths
 	-- To avoid scanning a file twice, I record what we're doing and compare later.
@@ -365,6 +367,7 @@ function BS:Scan_Folders(args, extensions)
 		end
 	end
 
+	-- Console final log
 	print("\nTotal files scanned: " .. results.totalScanned)
 
 	self:Report_Folder(results.highRisk, results.mediumRisk, results.lowRisk)

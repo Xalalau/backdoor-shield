@@ -3,6 +3,7 @@
     https://xalalau.com/
 --]]
 
+-- Initialize detours and filters from the control table
 function BS:Detours_Init()
 	for protectedFunc,_ in pairs(self.control) do
 		local filters = self.control[protectedFunc].filters
@@ -26,6 +27,7 @@ end
 -- Auto detouring protection
 -- 	 First 5m running: check every 5s
 -- 	 Later: check every 60s
+-- This function isn't really necessary, but it's good for advancing detections
 function BS:Detours_SetAutoCheck()
 	local function SetAuto(name, delay)
 		timer.Create(name, delay, 0, function()
@@ -50,7 +52,7 @@ function BS:Detours_SetAutoCheck()
 	end)
 end
 
--- Protect a detour address
+-- Protect a detoured address
 function BS:Detours_Validate(funcName, trace)
 	local currentAddress = self:Detours_GetFunction(funcName)
 	local detourAddress = self.control[funcName].detour
@@ -100,6 +102,7 @@ function BS:Detours_Validate(funcName, trace)
 			self:Detours_Set_Aux(funcName, detourAddress)
 		end
 
+		-- Report
 		self:Report_Detection(info)
 
 		return false
@@ -108,10 +111,13 @@ function BS:Detours_Validate(funcName, trace)
 	return true
 end
 
+-- Call an original game function from our protected environment
+-- Note: It was created to simplify these calls directly from Detours_GetFunction()
 function BS:Detours_CallOriginalFunction(funcName, args)
 	return self:Detours_GetFunction(funcName, _G)(unpack(args))
 end
 
+-- Get a function address by name from a selected environment
 function BS:Detours_GetFunction(funcName, env)
 	env = env or self.__G
 	local currentFunc = {}
@@ -123,6 +129,7 @@ function BS:Detours_GetFunction(funcName, env)
 	return currentFunc[#currentFunc]
 end
 
+-- Update a function address by name in a selected environment
 function BS:Detours_Set_Aux(funcName, newfunc, env)
 	env = env or self.__G
 
@@ -157,6 +164,7 @@ function BS:Detours_Set_Aux(funcName, newfunc, env)
 	table.Merge(env, RecursiveRebuild(funcName, env))
 end
 
+-- Set a detour (including the filters)
 function BS:Detours_Set(funcName, filters, failed)
 	local running = {}
 
@@ -198,6 +206,8 @@ function BS:Detours_Set(funcName, filters, failed)
 	self.control[funcName].detour = Detour
 end
 
+-- Remove our detours
+-- Used only by live reloading functions
 function BS:Detours_Remove()
 	for k,v in pairs(self.control) do
 		self:Detours_Set_Aux(k, self:Detours_GetFunction(k, _G))

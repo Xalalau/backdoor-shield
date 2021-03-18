@@ -4,7 +4,7 @@
 --]]
 
 -- Live reload the addon when a file is modified
--- Note: UNSAFE! BS will be rebuilt exposed to the common addons environment
+-- Note: UNSAFE! BS will be rebuilt itself exposed to the common addons environment and there may come detoured functions
 function BS:LiveReloading_Set()
     local name = "BS_LiveReloading"
 

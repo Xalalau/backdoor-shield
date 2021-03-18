@@ -3,6 +3,7 @@
     https://xalalau.com/
 --]]
 
+-- Generate random name
 function BS:Utils_GetRandomName()
     local name = string.ToTable("qwertyuiopsdfghjklzxcvbnm1234567890QWERTYUIOPASDFGHJKLZXCVBNM")
 	local newName = ""
@@ -22,6 +23,7 @@ function BS:Utils_GetRandomName()
     return newName
 end
 
+-- Save the creation time of our files 
 function BS:Utils_GetFilesCreationTimes()
     local times = {}
 

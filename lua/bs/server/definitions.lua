@@ -9,19 +9,19 @@
 BS.devMode = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
 BS.liveProtection = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
 
+-- These extensions will never be considered as not suspicious by the file scanner
+-- The file scanner will only look for these extensions when running bs_scan_fast 
 BS.dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" }
 
 -- GAME FUNCTIONS PROTECTION
 -- -----------------------------------------------------------------------------------
 
---   Declaring a function in a field will keep if safe from detours
---   Declaring filters will hook functions to execute security checks, following the given order
 BS.control = {
 --[[
-	["some.game.function"] = {
+	["some.game.function"] = {                -- Declaring a function in a field here will keep if safe from detouring
 		detour = function                     -- Automatically managed, just ignore. It's the detour function address
-		filters = string or { string, ... }   -- Write internal function names to execute security checks. Execution is done in order
-		failed = type                         -- Set "failed" if you have "filters" and need to return fail values other than the default or nil
+		filters = string or { string, ... }   -- Internal function names. They'll execute any extra security checks we want (following the declared order)
+		failed = type                         -- Set "failed" if you've set "filters" and need to return fail values other than the default or nil
 	},
 ]]
 	["debug.getinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectDebugGetinfo" }, failed = {} },
@@ -58,7 +58,7 @@ BS.control = {
 }
 
 -- Whitelist for Filters_CheckStack combinations.
--- e.g. { "timer.Simple", "timer.Create" } means that a timer.Create() inside a timer.Simple() will not generate a detection
+-- e.g. { "pcall", "BroadcastLua" } means that a BroadcastLua() inside a pcall() will not generate a detection
 BS.whitelistedCallerCombos = {
 	{ "timer.Simple", "timer.Create" },
 	{ "timer.Create", "timer.Simple" },
@@ -69,14 +69,9 @@ BS.whitelistedCallerCombos = {
 -- SCAN LISTS
 -- -----------------------------------------------------------------------------------
 
--- These lists are used to check urls, files and codes passed as argument
--- Note: these lists are locked here for proper security
--- Note2: I'm not using patterns
-
 -- Low risk files and folders
--- 1) When scanning the game, these files and folders will be considered low risk, so they won't flood
--- the console with warnings (but they'll be normally reported in the logs);
--- 2) If a detour is detected here, it'll only be reported, not undone. Be very careful with these locations!
+--   Detections from these places will be considered low risk on live detections and file
+--   scans (at first, in this case), so they'll print smaller logs and ignore detours.
 
 BS.lowRiskFolders = {
 	"gamemodes/darkrp/",
@@ -107,18 +102,14 @@ BS.lowRiskFiles = {
 	"lua/autorun/!sh_dlib.lua",
 }
 
--- Whitelist urls
--- Don't scan the downloaded string!
--- Note: protected functions detouring will still be detected and undone
--- Note2: any protected functions called will still be scanned
--- Note3: insert an url starting with http or https and ending with a "/", like https://google.com/
+-- Whitelist http.Fetch() and http.Post() urls
+--  Don't scan the downloaded content, just run it normally to start checking again.
 BS.whitelistUrls = {
 	"http://www.geoplugin.net/",
 }
 
 -- Whitelist TRACE ERRORS
--- Any detections with the informed trace will be ignored!
--- Note: protected functions detouring will still be detected and undone
+--   Ignore detections containging a line from here in its trace
 BS.whitelistTraceErrors = {
 	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
 	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:", -- DarkRP
@@ -129,34 +120,33 @@ BS.whitelistTraceErrors = {
 	"lua/dlib/modules/i18n/sh_loader.lua:66", -- DLib
 }
 
--- Whitelist contents
--- Detections containing the listed snippets will be ignored
--- Note: if misused it'll whitelist all types of files! Be very careful and Don't show it to anyone!
+-- Whitelist texts
+--   Ignore detections containing the listed texts. Be very careful to add items to this list!
 BS.whitelistSnippets = {
 }
 
--- Detections with these chars will be considered as not suspect at first
--- This lowers security a bit but eliminates a lot of false positives
+-- Detections with these chars will be considered as not suspect (at first) on files/snippets that are not
+-- part of the dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
 BS.notSuspect = {
 	"ÿ",
 	"", -- 000F
 }
 
--- High chance of direct backdoor detection (all files)
+-- Extremely edge snippets and syntax for most normal Lua scripts
 BS.blacklistHigh = {
-	"=_G", -- !! Used by backdoors to start hiding names. Also, there is an extra check in the code to avoid incorrect results.
+	"=_G", -- Note: used by backdoors to start hiding names or create a better environment
 	"(_G)",
 	",_G,",
 	"!true",
 	"!false",
 }
 
--- High chance of direct backdoor detection (suspect code only)
+-- Very uncommon snippets and syntax for most normal Lua scripts
 BS.blacklistHigh_suspect = {
 	"‪", -- LEFT-TO-RIGHT EMBEDDING
 }
 
--- Medium chance of direct backdoor detection (all files)
+-- Functions that backdoors love to use!
 BS.blacklistMedium = {
 	"RunString",
 	"RunStringEx",
@@ -169,20 +159,20 @@ BS.blacklistMedium = {
 	"debug.getinfo",
 }
 
--- Medium chance of direct backdoor detection (suspect code only)
+-- Uncommon snippets and syntax for most normal Lua scripts
 BS.blacklistMedium_suspect = {
 	"_G[",
 	"_G.",
 }
 
--- Low chance of direct backdoor detection (all files)
+-- Functions that some backdoors use
 BS.suspect = {
 	"pcall",
 	"xpcall",
 	"SendLua",
 }
 
--- Low chance of direct backdoor detection (suspect code only)
+-- More common snippets and syntax that some backdoors use
 BS.suspect_suspect = {
 	"]()",
 	"0x",

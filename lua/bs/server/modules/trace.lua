@@ -67,6 +67,8 @@ function BS:Trace_GetLuaFile(trace)
     local traceParts = string.Explode("\n", trace)
     local index
 
+    -- From the trace top to the bottom:
+    --   Find "stack traceback:", skip our own files and get the first valid lua file
     local foundStackStart
     for k,v in ipairs(traceParts) do
         if not foundStackStart and string.Trim(v) == "stack traceback:" then
