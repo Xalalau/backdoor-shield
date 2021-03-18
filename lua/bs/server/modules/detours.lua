@@ -133,35 +133,16 @@ end
 function BS:Detours_Set_Aux(funcName, newfunc, env)
 	env = env or self.__G
 
-	local function RecursiveRebuild(funcName, currentFunction)
-		local newTable = {}
-		local nameParts = string.Explode(".", funcName)
-		local rejoin
-		local index
-	
-		for k,v in ipairs(nameParts) do
-			if k == 1 then
-				currentFunction = currentFunction[v]
-				index = v
-	
-				if isfunction(currentFunction) then
-					newTable[v] = newfunc
+	local newTable = {}
+	local newTableCurrent = newTable
+	local explodedFuncName = string.Explode(".", funcName)
 
-					return newTable
-				end
-			end
-	
-			if k > 1 then
-				rejoin = not rejoin and v or rejoin .. "." .. v
-			end				
-		end
-	
-		newTable[index] = RecursiveRebuild(rejoin, currentFunction)
-
-		return newTable
+	for k,namePart in ipairs(explodedFuncName) do
+		newTableCurrent[namePart] = k == #explodedFuncName and newfunc or {}
+		newTableCurrent = newTableCurrent[namePart]
 	end
 
-	table.Merge(env, RecursiveRebuild(funcName, env))
+	table.Merge(env, newTable)
 end
 
 -- Set a detour (including the filters)
