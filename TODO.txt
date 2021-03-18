@@ -5,3 +5,17 @@ Print a warning if util.AddNetworkString is created after the addons finished lo
 Use the older whitelists in the new filters
 check detours vs. whitelists
 check if the blacklist and suspect lists usage matured well
+
+idea: save persistent trace func names as "funcName - whitelisted" when they are clear to go
+
+ignore_suspect is not being used in Scan_String
+
+rename whitelistTraceErrors to whitelistTraces?
+
+change detours whitelisting from low tisk locations to whitelistTraceErrors, that'd be MUCH safer!!
+
+add whitelistFiles and tell not to use it?
+-- Oh... Actually it's already possible by using whitelistTraceErrors with a field like gamemodes/darkrp/gamemode/libraries/simplerr.lua:
+-- It wouldn't happen if I check the string for a number after the :
+-- But, also, there will be no easy way to do simplerr compatible...
+
