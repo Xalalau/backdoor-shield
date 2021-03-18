@@ -1,6 +1,7 @@
 Print a warning if someone try to table.Copy _G
 
-It would be nice if I detected associations like
-    local somevar = globalGvar
+Print a warning if util.AddNetworkString is created after the addons finished loading?
 
-Print a warning if util.AddNetworkString is created after the addons finished loading
+Use the older whitelists in the new filters
+check detours vs. whitelists
+check if the blacklist and suspect lists usage matured well
