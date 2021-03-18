@@ -13,14 +13,16 @@ BS.liveProtection = true -- If true, will block backdoors activity. If off, you'
 -- The file scanner will only look for these extensions when running bs_scan_fast 
 BS.dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" }
 
--- GAME FUNCTIONS PROTECTION
+-- REAL TIME PROTECTION SETUP
 -- -----------------------------------------------------------------------------------
+
+-- In-game backdoor detection and self preservation
 
 BS.control = {
 --[[
-	["some.game.function"] = {                -- Declaring a function in a field here will keep if safe from detouring
+	["some.game.function"] = {                -- Declaring a function in a field will keep it safe from detouring
 		detour = function                     -- Automatically managed, just ignore. It's the detour function address
-		filters = string or { string, ... }   -- Internal function names. They'll execute any extra security checks we want (following the declared order)
+		filters = string or { string, ... }   -- Add internal function names. They'll execute any extra security checks we want (following the declared order)
 		failed = type                         -- Set "failed" if you've set "filters" and need to return fail values other than the default or nil
 	},
 ]]
@@ -57,17 +59,22 @@ BS.control = {
 	["file.Write"] = {},
 }
 
+-- WHITE LISTS
+-- -----------------------------------------------------------------------------------
+
 -- Whitelist for Filters_CheckStack combinations.
 -- e.g. { "pcall", "BroadcastLua" } means that a BroadcastLua() inside a pcall() will not generate a detection
 BS.whitelistedCallerCombos = {
 }
 
--- SCAN LISTS
--- -----------------------------------------------------------------------------------
-
 -- Low risk files and folders
---   Detections from these places will be considered low risk on live detections and file
---   scans (at first, in this case), so they'll print smaller logs and ignore detours.
+--   Detections from these places will be considered low risk on live detections and, at
+--   first, on file scans - so they'll print smaller logs.
+--[[
+   Attention!! Low risk locations will cause detouring of protected functions to be
+   ignored! This means other addons will steal the game functions, do something with them
+   and most problably call us back because we keep the original addresses locked down.
+]]
 
 BS.lowRiskFolders = {
 	"gamemodes/darkrp/",
@@ -99,13 +106,13 @@ BS.lowRiskFiles = {
 }
 
 -- Whitelist http.Fetch() and http.Post() urls
---  Don't scan the downloaded content, just run it normally to start checking again.
+--   Don't scan the downloaded content, just run it normally to start checking again.
 BS.whitelistUrls = {
 	"http://www.geoplugin.net/",
 }
 
 -- Whitelist TRACE ERRORS
---   Ignore detections containging a line from here in its trace
+--   Ignore detections containging one of these lines in its trace
 BS.whitelistTraceErrors = {
 	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
 	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:", -- DarkRP
@@ -117,32 +124,56 @@ BS.whitelistTraceErrors = {
 }
 
 -- Whitelist texts
---   Ignore detections containing the listed texts. Be very careful to add items to this list!
+--   Ignore detections containing the listed texts.
 BS.whitelistSnippets = {
+	-- Be very careful to add items to this list! Ideally, it should never be used.
 }
 
--- Detections with these chars will be considered as not suspect (at first) on files/snippets that are not
--- part of the dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
+-- Detections with these chars will be considered as not suspect (at first) for files and snippets that not
+-- fit into dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
 BS.notSuspect = {
 	"ÿ",
 	"", -- 000F
 }
 
--- Extremely edge snippets and syntax for most normal Lua scripts
+-- BLACK AND SUSPECT LISTS
+-- -----------------------------------------------------------------------------------
+--[[
+  In the real time protetion scene, black lists cause warnings and execution haults,
+  while the suspect lists add details to the logs and consequently help us identify
+  the threats better.
+
+  When used by the file scanner, both lists generate full reports. In this case, we
+  use the high, medium and low divisions to attach a weight to each detection and
+  and calculate a risk. E.g. many low risk detections may be listed as a medium risk,
+  while some medium and low detections can weight enouth to be listed as high risk.
+  This system helps to make detected backdoors more visible by listing them above
+  the irrelevant results - and, in fact, they finish up concentraded in the high risk
+  with some in the medium. I nevew saw a detection in the low risk section.
+
+  At last, making the bad decision of adding a common pattern to one of these lists
+  will cause the addon to return many false positives, probably turning your console
+  into a giant log hell.
+  
+  Be wise, be safe.
+]]
+
+-- Very edge snippets, syntax and symbols that only backdoors use
 BS.blacklistHigh = {
-	"=_G", -- Note: used by backdoors to start hiding names or create a better environment
+	"‪", -- LEFT-TO-RIGHT EMBEDDING
 	"(_G)",
 	",_G,",
 	"!true",
 	"!false",
 }
 
--- Very uncommon snippets and syntax for most normal Lua scripts
+-- Edge snippets, syntax and symbols that almost only backdoors use
 BS.blacklistHigh_suspect = {
-	"‪", -- LEFT-TO-RIGHT EMBEDDING
+	"=_G", -- Note: used by backdoors to start hiding names or create a better environment
 }
 
 -- Functions that backdoors love to use!
+--   They usually run one inside the other or set/get improper stuff that almost only they need.
 BS.blacklistMedium = {
 	"RunString",
 	"RunStringEx",
@@ -155,20 +186,22 @@ BS.blacklistMedium = {
 	"debug.getinfo",
 }
 
--- Uncommon snippets and syntax for most normal Lua scripts
+-- Snippets, syntax and symbols that sometimes appear in normal scripts, but are usually seen in backdoors
 BS.blacklistMedium_suspect = {
 	"_G[",
 	"_G.",
 }
 
--- Functions that some backdoors use
+-- Functions that some backdoors and regular scripts use - They aren't worth blocking, just warning.
+--   I use these detections to increase the potential risk of others while scanning files.
 BS.suspect = {
 	"pcall",
 	"xpcall",
 	"SendLua",
 }
 
--- More common snippets and syntax that some backdoors use
+-- Snippets, syntax and symbols that some backdoors and regular scripts use - They aren't worth blocking, just warning.
+--   I use these detections to increase the potential risk of others while scanning files, but with a very light weight.
 BS.suspect_suspect = {
 	"]()",
 	"0x",
