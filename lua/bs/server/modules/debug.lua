@@ -184,7 +184,7 @@ function BS:Debug_RunTests(args)
                 ]])
             end)
         end)
-        print("\n (Result) Pass = Consistent trace starting with \"(+) BS - Persistent Trace\"; Fail = Any other trace.\n")
+        print("\n (Waiting) Persistent trace result pending... Pass = Trace with one \"(+) BS - Persistent Trace\"; Fail = Any other trace.\n")
     end
 
     if #args == 0 or args[1] ~= "help" then
@@ -205,7 +205,10 @@ function BS:Debug_RunTests(args)
         local found
         for _,testName in ipairs(args) do
             if tests[testName] then
-                if testName == "http.Fetch" or testName == "detour2" then
+                if testName == "http.Fetch" or
+                   testName == "detour2" or
+                   testName == "PersistentTrace" then
+
                     printDelayedMsg[testName] = true
                 end
                 found = true
@@ -230,6 +233,9 @@ function BS:Debug_RunTests(args)
         end
         if isRunningAll or printDelayedMsg["detour2"] then
             print("--> Detouring auto check test result...")
+        end
+        if isRunningAll or printDelayedMsg["PersistentTrace"] then
+            print("--> Persistent check test result...")
         end
     end
 end
