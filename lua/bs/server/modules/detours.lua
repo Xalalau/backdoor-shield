@@ -20,7 +20,7 @@ function BS:Detours_Init()
 			filters = self.control[protectedFunc].filters
 		end
 
-		self:Detours_Set(protectedFunc, filters, failed)
+		self:Detours_Create(protectedFunc, filters, failed)
 	end
 end
 
@@ -146,7 +146,7 @@ function BS:Detours_SetFunction(funcName, newfunc, env)
 end
 
 -- Set a detour (including the filters)
-function BS:Detours_Set(funcName, filters, failed)
+function BS:Detours_Create(funcName, filters, failed)
 	local running = {}
 
 	function Detour(...)
