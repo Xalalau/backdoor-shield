@@ -60,10 +60,6 @@ BS.control = {
 -- Whitelist for Filters_CheckStack combinations.
 -- e.g. { "pcall", "BroadcastLua" } means that a BroadcastLua() inside a pcall() will not generate a detection
 BS.whitelistedCallerCombos = {
-	{ "timer.Simple", "timer.Create" },
-	{ "timer.Create", "timer.Simple" },
-	{ "timer.Simple", "timer.Simple" },
-	{ "timer.Create", "timer.Create" },
 }
 
 -- SCAN LISTS
