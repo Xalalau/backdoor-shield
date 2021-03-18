@@ -99,7 +99,7 @@ function BS:Detours_Validate(funcName, trace)
 			info.type = "detour"
 			info.alert = "Detour captured and undone!"
 
-			self:Detours_Set_Aux(funcName, detourAddress)
+			self:Detours_SetFunction(funcName, detourAddress)
 		end
 
 		-- Report
@@ -130,7 +130,7 @@ function BS:Detours_GetFunction(funcName, env)
 end
 
 -- Update a function address by name in a selected environment
-function BS:Detours_Set_Aux(funcName, newfunc, env)
+function BS:Detours_SetFunction(funcName, newfunc, env)
 	env = env or self.__G
 
 	local newTable = {}
@@ -183,7 +183,7 @@ function BS:Detours_Set(funcName, filters, failed)
 		end
 	end
 
-	self:Detours_Set_Aux(funcName, Detour)
+	self:Detours_SetFunction(funcName, Detour)
 	self.control[funcName].detour = Detour
 end
 
@@ -191,6 +191,6 @@ end
 -- Used only by live reloading functions
 function BS:Detours_Remove()
 	for k,v in pairs(self.control) do
-		self:Detours_Set_Aux(k, self:Detours_GetFunction(k, _G))
+		self:Detours_SetFunction(k, self:Detours_GetFunction(k, _G))
 	end
 end
