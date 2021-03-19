@@ -166,7 +166,7 @@ end
 table.insert(BS.locals, JoinResults)
 
 -- Scan a folder
-local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
+local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 	if dir == "data/" .. BS.folder.data then
 		return
 	end
@@ -191,7 +191,7 @@ local function RecursiveScan(BS, dir, results, cfgs, forceIgnore)
 	-- Check directories
 	for _, fdir in pairs(dirs) do
 		if fdir ~= "/" then -- We can get a / if we start from the root
-			RecursiveScan(BS, dir .. fdir .. "/", results, cfgs, forceIgnore)
+			RecursiveScan(BS, dir .. fdir .. "/", results, cfgs, extensions, forceIgnore)
 		end
 	end
 
@@ -392,14 +392,14 @@ function BS:Scan_Folders(args, extensions)
 	-- Results from the addons folder always have the the full file paths
 	-- To avoid scanning a file twice, I record what we're doing and compare later.
 	if cfgs.addonsFolderScan then
-		RecursiveScan(self, "addons/", results, cfgs)
+		RecursiveScan(self, "addons/", results, cfgs, extensions)
 		cfgs.addonsFolderScan = false
 	end
 
 	-- Scan the other selected folders
 	for _,folder in pairs(folders) do
 		if folder == "" or file.Exists(folder .. "/", "GAME") then
-			RecursiveScan(self, folder == "" and folder or folder .. "/", results, cfgs)
+			RecursiveScan(self, folder == "" and folder or folder .. "/", results, cfgs, extensions)
 		end
 	end
 
