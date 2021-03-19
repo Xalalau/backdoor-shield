@@ -45,7 +45,7 @@ BS.control = {
 	["net.Start"] = {},
 	["net.ReadHeader"] = {},
 	["net.WriteString"] = {},
-	["require"] = { filters = { "Filters_CheckStack" } },
+	["require"] = {},
 	["BroadcastLua"] = { filters = { "Filters_CheckStack" } },
 	["pcall"] = { filters = { "Filters_CheckStack" } },
 	["xpcall"] = { filters = { "Filters_CheckStack" } },
