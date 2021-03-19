@@ -39,11 +39,11 @@ function BS:Initialize()
     [4] = [[
     2) Use these commands:
     |
-    |-> bs_scan FOLDER(S)       Recursively scan all files in FOLDER(S).
+    |-> bs_scan FOLDER(S)       Recursively scan lua, txt, vmt, dat and
+    |                           json files in FOLDER(S).
     |
-    |-> bs_scan_fast FOLDER(S)  Recursively scan lua, txt, vmt, dat and
-                                json files in FOLDER(S).
-
+    |-> bs_scan_full FOLDER(S)  Recursively scan all files in FOLDER(S).
+       
         * If no folder is defined, it'll scan addons, lua, gamemode and
           data folders.
 
@@ -69,14 +69,14 @@ function BS:Initialize()
     -- Command to scan all files in the main/selected folders
     concommand.Add("bs_scan", function(ply, cmd, args)
         if not ply:IsValid() or ply:IsAdmin() then
-            self:Scan_Folders(args)
+            self:Scan_Folders(args, self.dangerousExtensions)
         end
     end)
 
     -- Command to scan some files in the main/selected folders
-    concommand.Add("bs_scan_fast", function(ply, cmd, args)
+    concommand.Add("bs_scan_full", function(ply, cmd, args)
         if not ply:IsValid() or ply:IsAdmin() then
-            self:Scan_Folders(args, self.dangerousExtensions)
+            self:Scan_Folders(args)
         end
     end)
 
