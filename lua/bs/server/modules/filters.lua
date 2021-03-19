@@ -241,7 +241,8 @@ function BS:Filters_CheckStack(trace, funcName, args)
 
 		return false
 	else
-		return true
+		-- This check is fine, but we cannot use its result in the main call
+		return "true"
 	end
 end
 

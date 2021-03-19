@@ -171,7 +171,7 @@ function BS:Detours_Create(funcName, filters, failed)
 				if not result then
 					return failed
 				elseif i == #filters then
-					return result
+					return result ~= "true" and result or self:Detours_CallOriginalFunction(funcName, args)
 				end
 
 				i = i + 1
