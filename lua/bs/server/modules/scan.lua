@@ -38,6 +38,41 @@ local function IsSuspicious(str, ext, dangerousExtensions, notSuspect)
 end
 table.insert(BS.locals, IsSuspicious)
 
+-- Try to find Lua files with obfuscations
+-- ignorePatterns is used to scan files that already has other detections
+local function CheckCharset(str, ext, list, ignorePatterns)
+	if str and ext == "lua" then
+		local lines, count = "", 0
+
+		-- Search line by line, so we have the line numbers
+		for lineNumber,lineText in ipairs(string.Explode("\n", str, false)) do
+			-- Check char by char
+			for _,_char in ipairs(string.ToTable(lineText)) do
+				-- If we find suspicious character, take a closer look
+				if utf8.force(_char) ~= _char then
+					-- Let's eliminate as many false positives as possible by searching for common backdoor patterns
+					if string.find(lineText, "function") or
+					   string.find(lineText, "return") or
+					   string.find(lineText, "then") or
+					   string.find(lineText, " _G") or
+					   string.find(lineText, "	_G") then
+
+						count = count + 1
+						lines = lines .. lineNumber .. "; "
+					end
+					break
+				end
+			end
+		end
+
+		if count > 0 then
+			local plural = count > 1 and "s" or ""
+			table.insert(list, "Suspicious Character" .. plural .. ", line" .. plural .. ": " .. lines)
+		end
+	end
+end
+table.insert(BS.locals, CheckCharset)
+
 -- Process a string according to our white, black and suspect lists
 local function ProcessList(BS, trace, str, IsSuspicious, list, list2)
 	for k,v in pairs(list) do
@@ -94,6 +129,7 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 		end
 
 		if blocked[2] then
+			CheckCharset(str, ext, blocked[2])
 			ProcessList(self, trace, str, IsSuspicious, self.blacklistMedium, blocked[2])
 			if not ignore_suspect then
 				ProcessList(self, trace, str, IsSuspicious, self.blacklistMedium_suspect, blocked[2])
