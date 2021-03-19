@@ -46,9 +46,9 @@ if SERVER then
     BS.dangerousExtensions_Check = {} -- Auxiliar tables to check values faster
     BS.lowRiskFiles_Check = {}
     BS.suspect_suspect_Check = {}
-
-    BS.locals = {} -- Register local functions addresses, set their environment to protected, cease to exist
 end
+
+BS.locals = {} -- Register local functions addresses, set their environment to protected, cease to exist
 
 local function GetFilesCreationTimes(BS)
     if SERVER then
