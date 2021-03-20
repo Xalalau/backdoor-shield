@@ -140,7 +140,7 @@ function BS:Filters_CheckStack_Init()
 end
 
 -- HACKS: For some reason this function is EXTREMELY temperamental! I was unable to use the
--- code inside the orignal function, to pass parameters and even to freely write variables
+-- code inside the orignal function, to pass arguments and even to freely write variables
 -- or acceptable syntax. It only works when it's this mess. Test each changed line if you
 -- want to touch it, or you will regret it bitterly.
 -- If the stack is good, return false
