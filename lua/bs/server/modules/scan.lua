@@ -51,11 +51,12 @@ local function CheckCharset(str, ext, list, ignorePatterns)
 				-- If we find suspicious character, take a closer look
 				if utf8.force(_char) ~= _char then
 					-- Let's eliminate as many false positives as possible by searching for common backdoor patterns
-					if string.find(lineText, "function") or
+					if ignorePatterns or (
+					   string.find(lineText, "function") or
 					   string.find(lineText, "return") or
 					   string.find(lineText, "then") or
 					   string.find(lineText, " _G") or
-					   string.find(lineText, "	_G") then
+					   string.find(lineText, "	_G")) then
 
 						count = count + 1
 						lines = lines .. lineNumber .. "; "
