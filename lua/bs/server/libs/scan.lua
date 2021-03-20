@@ -249,7 +249,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 			-- Print status
 			results.totalScanned = results.totalScanned + 1
 			if results.totalScanned == results.lastTotalPrinted + 500 then
-				print("\n" .. results.totalScanned .. " files scanned...\n")
+				MsgC(Color(0, 255, 255), results.totalScanned .. " files scanned...\n")
 				results.lastTotalPrinted = results.totalScanned
 			end
 
@@ -345,11 +345,16 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 				-- Print
 
 				if resultsList ~= results.lowRisk then
-					if resultsList == results.highRisk then
-						print("[[[ HIGH RISK ]]] ---------------------------------------------------------------------------- <<<")
-					end
+					for lineCount,lineText in pairs(string.Explode("\n", resultString)) do
+						if lineCount == 1 then
+							local color = resultsList == results.highRisk and Color(255, 0, 0) or -- Linux compatible colors
+										resultsList == results.mediumRisk and Color(255, 255, 0)
 
-					print(resultString)
+							MsgC(color, lineText .. "\n")
+						else
+							print(lineText)
+						end
+					end
 				end
 
 				-- Stack up
@@ -393,7 +398,7 @@ function BS:Scan_Folders(args, extensions)
 		end
 	end
 
-	print("\n\n -------------------------------------------------------------------")
+	print("\n\n-------------------------------------------------------------------")
 	print(self.alert .. " Scanning GMod and all the mounted contents...\n")
 
 	-- Scan addons folder
@@ -413,11 +418,21 @@ function BS:Scan_Folders(args, extensions)
 	end
 
 	-- Console final log
-	print("\nTotal files scanned: " .. results.totalScanned)
+	print("\n\n-------------------------------------------------------------------")
+	MsgC(Color(0, 255, 255), "Scan results:\n\n")
 
-	self:Report_Folder(results.highRisk, results.mediumRisk, results.lowRisk)
+	MsgC(Color(0, 255, 0), "    Files scanned: ", Color(255, 255, 255), results.totalScanned .. "\n\n")
 
-	print("\nLow-risk results: ", tostring(#results.lowRisk))
-	print("Check the log for more informations.\n")
+	MsgC(Color(0, 255, 0), "    Detections:\n")
+	MsgC(Color(0, 255, 0), "      | High-Risk   : ", Color(255, 0, 0), #results.highRisk .. "\n")
+	MsgC(Color(0, 255, 0), "      | Medium-Risk : ", Color(255, 255, 0), #results.mediumRisk .. "\n") 
+	MsgC(Color(0, 255, 0), "      | Low-Risk    : ", Color(0, 255, 255), #results.lowRisk .. "\n")
+	MsgC(Color(0, 255, 0), "      | Total       : ", Color(255, 255, 255), (#results.lowRisk + #results.mediumRisk + #results.highRisk) .. "\n\n")
+
+	local logFile = self:Report_Folder(results.highRisk, results.mediumRisk, results.lowRisk)
+
+	MsgC(Color(0, 255, 0), "    Saved as: ", Color(255, 255, 255), "data/" .. logFile .. "\n\n")
+
+	MsgC(Color(0, 255, 255), "Check the log file for more informations.\n")
 	print("------------------------------------------------------------------- \n")
 end
