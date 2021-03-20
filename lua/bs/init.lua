@@ -26,8 +26,8 @@ BS.alert = "[Backdoor Shield]"
 BS.folder = {}
 BS.folder.data = "backdoor-shield/"
 BS.folder.lua = "bs/"
-BS.folder.sv_modules = BS.folder.lua .. "server/modules/"
-BS.folder.cl_modules = BS.folder.lua .. "client/modules/"
+BS.folder.sv_libs = BS.folder.lua .. "server/libs/"
+BS.folder.cl_libs = BS.folder.lua .. "client/libs/"
 
 if SERVER then
     BS.reloaded = false -- Internal control to check the tool reloading state - don't change it. _G.BS_reloaded is also created to globally do the same thing
@@ -64,17 +64,17 @@ end
 
 -- Include our stuff
 
-local function includeModules(dir, isClientModule)
+local function includeLibs(dir, isClientLibs)
     local files, dirs = file.Find( dir.."*", "LUA" )
 
     if not dirs then return end
 
     for _, fdir in pairs(dirs) do
-        includeModules(dir .. fdir .. "/", isClientModule)
+        includeLibs(dir .. fdir .. "/", isClientLibs)
     end
 
     for k,v in pairs(files) do
-        if SERVER and isClientModule then
+        if SERVER and isClientLibs then
             AddCSLuaFile(dir .. v)
         else
             include(dir .. v)
@@ -87,9 +87,9 @@ if SERVER then
 
     include(BS.folder.lua .. "server/definitions.lua")
     include(BS.folder.lua .. "server/sv_init.lua")
-    includeModules(BS.folder.sv_modules)
+    includeLibs(BS.folder.sv_libs)
 end
-includeModules(BS.folder.cl_modules, true)
+includeLibs(BS.folder.cl_libs, true)
 
 -- Get the creation time of each Lua game file
 GetFilesCreationTimes(BS)
