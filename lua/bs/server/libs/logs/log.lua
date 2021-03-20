@@ -243,7 +243,7 @@ end
 -- Print scan detections to a file
 function BS:Report_Folder(highRisk, mediumRisk, lowRisk)
 	local timestamp = os.time()
-	local date = os.date("%m-%d-%Y", timestamp)
+	local date = os.date("%Y-%m-%d", timestamp)
 	local time = os.date("%Hh %Mm %Ss", timestamp)
 	local logFile = self.folder.data .. "Scan_" .. date .. "_(" .. time .. ").txt"
 
@@ -251,7 +251,7 @@ function BS:Report_Folder(highRisk, mediumRisk, lowRisk)
 	local bottomSeparator = "\n-----------------------------------------------------------------------------------\n\n"
 
 	local message = [[
-"[HIGH RISK detections]"]] .. bottomSeparator ..[[
+[HIGH RISK detections] ]] .. bottomSeparator ..[[
 ]] .. table.ToString(highRisk, "Results", true) .. [[
 ]] .. topSeparator .. "[MEDIUM RISK detections]" .. bottomSeparator .. [[
 ]] .. table.ToString(mediumRisk, "Results", true) .. [[
@@ -260,5 +260,5 @@ function BS:Report_Folder(highRisk, mediumRisk, lowRisk)
 
 	file.Append(logFile, message)
 
-	print("\nScan saved as \"data/" .. logFile .. "\"")
+	return logFile
 end
