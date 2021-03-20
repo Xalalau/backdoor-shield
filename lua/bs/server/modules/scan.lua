@@ -112,8 +112,10 @@ table.insert(BS.locals, ProcessList)
 function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if not isstring(str) then return end
 
+	-- Check if we are dealing with binaries
 	local IsSuspicious = IsSuspicious(str, ext, self.dangerousExtensions_Check, self.notSuspect)
 
+	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
 	if not IsSuspicious then
 		IsSuspicious = ProcessList(self, trace, str, IsSuspicious, self.blacklistHigh) or
 					   ProcessList(self, trace, str, IsSuspicious, self.blacklistMedium) or
@@ -121,6 +123,7 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	end
 
 	if IsSuspicious and blocked then
+		-- Search for blocked terms
 		if blocked[1] then
 			ProcessList(self, trace, str, IsSuspicious, self.blacklistHigh, blocked[1])
 			if not ignore_suspect then
@@ -129,15 +132,20 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 		end
 
 		if blocked[2] then
-			CheckCharset(str, ext, blocked[2])
 			ProcessList(self, trace, str, IsSuspicious, self.blacklistMedium, blocked[2])
 			if not ignore_suspect then
 				ProcessList(self, trace, str, IsSuspicious, self.blacklistMedium_suspect, blocked[2])
 			end
 		end
+
+		-- If blocked terms are found, reinforce the search with a charset check
+		if #blocked[1] > 0 and #blocked[2] > 0 then
+			CheckCharset(str, ext, blocked[2], true)
+		end
 	end
 
 	if IsSuspicious and warning then
+		-- Loof for suspect terms, wich are also good to reinforce results
 		ProcessList(self, trace, str, IsSuspicious, self.suspect, warning)
 		if not ignore_suspect then
 			ProcessList(self, trace, str, IsSuspicious, self.suspect_suspect, warning)
