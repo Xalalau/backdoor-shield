@@ -67,11 +67,11 @@ BS.control = {
 BS.whitelistedCallerCombos = {
 }
 
--- Low risk files and folders
---   Detections from these places will be considered low risk on live detections and, at
+-- Low-risk files and folders
+--   Detections from these places will be considered low-risk on live detections and, at
 --   first, on file scans - so they'll print smaller logs.
 --[[
-   Attention!! Low risk locations will cause detouring of protected functions to be
+   Attention!! Low-risk locations will cause detouring of protected functions to be
    ignored! This means other addons will steal the game functions, do something with them
    and most problably call us back because we keep the original addresses locked down.
 ]]
@@ -123,8 +123,8 @@ BS.whitelistTraceErrors = {
 	"lua/dlib/modules/i18n/sh_loader.lua:66", -- DLib
 }
 
--- Whitelist texts
---   Ignore detections containing the listed texts.
+-- Whitelist snippets
+--   Ignore detections containing the listed "texts".
 BS.whitelistSnippets = {
 	-- Be very careful to add items to this list! Ideally, it should never be used.
 }
@@ -139,23 +139,23 @@ BS.notSuspect = {
 -- BLACK AND SUSPECT LISTS
 -- -----------------------------------------------------------------------------------
 --[[
-  In the real time protetion scene, black lists cause warnings and execution haults,
-  while the suspect lists add details to the logs and consequently help us identify
-  the threats better.
+  In the real-time protection scenario, blacklists cause warnings and interruptions in
+  execution, while suspect lists add details to the logs and, consequently, help us
+  to better identify threats.
 
-  When used by the file scanner, both lists generate full reports. In this case, we
-  use the high, medium and low divisions to attach a weight to each detection and
-  and calculate a risk. E.g. many low risk detections may be listed as a medium risk,
-  while some medium and low detections can weight enouth to be listed as high risk.
-  This system helps to make detected backdoors more visible by listing them above
-  the irrelevant results - and, in fact, they finish up concentraded in the high risk
-  with some in the medium. I nevew saw a detection in the low risk section.
+  When used by the file scanner, both lists generate complete reports. In this case,
+  we use the high, medium and low divisions to assign a weight to each detection and
+  calculate a risk. For example. many low-risk detections can be listed as medium-risk,
+  while some medium plus low-risk detections can be heavy enough to be listed as high-
+  risk. This system helps to make detected backdoors more visible by showing them above
+  irrelevant results - and, in fact, they end up concentraded on high-risk with some
+  in the medium. I've never seen a detection in the low-risk section.
 
-  At last, making the bad decision of adding a common pattern to one of these lists
-  will cause the addon to return many false positives, probably turning your console
-  into a giant log hell.
-  
-  Be wise, be safe.
+  Finally, if someone makes the foolish decision to add a common pattern to one of these
+  lists, the addon will return many false positives, probably turning the console into
+  a giant log hell.
+
+  Be wise, be safe. And thanks for being here.
 ]]
 
 -- Very edge snippets, syntax and symbols that only backdoors use
