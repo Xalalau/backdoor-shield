@@ -3,6 +3,32 @@
     https://xalalau.com/
 --]]
 
+
+-- Create our protectedCalls table
+local function ProtectedCalls_Init(BS)
+	local function setField(protectedFunc)
+		BS.protectedCalls[protectedFunc] = BS:Detours_GetFunction(protectedFunc)
+	end
+
+	for protectedFunc,_ in pairs(BS.controlsBackup) do
+		local filters = BS.controlsBackup[protectedFunc].filters
+
+		if isstring(filters) then
+			if filters == "Filters_CheckStack" then
+				setField(protectedFunc)
+			end
+		elseif istable(filters) then
+			for k,filters2 in ipairs(filters) do
+				if filters2 == "Filters_CheckStack" then
+					setField(protectedFunc)
+					break
+				end
+			end
+		end
+	end
+end
+table.insert(BS.locals, ProtectedCalls_Init)
+
 function BS:Initialize()
     -- Print logo
     -- https://manytools.org/hacker-tools/ascii-banner/
@@ -96,7 +122,7 @@ function BS:Initialize()
     -- Set live protection
 
     if self.liveProtection then
-        self:Filters_CheckStack_Init()
+        ProtectedCalls_Init(self)
 
         self:Detours_Init()
 

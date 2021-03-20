@@ -115,30 +115,6 @@ function BS:Filters_CheckStrCode(trace, funcName, args)
 	return #blocked[1] == 0 and #blocked[2] == 0 and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
 end
 
--- Create our protectedCalls table
-function BS:Filters_CheckStack_Init()
-	local function setField(protectedFunc)
-		self.protectedCalls[protectedFunc] = self:Detours_GetFunction(protectedFunc)
-	end
-
-	for protectedFunc,_ in pairs(self.controlsBackup) do
-		local filters = self.controlsBackup[protectedFunc].filters
-
-		if isstring(filters) then
-			if filters == "Filters_CheckStack" then
-				setField(protectedFunc)
-			end
-		elseif istable(filters) then
-			for k,filters2 in ipairs(filters) do
-				if filters2 == "Filters_CheckStack" then
-					setField(protectedFunc)
-					break
-				end
-			end
-		end
-	end
-end
-
 -- HACKS: For some reason this function is EXTREMELY temperamental! I was unable to use the
 -- code inside the orignal function, to pass arguments and even to freely write variables
 -- or acceptable syntax. It only works when it's this mess. Test each changed line if you
