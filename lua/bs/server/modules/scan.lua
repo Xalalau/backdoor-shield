@@ -141,7 +141,7 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 
 		-- If blocked terms are found, reinforce the search with a charset check
 		if #blocked[1] > 0 and #blocked[2] > 0 then
-			CheckCharset(str, ext, blocked[2], true)
+			CheckCharset(str, ext, blocked[1], true)
 		end
 	end
 
