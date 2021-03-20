@@ -144,7 +144,7 @@ end
 -- or acceptable syntax. It only works when it's this mess. Test each changed line if you
 -- want to touch it, or you will regret it bitterly.
 -- If the stack is good, return false
--- If the stack is bad, return "protected func name" and "detected func name"
+-- If the stack is bad, return "detected func name" and "protected func name"
 local BS_protectedCalls_Hack
 local BS_traceBank_Hack
 local _debug = {}
