@@ -426,7 +426,7 @@ function BS:Scan_Folders(args, extensions)
 	MsgC(Color(0, 255, 0), "    Detections:\n")
 	MsgC(Color(0, 255, 0), "      | High-Risk   : ", Color(255, 0, 0), #results.highRisk .. "\n")
 	MsgC(Color(0, 255, 0), "      | Medium-Risk : ", Color(255, 255, 0), #results.mediumRisk .. "\n") 
-	MsgC(Color(0, 255, 0), "      | Low-Risk    : ", Color(0, 255, 255), #results.lowRisk .. "\n")
+	MsgC(Color(0, 255, 0), "      | Low-Risk    : ", Color(0, 0, 255), #results.lowRisk .. "\n")
 	MsgC(Color(0, 255, 0), "      | Total       : ", Color(255, 255, 255), (#results.lowRisk + #results.mediumRisk + #results.highRisk) .. "\n\n")
 
 	local logFile = self:Report_Folder(results.highRisk, results.mediumRisk, results.lowRisk)
