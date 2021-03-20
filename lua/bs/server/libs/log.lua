@@ -134,15 +134,15 @@ function BS:Report_Detection(infoIn)
 
 	local detected = FormatDetectedList(infoIn.detected)
 
-	local info = { -- If you change the fields order, update FormatLog()
+	local info = { -- If you change the fields order, update FormatLog(). Also, use "::" to identify the color position
 		"\n" .. self.alert .. " " .. infoIn.alert or "",
-		"\n    Date & time: " .. date .. " | " .. timeFormat2,
-		infoIn.func and "\n    Function: " .. infoIn.func or "",
-		detected and "\n    Detected:" .. detected or "",
-		infoIn.url and "\n    Url: " .. infoIn.url or "",
-		"\n    Log Folder: data/" .. (logFolder or dayFolder),
-		filesGenerated and "\n    Log Contents: " .. filesGenerated or "",
-		infoIn.trace and "\n    Location: " .. infoIn.trace or ""
+		"\n    Date & time:: " .. date .. " | " .. timeFormat2,
+		infoIn.func and "\n    Function:: " .. infoIn.func or "",
+		detected and "\n    Detected::" .. detected or "",
+		infoIn.url and "\n    Url:: " .. infoIn.url or "",
+		"\n    Log Folder:: data/" .. (logFolder or dayFolder),
+		filesGenerated and "\n    Log Contents:: " .. filesGenerated or "",
+		infoIn.trace and "\n    Location:: " .. infoIn.trace or ""
 	}
 
 	local fullLog, partialLog = FormatLog(info)
@@ -175,8 +175,20 @@ function BS:Report_Detection(infoIn)
 ]]
 
 	-- Print to console
-	for _,line in ipairs(string.Explode("\n", partialLog or fullLog)) do
-		print(line)
+	for linePos,lineText in ipairs(string.Explode("\n", partialLog or fullLog)) do
+		local colors = string.Explode("::", lineText)
+
+		if linePos == 2 then
+			MsgC(Color(255, 0, 0), lineText .. "\n")
+		elseif #colors > 0 then
+			if not colors[2] then
+				MsgC(Color(255, 255, 255), colors[1] .. "\n")
+			else
+				MsgC(Color(0, 255, 0), colors[1] .. ":", Color(255, 255, 255), colors[2] .. "\n")
+			end
+		else
+			print(lineText)
+		end
 	end
 
 	-- Update counter
