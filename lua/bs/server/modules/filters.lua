@@ -116,6 +116,8 @@ function BS:Filters_CheckStrCode(trace, funcName, args)
 end
 
 -- Validate functions that can't call each other
+--   Return false if we detect something or "true" if it's fine.
+--   Note that "true" is really between quotes because we need to identify it and not pass the value forward.
 local callersWarningCooldown = {} -- Don't flood the console with messages
 function BS:Filters_CheckStack(trace, funcName, args)
 	local detectedFuncName, protectedFuncName = self:Stack_Check()
@@ -154,7 +156,6 @@ function BS:Filters_CheckStack(trace, funcName, args)
 
 		return false
 	else
-		-- This check is fine, but we cannot use its result in the main call
 		return "true"
 	end
 end
