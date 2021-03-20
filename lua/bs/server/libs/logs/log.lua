@@ -191,6 +191,9 @@ function BS:Report_Detection(infoIn)
 		end
 	end
 
+	-- Clean color identificator
+	fullLog = string.gsub(fullLog, "::", ":")
+
 	-- Update counter
 	if infoIn.type == "warning" then
 		self.detections.warnings = self.detections.warnings + 1
