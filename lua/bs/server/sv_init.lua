@@ -127,6 +127,8 @@ function BS:Initialize()
 
         self:Detours_SetAutoCheck()
 
+        self:Stack_Init()
+
         if not GetConVar("sv_hibernate_think"):GetBool() then
             hook.Add("Initialize", self:Utils_GetRandomName(), function()
                 RunConsoleCommand("sv_hibernate_think", "1")

@@ -115,73 +115,10 @@ function BS:Filters_CheckStrCode(trace, funcName, args)
 	return #blocked[1] == 0 and #blocked[2] == 0 and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
 end
 
--- HACKS: For some reason this function is EXTREMELY temperamental! I was unable to use the
--- code inside the orignal function, to pass arguments and even to freely write variables
--- or acceptable syntax. It only works when it's this mess. Test each changed line if you
--- want to touch it, or you will regret it bitterly.
--- If the stack is good, return false
--- If the stack is bad, return "detected func name" and "protected func name"
-local BS_protectedCalls_Hack
-local BS_traceBank_Hack
-local _debug = {}
-_debug.getinfo = debug.getinfo   -- Store original function addresses during the addon initialization
-_debug.getlocal = debug.getlocal -- It's done this way to work around a function address verification problem specific of that function crazy
-local hack_Callers_identify ={ [tostring(_debug.getinfo)] = true }
-local function Filters_CheckStack_Aux()
-	local counter = { increment = 1, detected = 0, firstDetection = "" } -- Do NOT add more variables other than inside this table, or the function is going to stop working
-	while true do
-		local func = _debug.getinfo(counter.increment, "flnSu" )
-		local name, value = _debug.getlocal(1, 2, counter.increment)
-		if func == nil then break end
-		if value then
-			-- Update the name and address using info from the trace bank, if it's the case
-			local traceBank = BS_traceBank_Hack[tostring(value.func)]
-			if traceBank then
-				local func = _G
-				for k,v in ipairs(string.Explode(".", traceBank.name)) do
-					func = func[v]
-				end
-				value.func = func -- Use the address of the last function from the older stack, so we can keep track of what's happening
-				value.name = traceBank.name -- Update the name just to make prints nicer in here
-			end
-			-- Now we are going to check if it's a protected function call
-			if value.func then
-				for funcName,funcAddress in pairs(BS_protectedCalls_Hack) do -- I tried to use the function address as index but it doesn't work here
-					if tostring(value.func) == tostring(funcAddress) then -- I tried to compare the addresses directly but it also doesn't work here
-						value.name = funcName -- Update the name just to make prints nicer in here
-						counter.detected = counter.detected + 1
-						if counter.detected == 2 then  -- The rule is that we can't have 2 protected calls stacked, so return what we've found
-							return counter.firstDetection, funcName
-						else
-							counter.firstDetection = funcName -- Get the pretty name of the first protected call to return it later, if it's the case
-						end
-						break
-					end
-				end
-			end
-			-- Debug
-			--print(value.name and value.name or "")
-			--print(value.func)
-		end
-		counter.increment = counter.increment + 1
-	end
-	return false
-end
---table.insert(BS.locals, Filters_CheckStack_Aux) -- I can't check the stack in the wrong environment
-
 -- Validate functions that can't call each other
 local callersWarningCooldown = {} -- Don't flood the console with messages
 function BS:Filters_CheckStack(trace, funcName, args)
-	-- Hacks, explained above Filters_CheckStack_Aux()
-	--   Expose internal values to this file local scope
-	if not BS_protectedCalls_Hack then
-		BS_protectedCalls_Hack = table.Copy(self.protectedCalls)
-	end
-	if not BS_traceBank_Hack then
-		BS_traceBank_Hack = self.traceBank
-	end
-
-	local detectedFuncName, protectedFuncName = Filters_CheckStack_Aux()
+	local detectedFuncName, protectedFuncName = self:Stack_Check()
 
 	if protectedFuncName then
 		if not callersWarningCooldown[protectedFuncName] then
@@ -229,49 +166,14 @@ function BS:Filters_CheckTimers(trace, funcName, args)
 	return self:Detours_CallOriginalFunction(funcName, args)
 end
 
--- HACK: this function is as bad as Filters_CheckStack_Aux()
-local argsPop = {}
-local function Filters_ProtectDebugGetinfo_Aux()
-	local vars = { increment = 1, foundGetinfo = false, args }
-	for k,v in ipairs(argsPop) do -- This is how I'm passing arguments
-		vars.args = v
-		argsPop[k] = nil
-		break
-	end
-	while true do
-		local func = _debug.getinfo(vars.increment, "flnSu" )
-		local name, value = _debug.getlocal(1, 2, vars.increment)
-		if func == nil then break end
-		--print(value.name)
-		--print(value.func == debug.getinfo)
-		if value then
-			if vars.foundGetinfo then
-				if vars.args[1] == 1 then
-					return _debug.getinfo(vars.increment, vars.args[2])
-				end
-				vars.args[1] = vars.args[1] - 1
-			elseif value.func == debug.getinfo then
-				if vars.args[1] == 1 then
-					return _debug.getinfo(vars.increment, vars.args[2])
-				else
-					vars.foundGetinfo = true
-					vars.args[1] = vars.args[1] - 1
-				end
-			end
-		end
-		vars.increment = vars.increment + 1
-	end
-end
---table.insert(BS.locals, Filters_ProtectDebugGetinfo_Aux) -- I can't check the stack in the wrong environment
-
 -- Hide our detours
 --   Force getinfo to jump our functions
 function BS:Filters_ProtectDebugGetinfo(trace, funcName, args)
 	if isfunction(args[1]) then
 		return self:Filters_ProtectAddresses(trace, funcName, args)
 	else
-		table.insert(argsPop, args)
-		return Filters_ProtectDebugGetinfo_Aux()
+		self:Stack_InsertArgs(args)
+		return Stack_SkipBSFunctions()
 	end
 end
 
