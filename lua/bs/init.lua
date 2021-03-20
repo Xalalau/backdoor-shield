@@ -37,7 +37,7 @@ if SERVER then
         warnings = 0
     }
 
-    BS.ignoredDetours = {} -- Ignored low risk detour detections. e.g { ["lua/ulib/shared/hook.lua"] = true }
+    BS.ignoredDetours = {} -- Ignored low-risk detour detections. e.g { ["lua/ulib/shared/hook.lua"] = true }
 
     BS.protectedCalls = {} -- List of functions that can't call each other. e.g. { ["function name"] = detoured function address }
 

@@ -64,7 +64,7 @@ function BS:Detours_Validate(funcName, trace)
 			trace = trace or trace_aux
 		}
 
-		-- Check if it's a low risk detection. If so, only report
+		-- Check if it's a low-risk detection. If so, only report
 		local lowRisk = false
 
 		if not trace_aux or string.len(trace_aux) == 4 then
@@ -93,7 +93,7 @@ function BS:Detours_Validate(funcName, trace)
 			end
 
 			info.type = "warning"
-			info.alert = "Warning! Detour detected in a low risk location. Ignoring it..."
+			info.alert = "Warning! Detour detected in a low-risk location. Ignoring it..."
 			self.ignoredDetours[trace_aux] = true
 		else
 			info.type = "detour"

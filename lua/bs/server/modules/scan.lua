@@ -309,7 +309,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 					-- Non Lua detections, if they aren't false positive, are VERY unsafe
 					if ext ~= "lua" then
 						resultsList = results.highRisk
-					-- Low risk file
+					-- Low-risk file
 					elseif BS.lowRiskFiles_Check[pathAux] then
 						resultsList = results.lowRisk
 					-- Set the risk based on the detection precedence
@@ -323,12 +323,12 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 				-- Other custom risks:
 
 				if not forceLowRisk then
-					-- If we don't have a high risk but there are three or more medium risk detections, set to high risk
+					-- If we don't have a high-risk but there are three or more medium-risk detections, set to high-risk
 					if resultsList ~= results.highRisk and #blocked[2] > 2 then
 						resultsList = results.highRisk
 					end
 
-					-- If we have a low risk but there are two or more high risk detections, set to medium risk
+					-- If we have a low risk but there are two or more high-risk detections, set to medium-risk
 					if resultsList == results.lowRisk and #blocked[1] >= 2 then
 						resultsList = results.mediumRisk
 					end
@@ -362,7 +362,7 @@ end
 table.insert(BS.locals, RecursiveScan)
 
 -- Process the files recusively inside the aimed folders according to our white, black and suspect lists
--- Note: Low risk files will be reported in the logs as well, but they won't flood the console with warnings
+-- Note: Low-risk files will be reported in the logs as well, but they won't flood the console with warnings
 function BS:Scan_Folders(args, extensions)
 	-- All results
 	local results = {
@@ -417,7 +417,7 @@ function BS:Scan_Folders(args, extensions)
 
 	self:Report_Folder(results.highRisk, results.mediumRisk, results.lowRisk)
 
-	print("\nLow risk results: ", tostring(#results.lowRisk))
+	print("\nLow-risk results: ", tostring(#results.lowRisk))
 	print("Check the log for more informations.\n")
 	print("------------------------------------------------------------------- \n")
 end
