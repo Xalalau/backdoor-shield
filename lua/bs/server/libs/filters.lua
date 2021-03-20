@@ -1,6 +1,8 @@
 --[[
     2020-2021 Xalalau Xubilozo. MIT License
     https://xalalau.com/
+
+    Note: if a filter validates but doesn't return the result from Detours_CallOriginalFunction(), just return "true" (between quotes!)
 --]]
 
 -- Scan http.Fetch and http.Post contents

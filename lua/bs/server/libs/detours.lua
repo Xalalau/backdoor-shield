@@ -146,6 +146,7 @@ function BS:Detours_SetFunction(funcName, newfunc, env)
 end
 
 -- Set a detour (including the filters)
+-- Note: if a filter validates but doesn't return the result from Detours_CallOriginalFunction(), just return "true" (between quotes!)
 function BS:Detours_Create(funcName, filters, failed)
 	local running = {}
 
