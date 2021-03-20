@@ -6,19 +6,18 @@
 -- Check if a log folder name is unique and, if it's not the case, return a unique one 
 -- These names can repeat if detections occur too fast
 local function ValidateFolderName(testName)
-	local function ValidateFolderNameAux(testName, i)
-		local newName = testName:gsub("/:", "_" .. tostring(i + 1) .. "/")
+	local function ValidateFolderNameAux(newName, i)
+		newName = newName:gsub("/:", "_" .. tostring(i + 1) .. "/")
 
 		if not file.Exists(newName, "DATA") then
 			return newName
 		else
-			return ValidateFolderNameAux(newName, i + 1)
+			return ValidateFolderNameAux(testName .. ":", i + 1)
 		end
 	end
 
 	if testName and file.Exists(testName, "DATA") then
-		testName = testName .. ":"
-		return ValidateFolderNameAux(testName, 1)
+		return ValidateFolderNameAux(testName .. ":", 1)
 	end
 
 	return testName
