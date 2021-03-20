@@ -3,7 +3,6 @@
     https://xalalau.com/
 --]]
 
-
 -- Create our protectedCalls table
 local function ProtectedCalls_Init(BS)
 	local function setField(protectedFunc)
