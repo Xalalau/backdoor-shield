@@ -68,7 +68,7 @@ local function CheckCharset(str, ext, list, ignorePatterns)
 
 		if count > 0 then
 			local plural = count > 1 and "s" or ""
-			table.insert(list, "Suspicious Character" .. plural .. ", line" .. plural .. ": " .. lines)
+			table.insert(list, "Uncommon Charset, line" .. plural .. ": " .. lines)
 		end
 	end
 end
