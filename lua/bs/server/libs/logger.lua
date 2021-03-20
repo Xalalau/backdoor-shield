@@ -1,6 +1,9 @@
 -- That will fix color code printing for linux SRCDS
 -- SRCDS on linux doesn't support 256 color mode
 -- So we have to detour MSGC and replace it for the available ones.
+
+if not system.IsLinux() then return end
+
 _MsgC = _MsgC or MsgC
 _ErrorNoHalt = _ErrorNoHalt or ErrorNoHalt
 
