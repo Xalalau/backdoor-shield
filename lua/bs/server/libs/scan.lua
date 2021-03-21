@@ -25,7 +25,7 @@ function BS:Scan_CheckWhitelist(str, whitelist)
 end
 
 -- Check if a file isn't suspicious (at first)
-local function IsSuspicious(str, ext, dangerousExtensions, notSuspect)
+local function IsSuspect(str, ext, dangerousExtensions, notSuspect)
 	if dangerousExtensions[ext] then return true end
 
 	for k,v in pairs(notSuspect) do
@@ -114,7 +114,7 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if not isstring(str) then return end
 
 	-- Check if we are dealing with binaries
-	local IsSuspicious = IsSuspicious(str, ext, self.dangerousExtensions_Check, self.notSuspect)
+	local IsSuspicious = IsSuspect(str, ext, self.dangerousExtensions_Check, self.notSuspect)
 
 	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
 	if not IsSuspicious then
