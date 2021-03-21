@@ -133,7 +133,7 @@ function BS:Filters_CheckStack(trace, funcName, args)
 
 			-- Whitelist
 			local whitelisted
-			for _,combo in pairs(self.whitelistedCallerCombos) do
+			for _,combo in pairs(self.whitelistCallCombos) do
 				if protectedFuncName == combo[1] then
 					if detectedFuncName == combo[2] then
 						whitelisted = true
