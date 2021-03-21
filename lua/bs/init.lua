@@ -29,6 +29,17 @@ BS.folder.lua = "bs/"
 BS.folder.sv_libs = BS.folder.lua .. "server/libs/"
 BS.folder.cl_libs = BS.folder.lua .. "client/libs/"
 
+BS.colors = {
+    header = Color(0, 0, 255),
+    key = Color(0, 255, 0),
+    value = Color(255, 255, 255),
+    message = Color(0, 255, 255),
+    reload = Color(255, 0, 255),
+    highRisk = Color(255, 0, 0),
+    mediumRisk = Color(255, 255, 0),
+    lowRisk = Color(0, 0, 255),
+}
+
 if SERVER then
     BS.reloaded = false -- Internal control to check the tool reloading state - don't change it. _G.BS_reloaded is also created to globally do the same thing
 
