@@ -106,6 +106,7 @@ BS.lowRiskFiles = {
 	"lua/vgui/dhtml.lua",
 	"lua/autorun/cb-lib.lua",
 	"lua/autorun/!sh_dlib.lua",
+	"lua/autorun/server/sv_test.lua"
 }
 
 -- Whitelist http.Fetch() and http.Post() urls
@@ -116,7 +117,7 @@ BS.whitelistUrls = {
 
 -- Whitelist TRACE ERRORS
 --   Ignore detections containging one of these lines in its trace
-BS.whitelistTraceErrors = {
+BS.whitelistTraces = {
 	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
 	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:", -- DarkRP
 	"lua/autorun/streamradio_loader.lua:254", -- 3D Stream Radio

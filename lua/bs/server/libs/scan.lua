@@ -78,7 +78,7 @@ table.insert(BS.locals, CheckCharset)
 local function ProcessList(BS, trace, str, IsSuspicious, list, list2)
 	for k,v in pairs(list) do
 		if string.find(string.gsub(str, " ", ""), v, nil, true) and
-		   not BS:Scan_CheckWhitelist(trace, BS.whitelistTraceErrors) and
+		   not BS:Scan_CheckWhitelist(trace, BS.whitelistTraces) and
 		   not BS:Scan_CheckWhitelist(str, BS.whitelistSnippets) then
 
 			if v == "=_G" then -- Since I'm not using patterns, I do some extra checks on _G to avoid false positives.
