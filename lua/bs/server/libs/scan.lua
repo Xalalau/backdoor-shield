@@ -396,8 +396,7 @@ function BS:Scan_Folders(args, extensions)
 		end
 	end
 
-	print("\n\n-------------------------------------------------------------------")
-	print(self.alert .. " Scanning GMod and all the mounted contents...\n")
+	MsgC(self.colors.header, "\n" .. self.alert .. " Scanning GMod and all the mounted contents...\n\n\n")
 
 	-- Scan addons folder
 	-- Manually installed addons have a much higher chance of infection.
@@ -416,8 +415,7 @@ function BS:Scan_Folders(args, extensions)
 	end
 
 	-- Console final log
-	print("\n\n-------------------------------------------------------------------")
-	MsgC(self.colors.header, "Scan results:\n\n")
+	MsgC(self.colors.header, "\nScan results:\n\n")
 
 	MsgC(self.colors.key, "    Files scanned: ", self.colors.value, results.totalScanned .. "\n\n")
 
@@ -431,6 +429,5 @@ function BS:Scan_Folders(args, extensions)
 
 	MsgC(self.colors.key, "    Saved as: ", self.colors.value, "data/" .. logFile .. "\n\n")
 
-	MsgC(self.colors.message, "Check the log file for more informations.\n")
-	print("------------------------------------------------------------------- \n")
+	MsgC(self.colors.message, "Check the log file for more information.\n\n")
 end
