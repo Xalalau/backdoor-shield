@@ -81,6 +81,8 @@ local function ProcessList(BS, trace, str, IsSuspicious, list, list2)
 		   not BS:Scan_CheckWhitelist(trace, BS.whitelistTraces) and
 		   not BS:Scan_CheckWhitelist(str, BS.whitelistSnippets) then
 
+			--if v == ""
+
 			if v == "=_G" then -- Since I'm not using patterns, I do some extra checks on _G to avoid false positives.
 				local check = string.gsub(str, "%s+", " ")
 				local strStart, strEnd = string.find(check, "=_G", nil, true)
@@ -249,7 +251,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 			-- Print status
 			results.totalScanned = results.totalScanned + 1
 			if results.totalScanned == results.lastTotalPrinted + 500 then
-				MsgC(Color(0, 255, 255), results.totalScanned .. " files scanned...\n")
+				MsgC(self.colors.message, results.totalScanned .. " files scanned...\n")
 				results.lastTotalPrinted = results.totalScanned
 			end
 
@@ -347,8 +349,8 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 				if resultsList ~= results.lowRisk then
 					for lineCount,lineText in pairs(string.Explode("\n", resultString)) do
 						if lineCount == 1 then
-							local color = resultsList == results.highRisk and Color(255, 0, 0) or -- Linux compatible colors
-										resultsList == results.mediumRisk and Color(255, 255, 0)
+							local color = resultsList == results.highRisk and BS.colors.highRisk or -- Linux compatible colors
+							              resultsList == results.mediumRisk and BS.colors.mediumRisk
 
 							MsgC(color, lineText .. "\n")
 						else
@@ -415,20 +417,20 @@ function BS:Scan_Folders(args, extensions)
 
 	-- Console final log
 	print("\n\n-------------------------------------------------------------------")
-	MsgC(Color(0, 255, 255), "Scan results:\n\n")
+	MsgC(self.colors.header, "Scan results:\n\n")
 
-	MsgC(Color(0, 255, 0), "    Files scanned: ", Color(255, 255, 255), results.totalScanned .. "\n\n")
+	MsgC(self.colors.key, "    Files scanned: ", self.colors.value, results.totalScanned .. "\n\n")
 
-	MsgC(Color(0, 255, 0), "    Detections:\n")
-	MsgC(Color(0, 255, 0), "      | High-Risk   : ", Color(255, 0, 0), #results.highRisk .. "\n")
-	MsgC(Color(0, 255, 0), "      | Medium-Risk : ", Color(255, 255, 0), #results.mediumRisk .. "\n") 
-	MsgC(Color(0, 255, 0), "      | Low-Risk    : ", Color(0, 0, 255), #results.lowRisk .. "\n")
-	MsgC(Color(0, 255, 0), "      | Total       : ", Color(255, 255, 255), (#results.lowRisk + #results.mediumRisk + #results.highRisk) .. "\n\n")
+	MsgC(self.colors.key, "    Detections:\n")
+	MsgC(self.colors.key, "      | High-Risk   : ", self.colors.highRisk, #results.highRisk .. "\n")
+	MsgC(self.colors.key, "      | Medium-Risk : ", self.colors.mediumRisk, #results.mediumRisk .. "\n") 
+	MsgC(self.colors.key, "      | Low-Risk    : ", self.colors.lowRisk, #results.lowRisk .. "\n")
+	MsgC(self.colors.key, "      | Total       : ", self.colors.value, (#results.lowRisk + #results.mediumRisk + #results.highRisk) .. "\n\n")
 
 	local logFile = self:Report_Folder(results.highRisk, results.mediumRisk, results.lowRisk)
 
-	MsgC(Color(0, 255, 0), "    Saved as: ", Color(255, 255, 255), "data/" .. logFile .. "\n\n")
+	MsgC(self.colors.key, "    Saved as: ", self.colors.value, "data/" .. logFile .. "\n\n")
 
-	MsgC(Color(0, 255, 255), "Check the log file for more informations.\n")
+	MsgC(self.colors.message, "Check the log file for more informations.\n")
 	print("------------------------------------------------------------------- \n")
 end
