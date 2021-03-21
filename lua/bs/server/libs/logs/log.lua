@@ -74,12 +74,12 @@ local function FormatLog(info)
 		fullLog = fullLog .. v
 	end
 
-	fullLog = fullLog .. "\n"
+	fullLog = "\n" .. string.Trim(fullLog) .. "\n"
 
 	-- Create partial message to warnings, so we don't flood the console with too much information
 	if info.type == "warning" then
 		--     Alert     function   detected   log dir     trace
-		partialLog = info[1] .. info[3] .. info[4] .. info[6] .. info[8] .. "\n"
+		partialLog = "\n" .. string.Trim(info[1] .. info[3] .. info[4] .. info[6] .. info[8]) .. "\n"
 	end
 
 	return fullLog, partialLog
@@ -135,7 +135,7 @@ function BS:Report_Detection(infoIn)
 	local detected = FormatDetectedList(infoIn.detected)
 
 	local info = { -- If you change the fields order, update FormatLog(). Also, use "::" to identify the color position
-		"\n" .. self.alert .. " " .. infoIn.alert or "",
+		self.alert .. " " .. infoIn.alert or "",
 		"\n    Date & time:: " .. date .. " | " .. timeFormat2,
 		infoIn.func and "\n    Function:: " .. infoIn.func or "",
 		detected and "\n    Detected::" .. detected or "",
