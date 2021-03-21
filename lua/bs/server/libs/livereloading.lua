@@ -14,7 +14,7 @@ function BS:LiveReloading_Set()
         timer.Create(name, 0.2, 0, function()
             for k,v in pairs(self:Utils_GetFilesCreationTimes()) do
                 if v ~= self.filenames[k] then
-                    print(self.alert .. " Reloading...")
+                    MsgC(self.colors.reload, self.alert .. " Reloading...\n")
 
                     self:Detours_Remove()
 
