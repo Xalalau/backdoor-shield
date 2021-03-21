@@ -162,7 +162,7 @@ function BS:Report_Detection(infoIn)
 			Blocked code snippet
 			Full Lua file: addons/ariviaf4/lua/autorun/_arivia_load.lua
 		Location:
-		  [+]
+		  (+)
 		  stack traceback:
 			addons/backdoor-shield/lua/bs/server/modules/detouring/functions.lua:80: in function 'Fetch'
 			addons/ariviaf4/lua/autorun/_arivia_load.lua:111: in function <addons/ariviaf4/lua/autorun/_arivia_load.lua:111>
