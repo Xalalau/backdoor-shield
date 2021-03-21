@@ -65,11 +65,6 @@ BS.control = {
 -- WHITE LISTS
 -- -----------------------------------------------------------------------------------
 
--- Whitelist for Filters_CheckStack combinations.
--- e.g. { "pcall", "BroadcastLua" } means that a BroadcastLua() inside a pcall() will not generate a detection
-BS.whitelistCallCombos = {
-}
-
 -- Low-risk files and folders
 --   Detections from these places will be considered low-risk on live detections and, at
 --   first, on file scans - so they'll print smaller logs.
@@ -107,6 +102,11 @@ BS.lowRiskFiles = {
 	"lua/autorun/cb-lib.lua",
 	"lua/autorun/!sh_dlib.lua",
 	"lua/autorun/server/sv_test.lua"
+}
+
+-- Whitelist for Filters_CheckStack combinations.
+-- e.g. { "pcall", "BroadcastLua" } means that a BroadcastLua() inside a pcall() will not generate a detection
+BS.whitelistCallCombos = {
 }
 
 -- Whitelist http.Fetch() and http.Post() urls
