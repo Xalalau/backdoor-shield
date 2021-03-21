@@ -195,23 +195,36 @@ function BS:Debug_RunTests(args)
 
     local isRunningAll = #args == 0 and true 
     local printDelayedMsg = {}
+    local functionsWithWaiting = {
+        "http.Fetch",
+        "detour2",
+        "PersistentTrace"
+    }
 
     if isRunningAll then
-        for k,v in pairs(tests) do
-            if v and isfunction(v) and v ~= tests.help then
-                v()
+        for _,testFunc in pairs(tests) do
+            if testFunc and isfunction(testFunc) and testFunc ~= tests.help then
+                for _,funcNameWait in ipairs(functionsWithWaiting) do
+                    if testFunc == tests[funcNameWait] then
+                        printDelayedMsg[funcNameWait] = true
+                        break
+                    end
+                end
+
+                testFunc()
             end
         end
     else
         local found
         for _,testName in ipairs(args) do
             if tests[testName] then
-                if testName == "http.Fetch" or
-                   testName == "detour2" or
-                   testName == "PersistentTrace" then
-
-                    printDelayedMsg[testName] = true
+                for _,funcNameWait in ipairs(functionsWithWaiting) do
+                    if testName == funcNameWait then
+                        printDelayedMsg[funcNameWait] = true
+                        break
+                    end
                 end
+
                 found = true
                 tests[testName]()
             end
