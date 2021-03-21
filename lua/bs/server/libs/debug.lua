@@ -188,11 +188,6 @@ function BS:Debug_RunTests(args)
         MsgC(self.colors.message, "\n (Waiting) Persistent trace result pending... Pass = Trace with one \"(+) BS - Persistent Trace\"; Fail = Any other trace.\n\n")
     end
 
-    if #args == 0 or args[1] ~= "help" then
-        MsgC(self.colors.header, "\n\n---------------------------------------------------------\n")
-        MsgC(self.colors.header, "[STARTING TESTS]\n\n")
-    end
-
     local isRunningAll = #args == 0 and true 
     local printDelayedMsg = {}
     local functionsWithWaiting = {
@@ -236,8 +231,6 @@ function BS:Debug_RunTests(args)
     end
 
     if isRunningAll or args[1] ~= "help" then
-        MsgC(self.colors.header, "\n[FINISHING TESTS]\n")
-        MsgC(self.colors.header, "---------------------------------------------------------\n")
         if table.Count(printDelayedMsg) > 0 then
             MsgC(self.colors.header, "[WAITING FOR]\n\n")
         end
