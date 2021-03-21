@@ -176,7 +176,7 @@ function BS:Filters_ProtectDebugGetinfo(trace, funcName, args)
 		return self:Filters_ProtectAddresses(trace, funcName, args)
 	else
 		self:Stack_InsertArgs(args)
-		return Stack_SkipBSFunctions()
+		return self:Stack_SkipBSFunctions()
 	end
 end
 

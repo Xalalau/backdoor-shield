@@ -121,9 +121,9 @@ function BS:Initialize()
     -- Set live protection
 
     if self.liveProtection then
-        ProtectedCalls_Init(self)
-
         self:Detours_Init()
+
+        ProtectedCalls_Init(self)
 
         self:Detours_SetAutoCheck()
 
