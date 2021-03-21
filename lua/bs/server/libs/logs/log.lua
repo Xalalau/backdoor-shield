@@ -179,7 +179,7 @@ function BS:Report_Detection(infoIn)
 		local colors = string.Explode("::", lineText)
 
 		if linePos == 2 then
-			MsgC(self.colors.highRisk, lineText .. "\n")
+			MsgC(infoIn.type == "warning" and self.colors.mediumRisk or self.colors.highRisk, lineText .. "\n")
 		elseif #colors > 0 then
 			if not colors[2] then
 				MsgC(self.colors.value, colors[1] .. "\n")
