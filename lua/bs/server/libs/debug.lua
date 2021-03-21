@@ -9,27 +9,27 @@ function BS:Debug_RunTests(args)
     tests.aux = {}
 
     tests.text = {
-        ["all"] = "Run all tests",
-        ["detour"] = "Detour a function and call it",
-        ["detour2"] = "Detour a function without calling it",
-        ["getfenv"] = "Try to get our custom environment",
-        ["tostring"] = "Try to check if a detoured function is valid",
-        ["debug.getfenv"] = "Try to get our custom environment",
-        ["http.Fetch"] = "Run a prohibited code combination",
-        ["RunString"] = "Run a prohibited code combination",
-        ["RunString2"] = "Run a prohibited code combination with fake function names",
-        ["RunStringEx"] = "Run a prohibited code combination",
-        ["debug.getinfo"] = "Try to check if a detoured function is valid",
-        ["jit.util.funcinfo"] = "Try to check if a detoured function is valid",
-        ["CompileFile"] = "Run a prohibited code combination",
-        ["CompileString"] = "Run a prohibited code combination",
-        ["PersistentTrace"] = "Run a prohibited code combination with fake function names inside two timers",
+        { "all", "Run all tests" },
+        { "CompileFile", "Run a prohibited code combination" },
+        { "CompileString", "Run a prohibited code combination" },
+        { "debug.getfenv", "Try to get our custom environment" },
+        { "debug.getinfo", "Try to check if a detoured function is valid" },
+        { "detour", "Detour a function and call it" },
+        { "detour2", "Detour a function without calling it" },
+        { "getfenv", "Try to get our custom environment" },
+        { "http.Fetch", "Run a prohibited code combination" },
+        { "jit.util.funcinfo", "Try to check if a detoured function is valid" },
+        { "PersistentTrace", "Run a prohibited code combination with fake function names inside two timers" },
+        { "RunString", "Run a prohibited code combination" },
+        { "RunString2", "Run a prohibited code combination with fake function names" },
+        { "RunStringEx", "Run a prohibited code combination" },
+        { "tostring", "Try to check if a detoured function is valid" },
     }
-    
+
     function tests.help()
         MsgC(self.colors.header, "\n  Available tests:\n\n")
-        for k,v in SortedPairs(tests.text) do
-            local colorParts = string.Explode("::", string.format("     %-18s:: %s", k, v))
+        for _,textTab in pairs(tests.text) do
+            local colorParts = string.Explode("::", string.format("     %-18s:: %s", textTab[1], textTab[2]))
             MsgC(self.colors.key, colorParts[1], self.colors.value, colorParts[2] .. "\n")
         end
         MsgC(self.colors.message, "\n  Usage: bs_tests test1 test2 test3 ...\n\n")
