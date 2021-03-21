@@ -225,7 +225,7 @@ function BS:Debug_RunTests(args)
                     end
                 end
 
-                tests[testName](funcNameWait == "all" and functionsWithWaiting)
+                tests[testName](testName == "all" and functionsWithWaiting)
             else
                 table.insert(funcsNotFound, testName)
             end
