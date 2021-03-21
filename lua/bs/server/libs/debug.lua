@@ -42,6 +42,7 @@ function BS:Debug_RunTests(args)
         end
         self.__G["timer"]["Simple"] = detour
         detour()
+        print()
         if self.__G["timer"]["Simple"] ~= detour then
             MsgC(self.colors.message, " (Pass) Detour undone.\n")
         else
@@ -61,6 +62,7 @@ function BS:Debug_RunTests(args)
     function tests.getfenv()
         MsgC(self.colors.header, "\n-----> getfenv: " .. tests.text["getfenv"] .. "\n")
         local env = self.__G.getfenv()
+        print()
         if env == self.__G then
             MsgC(self.colors.message, " (Pass) Our custom environment is out of range.\n")
         else
@@ -70,8 +72,8 @@ function BS:Debug_RunTests(args)
     end
 
     function tests.tostring()
-        MsgC(self.colors.header, "\n-----> tostring: " .. tests.text["tostring"] .. "\n\n")
-
+        MsgC(self.colors.header, "\n-----> tostring: " .. tests.text["tostring"] .. "\n")
+        print()
         if string.find(self.__G.tostring(self.__G["jit"]["util"]["funcinfo"]), "builtin") then
             MsgC(self.colors.message, " (Pass) A selected detour (jit.util.funcinfo) is invisible.\n")
         else
@@ -84,6 +86,7 @@ function BS:Debug_RunTests(args)
         MsgC(self.colors.header, "\n-----> debug.getfenv: " .. tests.text["debug.getfenv"] .. "\n")
         local function this() end
         local env = self.__G.debug.getfenv(this)
+        print()
         if env == self.__G then
             MsgC(self.colors.message, " (Pass) Our custom environment is out of range.\n")
         else
@@ -111,7 +114,7 @@ function BS:Debug_RunTests(args)
     function tests.RunString2()
         MsgC(self.colors.header, "\n-----> RunString2: " .. tests.text["RunString2"] .. "\n")
         self.__G.CompStrBypass = self.__G.CompileString
-        self.__G.RunString([[ print("\n1") local two = CompStrBypass("print(2)") if isfunction(two) then two() end print("\n3")]]);
+        self.__G.RunString([[ print("\n1") local two = CompStrBypass("print(2)") if isfunction(two) then two() end print("3")]]);
         self.__G.CompStrBypass = nil
         MsgC(self.colors.message, "\n (Result) Pass = 1 and 3 are visible but 2 is blocked; Fail = 1, 2 and 3 are visible.\n\n")
     end
@@ -180,7 +183,7 @@ function BS:Debug_RunTests(args)
             self.__G.timer.Simple(0, function()
                 self.__G.RunString([[
                     --print("1")
-                    print(CompStr(code))
+                    CompStr(code)
                     --print("3")
                 ]])
             end)
@@ -232,7 +235,7 @@ function BS:Debug_RunTests(args)
 
     if isRunningAll or args[1] ~= "help" then
         if table.Count(printDelayedMsg) > 0 then
-            MsgC(self.colors.header, "[WAITING FOR]\n\n")
+            MsgC(self.colors.header, "\n[WAITING FOR]\n\n")
         end
 
         if isRunningAll or printDelayedMsg["http.Fetch"] then
