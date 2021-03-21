@@ -9,6 +9,7 @@ function BS:Debug_RunTests(args)
     tests.aux = {}
 
     tests.text = {
+        ["all"] = "Run all tests",
         ["detour"] = "Detour a function and call it",
         ["detour2"] = "Detour a function without calling it",
         ["getfenv"] = "Try to get our custom environment",
@@ -31,7 +32,7 @@ function BS:Debug_RunTests(args)
             local colorParts = string.Explode("::", string.format("     %-18s:: %s", k, v))
             MsgC(self.colors.key, colorParts[1], self.colors.value, colorParts[2] .. "\n")
         end
-        MsgC(self.colors.message, "\n  Usage: bs_tests test1 test2 test3 ...\n\n  Leave empty to run all tests.\n\n")
+        MsgC(self.colors.message, "\n  Usage: bs_tests test1 test2 test3 ...\n\n")
     end
 
     function tests.detour()
@@ -191,17 +192,9 @@ function BS:Debug_RunTests(args)
         MsgC(self.colors.message, "\n (Waiting) Persistent trace result pending... Pass = Trace with one \"(+) BS - Persistent Trace\"; Fail = Any other trace.\n\n")
     end
 
-    local isRunningAll = #args == 0 and true 
-    local printDelayedMsg = {}
-    local functionsWithWaiting = {
-        "http.Fetch",
-        "detour2",
-        "PersistentTrace"
-    }
-
-    if isRunningAll then
+    function tests.all(functionsWithWaiting)
         for _,testFunc in pairs(tests) do
-            if testFunc and isfunction(testFunc) and testFunc ~= tests.help then
+            if testFunc and isfunction(testFunc) and testFunc ~= tests.help and testFunc ~= tests.all then
                 for _,funcNameWait in ipairs(functionsWithWaiting) do
                     if testFunc == tests[funcNameWait] then
                         printDelayedMsg[funcNameWait] = true
@@ -212,8 +205,17 @@ function BS:Debug_RunTests(args)
                 testFunc()
             end
         end
-    else
-        local found
+    end
+
+    local funcsNotFound = {}
+    local printDelayedMsg = {}
+    local functionsWithWaiting = {
+        "http.Fetch",
+        "detour2",
+        "PersistentTrace"
+    }
+
+    if #args > 0 then
         for _,testName in ipairs(args) do
             if tests[testName] then
                 for _,funcNameWait in ipairs(functionsWithWaiting) do
@@ -223,29 +225,39 @@ function BS:Debug_RunTests(args)
                     end
                 end
 
-                found = true
-                tests[testName]()
+                tests[testName](funcNameWait == "all" and functionsWithWaiting)
+            else
+                table.insert(funcsNotFound, testName)
             end
         end
-        if not found then
-            MsgC(self.colors.message, "\nTest \"" .. args[1] .. "\" not found...\n\n")
-            tests.help()
-        end
+    else
+        table.insert(funcsNotFound, "")
     end
 
-    if isRunningAll or args[1] ~= "help" then
-        if table.Count(printDelayedMsg) > 0 then
-            MsgC(self.colors.header, "\n[WAITING FOR]\n\n")
+    if #funcsNotFound > 0 then
+        local notFound = ""
+
+        for _,funcName in ipairs(funcsNotFound) do
+            notFound = notFound .. "\"" .. funcName .. "\" "
         end
 
-        if isRunningAll or printDelayedMsg["http.Fetch"] then
-            MsgC(self.colors.header, "--> http.Fetch test result...\n")
-        end
-        if isRunningAll or printDelayedMsg["detour2"] then
-            MsgC(self.colors.header, "--> Detouring auto check test result...\n")
-        end
-        if isRunningAll or printDelayedMsg["PersistentTrace"] then
-            MsgC(self.colors.header, "--> Persistent check test result...\n")
-        end
+        MsgC(self.colors.message, "\nTest" .. (#funcsNotFound > 1 and "s" or "") .. " " .. notFound .. "not found...\n")
+        tests.help()
+    end
+
+    if table.Count(printDelayedMsg) > 0 then
+        MsgC(self.colors.header, "\n[WAITING FOR]\n\n")
+    end
+
+    if printDelayedMsg["http.Fetch"] then
+        MsgC(self.colors.header, "--> http.Fetch test result...\n")
+    end
+
+    if printDelayedMsg["detour2"] then
+        MsgC(self.colors.header, "--> Detouring auto check test result...\n")
+    end
+
+    if printDelayedMsg["PersistentTrace"] then
+        MsgC(self.colors.header, "--> Persistent check test result...\n")
     end
 end
