@@ -13,6 +13,9 @@ BS.liveProtection = true -- If true, will block backdoors activity. If off, you'
 -- The file scanner will only look for these extensions when running bs_scan_fast 
 BS.dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" }
 
+-- The folders checked by the scanner if none are specified (bs_scan)
+BS.foldersToScan = { "lua", "gamemode", "data" }
+
 -- REAL TIME PROTECTION SETUP
 -- -----------------------------------------------------------------------------------
 

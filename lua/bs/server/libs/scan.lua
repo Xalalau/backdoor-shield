@@ -384,11 +384,7 @@ function BS:Scan_Folders(args, extensions)
 	}
 
 	-- Select custom folders or a list of default folders
-	local folders = not cfgs.addonsFolderScan and args or {
-		"lua",
-		"gamemode",
-		"data",
-	}
+	local folders = not cfgs.addonsFolderScan and args or self.foldersToScan
 
 	-- Deal with bars
 	for k,v in pairs(folders) do
