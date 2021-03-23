@@ -187,7 +187,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 	-- Ignore nil dirs and our own folder(s) results
 	elseif not dirs then
 		forceIgnore = true
-	-- Ignore our own folder(s) results
+	-- Ignore our own folders
 	elseif not forceLowRisk and
 	       string.find(dir, "lua/" .. BS.folder.lua) == 1 or
 	       dir == "addons/" .. BS.folder.data or

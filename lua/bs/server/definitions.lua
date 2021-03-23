@@ -188,7 +188,7 @@ BS.fileScanner = {
 	-- Discard result if it's a non Lua file with less than 3 warnings and some BS.suspect_suscpect detections
 	discardVeryLowRisk = true,
 
-	-- Ignore our own folders results
+	-- Ignore our own folders
 	ignoreBSFolders = true,
 
 	-- Detections with these chars will be considered as not suspect (at first) for files and snippets that not
