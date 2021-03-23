@@ -5,8 +5,8 @@
 
 -- Create our protectedCalls table
 local function ProtectedCalls_Init(BS)
-	for protectedFunc,_ in pairs(BS.controlsBackup) do
-		if BS.controlsBackup[protectedFunc].protectStack then
+	for protectedFunc,_ in pairs(BS.liveControlsBackup) do
+		if BS.liveControlsBackup[protectedFunc].protectStack then
             BS.protectedCalls[protectedFunc] = BS:Detours_GetFunction(protectedFunc)
         end
     end
@@ -105,7 +105,7 @@ function BS:Initialize()
 
     -- Set live protection
 
-    if self.liveProtection then
+    if self.live.backdoorDetection then
         self:Detours_Init()
 
         ProtectedCalls_Init(self)

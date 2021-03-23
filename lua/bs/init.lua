@@ -70,7 +70,7 @@ end
 
 local function SetControlsBackup(BS)
     if SERVER then
-        BS.controlsBackup = table.Copy(BS.control) -- Get the creation time of our lua files
+        BS.liveControlsBackup = table.Copy(BS.live.control) -- Get the creation time of our lua files
     end
 end
 

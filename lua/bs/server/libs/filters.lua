@@ -196,7 +196,7 @@ function BS:Filters_ProtectAddresses(trace, funcName, args)
 	checking[funcName] = true
 
 	if args[1] and isfunction(args[1]) then
-		for k,v in pairs(self.control) do
+		for k,v in pairs(self.live.control) do
 			if args[1] == v.detour then
 				args[1] = self:Detours_GetFunction(k, _G)
 				break

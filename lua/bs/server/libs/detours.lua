@@ -5,19 +5,19 @@
 
 -- Initialize detours and filters from the control table
 function BS:Detours_Init()
-	for protectedFunc,_ in pairs(self.control) do
-		local filters = self.control[protectedFunc].filters
-		local failed = self.control[protectedFunc].failed
+	for protectedFunc,_ in pairs(self.live.control) do
+		local filters = self.live.control[protectedFunc].filters
+		local failed = self.live.control[protectedFunc].failed
 
 		if isstring(filters) then
-			self.control[protectedFunc].filters = self[self.control[protectedFunc].filters]
-			filters = { self.control[protectedFunc].filters }
+			self.live.control[protectedFunc].filters = self[self.live.control[protectedFunc].filters]
+			filters = { self.live.control[protectedFunc].filters }
 		elseif istable(filters) then
 			for k,_ in ipairs(filters) do
-				self.control[protectedFunc].filters[k] = self[self.control[protectedFunc].filters[k]]
+				self.live.control[protectedFunc].filters[k] = self[self.live.control[protectedFunc].filters[k]]
 			end
 
-			filters = self.control[protectedFunc].filters
+			filters = self.live.control[protectedFunc].filters
 		end
 
 		self:Detours_Create(protectedFunc, filters, failed)
@@ -37,7 +37,7 @@ function BS:Detours_SetAutoCheck()
 				return
 			end
 
-			for funcName,_ in pairs(self.control) do
+			for funcName,_ in pairs(self.live.control) do
 				self:Detours_Validate(funcName)
 			end
 		end)
@@ -55,7 +55,7 @@ end
 -- Protect a detoured address
 function BS:Detours_Validate(funcName, trace, isLowRisk)
 	local currentAddress = self:Detours_GetFunction(funcName)
-	local detourAddress = self.control[funcName].detour
+	local detourAddress = self.live.control[funcName].detour
 	local luaFile
 
     if not trace or string.len(trace) == 4 then
@@ -170,13 +170,13 @@ function BS:Detours_Create(funcName, filters, failed)
 	end
 
 	self:Detours_SetFunction(funcName, Detour)
-	self.control[funcName].detour = Detour
+	self.live.control[funcName].detour = Detour
 end
 
 -- Remove our detours
 -- Used only by live reloading functions
 function BS:Detours_Remove()
-	for k,v in pairs(self.control) do
+	for k,v in pairs(self.live.control) do
 		self:Detours_SetFunction(k, self:Detours_GetFunction(k, _G))
 	end
 end
