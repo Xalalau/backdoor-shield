@@ -228,7 +228,7 @@ BS.lowRisk= {
 }
 
 
--- WHITE LISTS
+-- WHITELISTS
 -- -----------------------------------------------------------------------------------
 
 -- Detections from these lists don't appear on the file scanner and aren't protected
