@@ -54,10 +54,10 @@ if SERVER then
 
     BS.traceBank = {} -- List traces saved from some functions. e.g { ["function address"] = { name = "fuction name", trace = trace } }
 
-    BS.fileScannerDangerousExtensions_Check = {} -- Auxiliar tables to check values faster
+    BS.scannerDangerousExtensions_Check = {} -- Auxiliar tables to check values faster
     BS.lowRiskFiles_Check = {}
     BS.whitelistFiles_Check = {}
-    BS.fileScannerSuspect_suspect_Check = {}
+    BS.scannerSuspect_suspect_Check = {}
 end
 
 BS.locals = {} -- Register local functions addresses, set their environment to protected, cease to exist
@@ -140,8 +140,8 @@ if SERVER then
     local generate = {
         { BS.lowRiskFiles, BS.lowRiskFiles_Check },
         { BS.whitelistFiles, BS.whitelistFiles_Check },
-        { BS.fileScanner.dangerousExtensions, BS.fileScannerDangerousExtensions_Check },
-        { BS.fileScanner.suspect_suspect, BS.fileScannerSuspect_suspect_Check }
+        { BS.scanner.dangerousExtensions, BS.scannerDangerousExtensions_Check },
+        { BS.scanner.suspect_suspect, BS.scannerSuspect_suspect_Check }
     }
 
     for _,tab in ipairs(generate) do

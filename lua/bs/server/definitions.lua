@@ -102,7 +102,7 @@ BS.control = {
   Be wise, be safe. And thanks for being here.
 ]]
 
-BS.fileScanner = {
+BS.scanner = {
 	-- These extensions will never be considered as not suspicious by the file scanner
 	-- bs_scan scans only for files with these extensions
 	dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" },
@@ -113,7 +113,7 @@ BS.fileScanner = {
 	-- Print low-risk results in the console
 	printLowRisk = false,
 
-	-- Discard result if it's from file with only BS.fileScanner.suspect_suspect detections
+	-- Discard result if it's from file with only BS.scanner.suspect_suspect detections
 	-- Discard result if it's a non Lua file with less than 3 warnings and some BS.suspect_suscpect detections
 	discardVeryLowRisk = true,
 
@@ -121,7 +121,7 @@ BS.fileScanner = {
 	ignoreBSFolders = true,
 
 	-- Detections with these chars will be considered as not suspect (at first) for files and snippets that not
-	-- fit into fileScanner.dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
+	-- fit into scanner.dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
 	notSuspect = {
 		"ÿ",
 		"", -- 000F

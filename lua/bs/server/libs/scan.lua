@@ -113,28 +113,28 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if self:Scan_CheckWhitelist(str, self.whitelistSnippets) then return end
 
 	-- Check if we are dealing with binaries
-	local IsSuspect = IsSuspectPath(str, ext, self.fileScannerDangerousExtensions_Check, self.fileScanner.notSuspect)
+	local IsSuspect = IsSuspectPath(str, ext, self.scannerDangerousExtensions_Check, self.scanner.notSuspect)
 
 	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
 	if not IsSuspect then
-		IsSuspect = ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistHigh) or
-		            ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistMedium) or
-		            ProcessList(self, trace, str, IsSuspect, self.fileScanner.suspect)
+		IsSuspect = ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistHigh) or
+		            ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistMedium) or
+		            ProcessList(self, trace, str, IsSuspect, self.scanner.suspect)
 	end
 
 	if IsSuspect and blocked then
 		-- Search for blocked terms
 		if blocked[1] then
-			ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistHigh, blocked[1])
+			ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistHigh, blocked[1])
 			if not ignore_suspect then
-				ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistHigh_suspect, blocked[1])
+				ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistHigh_suspect, blocked[1])
 			end
 		end
 
 		if blocked[2] then
-			ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistMedium, blocked[2])
+			ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistMedium, blocked[2])
 			if not ignore_suspect then
-				ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistMedium_suspect, blocked[2])
+				ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistMedium_suspect, blocked[2])
 			end
 		end
 
@@ -146,9 +146,9 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 
 	if IsSuspect and warning then
 		-- Loof for suspect terms, wich are also good to reinforce results
-		ProcessList(self, trace, str, IsSuspect, self.fileScanner.suspect, warning)
+		ProcessList(self, trace, str, IsSuspect, self.scanner.suspect, warning)
 		if not ignore_suspect then
-			ProcessList(self, trace, str, IsSuspect, self.fileScanner.suspect_suspect, warning)
+			ProcessList(self, trace, str, IsSuspect, self.scanner.suspect_suspect, warning)
 		end
 	end
 
@@ -193,7 +193,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 	       dir == "addons/" .. BS.folder.data or
 	       dir == "addons/" .. string.gsub(BS.folder.data, "/", "") .. "-master/" then
 
-		if BS.fileScanner.ignoreBSFolders then
+		if BS.scanner.ignoreBSFolders then
 			forceIgnore = true
 		else
 			forceLowRisk = true
@@ -268,16 +268,16 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 				-- Trash:
 
 				-- Deal with very unsuspecting results
-				if BS.fileScanner.discardVeryLowRisk and (#blocked[1] + #blocked[2] == 0) then
+				if BS.scanner.discardVeryLowRisk and (#blocked[1] + #blocked[2] == 0) then
 					local notImportant = 0
 
 					for k,v in pairs (warning) do
-						if BS.fileScannerSuspect_suspect_Check[v] then
+						if BS.scannerSuspect_suspect_Check[v] then
 							notImportant = notImportant + 1
 						end
 					end
 
-					-- Discard result if it's from file with only BS.fileScanner.suspect_suspect detections
+					-- Discard result if it's from file with only BS.scanner.suspect_suspect detections
 					if notImportant > 0 and notImportant == #warning then
 						results.discarded = results.discarded + 1
 						return
@@ -334,7 +334,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 
 				-- Print
 
-				if resultsList ~= results.lowRisk or BS.fileScanner.printLowRisk then
+				if resultsList ~= results.lowRisk or BS.scanner.printLowRisk then
 					for lineCount,lineText in pairs(string.Explode("\n", resultString)) do
 						if lineCount == 1 then
 							local color = resultsList == results.highRisk and BS.colors.highRisk or -- Linux compatible colors
@@ -376,7 +376,7 @@ function BS:Scan_Folders(args, extensions)
 	}
 
 	-- Select custom folders or a list of default folders
-	local folders = not cfgs.addonsFolderScan and args or self.fileScanner.foldersToScan
+	local folders = not cfgs.addonsFolderScan and args or self.scanner.foldersToScan
 
 	-- Deal with bars
 	for k,v in pairs(folders) do
