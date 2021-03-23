@@ -132,6 +132,16 @@ function BS:Filters_CheckStack(trace, funcName, args)
 				callersWarningCooldown[detectedFuncName] = nil
 			end)	
 
+			-- Whitelist
+			local whitelisted
+			for _,combo in pairs(self.whitelistCallCombos) do
+				if protectedFuncName == combo[1] then
+					if detectedFuncName == combo[2] then
+						whitelisted = true
+					end
+				end
+			end
+
 			if not whitelisted then
 				local info = {
 					type = "blocked",

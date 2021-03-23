@@ -128,6 +128,11 @@ BS.lowRiskFiles = {
 	"lua/autorun/server/sv_test.lua"
 }
 
+-- Whitelist for Filters_CheckStack combinations.
+-- e.g. { "pcall", "BroadcastLua" } means that a BroadcastLua() inside a pcall() will not generate a detection
+BS.whitelistCallCombos = {
+}
+
 -- Whitelist http.Fetch() and http.Post() urls
 --   Don't scan the downloaded content, just run it normally to start checking again.
 BS.whitelistUrls = {
