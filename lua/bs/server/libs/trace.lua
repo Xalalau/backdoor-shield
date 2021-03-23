@@ -89,7 +89,7 @@ function BS:Trace_IsLowRisk(trace)
     if self.lowRiskFiles_Check[luaFile] then
         isLowRisk = true
     else
-        for _,v in pairs(self.lowRiskFolders) do
+        for _,v in pairs(self.lowRisk.folders) do
             local start = string.find(luaFile, v)
 
             if start == 1 then
@@ -108,10 +108,10 @@ function BS:Trace_IsWhitelisted(trace)
     local isWhitelisted = false
     local luaFile = GetLuaFile(self, trace)
 
-    if self.whitelistFiles_Check[luaFile] then
+    if self.whitelistsFiles_check[luaFile] then
         isWhitelisted = true
     else
-        for _,v in pairs(self.whitelistFolders) do
+        for _,v in pairs(self.whitelists.folders) do
             local start = string.find(luaFile, v)
 
             if start == 1 then

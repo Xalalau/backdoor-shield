@@ -110,7 +110,7 @@ table.insert(BS.locals, ProcessList)
 function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if not isstring(str) then return end
 	if self:Trace_IsWhitelisted(trace) then return end
-	if self:Scan_CheckWhitelist(str, self.whitelistSnippets) then return end
+	if self:Scan_CheckWhitelist(str, self.whitelists.snippets) then return end
 
 	-- Check if we are dealing with binaries
 	local IsSuspect = IsSuspectPath(str, ext, self.scannerDangerousExtensions_Check, self.scanner.notSuspect)
@@ -245,7 +245,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 			end
 
 			-- Ignore whitelisted contents
-			if BS:Scan_CheckWhitelist(pathAux, BS.whitelistSnippets) then
+			if BS:Scan_CheckWhitelist(pathAux, BS.whitelists.snippets) then
 				return 
 			end
 

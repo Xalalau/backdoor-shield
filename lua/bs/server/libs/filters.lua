@@ -15,7 +15,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 		local warning = {}
 		local detected
 
-		for k,v in pairs(self.whitelistUrls) do
+		for k,v in pairs(self.whitelists.urls) do
 			local urlStart = string.find(url, v)
 
 			if urlStart and urlStart == 1 then
@@ -134,7 +134,7 @@ function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
 
 			-- Whitelist
 			local whitelisted
-			for _,combo in pairs(self.whitelistStack) do
+			for _,combo in pairs(self.whitelists.stack) do
 				if protectedFuncName == combo[1] then
 					if detectedFuncName == combo[2] then
 						whitelisted = true

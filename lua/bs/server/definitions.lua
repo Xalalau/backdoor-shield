@@ -181,77 +181,82 @@ BS.scanner = {
 }
 
 
+-- LOW-RISK LISTS
+-- -----------------------------------------------------------------------------------
+
+-- Detections from these lists are considered low risk on the file scanner and generate
+-- only warnings on live protection. Even detour detections only alert!
+
+BS.lowRisk= {
+	-- Low-risk folders
+	folders = {
+		"gamemodes/darkrp/",
+		"lua/entities/gmod_wire_expression2/",
+		"lua/wire/",
+		"lua/ulx/",
+		"lua/ulib/",
+		"lua/dlib/",
+		"lua/xlib/",
+		"lua/_awesome/",
+		"lua/serverguard/",
+		"lua/klib/",
+		"lua/pac3/"
+	},
+
+	-- Low-risk files
+	files = {
+		"lua/derma/derma.lua",
+		"lua/derma/derma_example.lua",
+		"lua/entities/gmod_wire_target_finder.lua",
+		"lua/entities/gmod_wire_keyboard/init.lua",
+		"lua/entities/info_wiremapinterface/init.lua",
+		"lua/includes/extensions/debug.lua",
+		"lua/includes/modules/constraint.lua",
+		"lua/includes/util/javascript_util.lua",
+		"lua/includes/util.lua",
+		"lua/vgui/dhtml.lua",
+		"lua/autorun/cb-lib.lua",
+		"lua/autorun/!sh_dlib.lua",
+		"lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
+		"lua/autorun/streamradio_loader.lua", -- 3D Stream Radio
+		"lua/ulib/shared/plugin.lua", -- ULib
+		"lua/dlib/sh_init.lua", -- DLib
+		"lua/dlib/core/loader.lua", -- DLib
+		"lua/dlib/modules/i18n/sh_loader.lua", -- DLib
+		"gamemodes/darkrp/gamemode/libraries/simplerr.lua", -- DarkRP
+	},
+}
+
+
 -- WHITE LISTS
 -- -----------------------------------------------------------------------------------
---[[
-	Low-risk lists:
-		Detections from these lists are considered low risk on the file scanner and generate
-		only warnings on live protection. Even detour detections only alert!
 
-	Whitelists:
-		Detections from these lists don't appear on the file scanner and aren't protected
-		in any way. No blocking, no warnings, no logs. Detours are completely ignored!
---]]
+-- Detections from these lists don't appear on the file scanner and aren't protected
+-- in any way. No blocking, no warnings, no logs. Detours are completely ignored!
 
--- Low-risk folders
-BS.lowRiskFolders = {
-	"gamemodes/darkrp/",
-	"lua/entities/gmod_wire_expression2/",
-	"lua/wire/",
-	"lua/ulx/",
-	"lua/ulib/",
-	"lua/dlib/",
-	"lua/xlib/",
-	"lua/_awesome/",
-	"lua/serverguard/",
-	"lua/klib/",
-	"lua/pac3/"
-}
+BS.whitelists = {
+	-- Whitelisted files
+	folders = {
+	},
 
--- Low-risk files
-BS.lowRiskFiles = {
-	"lua/derma/derma.lua",
-	"lua/derma/derma_example.lua",
-	"lua/entities/gmod_wire_target_finder.lua",
-	"lua/entities/gmod_wire_keyboard/init.lua",
-	"lua/entities/info_wiremapinterface/init.lua",
-	"lua/includes/extensions/debug.lua",
-	"lua/includes/modules/constraint.lua",
-	"lua/includes/util/javascript_util.lua",
-	"lua/includes/util.lua",
-	"lua/vgui/dhtml.lua",
-	"lua/autorun/cb-lib.lua",
-	"lua/autorun/!sh_dlib.lua",
-	"lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
-	"lua/autorun/streamradio_loader.lua", -- 3D Stream Radio
-	"lua/ulib/shared/plugin.lua", -- ULib
-	"lua/dlib/sh_init.lua", -- DLib
-	"lua/dlib/core/loader.lua", -- DLib
-	"lua/dlib/modules/i18n/sh_loader.lua", -- DLib
-	"gamemodes/darkrp/gamemode/libraries/simplerr.lua", -- DarkRP
-}
+	-- Whitelisted folders
+	files = {
+	},
 
--- Whitelisted files
-BS.whitelistFolders = {
-}
+	-- Whitelist for Filters_CheckStack combinations
+	stack = {
+		--  { { "CompileString", "BroadcastLua" } } -- e.g. it means that a BroadcastLua() inside a CompileString() won't generate a detection
+	},
 
--- Whitelisted folders
-BS.whitelistFiles = {
-}
+	-- Whitelist http.Fetch() and http.Post() urls
+	--   Don't scan the downloaded content, just run it normally to start checking again
+	urls = {
+		"http://www.geoplugin.net/",
+	},
 
--- Whitelist for Filters_CheckStack combinations.
-BS.whitelistStack = {
-	--  { { "CompileString", "BroadcastLua" } } -- e.g. it means that a BroadcastLua() inside a CompileString() won't generate a detection
-}
-
--- Whitelist http.Fetch() and http.Post() urls
---   Don't scan the downloaded content, just run it normally to start checking again.
-BS.whitelistUrls = {
-	"http://www.geoplugin.net/",
-}
-
--- Whitelist snippets
---   Ignore detections containing the listed "texts".
-BS.whitelistSnippets = {
-	-- Be very careful to add items to this list! Ideally, it should never be used.
+	-- Whitelist snippets
+	--   Ignore detections containing the listed "texts"
+	--   Be very careful to add items to this list! Ideally, it should never be used
+	snippets = {
+	},
 }

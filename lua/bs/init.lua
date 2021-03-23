@@ -56,7 +56,7 @@ if SERVER then
 
     BS.scannerDangerousExtensions_Check = {} -- Auxiliar tables to check values faster
     BS.lowRiskFiles_Check = {}
-    BS.whitelistFiles_Check = {}
+    BS.whitelistsFiles_check = {}
     BS.scannerSuspect_suspect_Check = {}
 end
 
@@ -138,8 +138,8 @@ if SERVER then
 
      -- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks
     local generate = {
-        { BS.lowRiskFiles, BS.lowRiskFiles_Check },
-        { BS.whitelistFiles, BS.whitelistFiles_Check },
+        { BS.lowRisk.files, BS.lowRiskFiles_Check },
+        { BS.whitelists.files, BS.whitelistsFiles_check },
         { BS.scanner.dangerousExtensions, BS.scannerDangerousExtensions_Check },
         { BS.scanner.suspect_suspect, BS.scannerSuspect_suspect_Check }
     }
