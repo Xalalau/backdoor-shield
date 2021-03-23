@@ -53,48 +53,27 @@ function BS:Detours_SetAutoCheck()
 end
 
 -- Protect a detoured address
-function BS:Detours_Validate(funcName, trace)
+function BS:Detours_Validate(funcName, trace, isLowRisk)
 	local currentAddress = self:Detours_GetFunction(funcName)
 	local detourAddress = self.control[funcName].detour
-	local trace_aux = debug.getinfo(currentAddress, "S").source
+	local luaFile
+
+    if not trace or string.len(trace) == 4 then
+		local source = debug.getinfo(currentAddress, "S").source
+        luaFile = self:Utils_ConvertAddonPath(string.sub(source, 1, 1) == "@" and string.sub(source, 2))
+	else 
+        luaFile = self:Trace_GetLuaFile()
+    end
 
 	if detourAddress ~= currentAddress then
 		local info = {
 			func = funcName,
-			trace = trace or trace_aux
+			trace = trace or luaFile
 		}
 
-		-- Check if it's a low-risk detection. If so, only report
-		local lowRisk = false
-
-		if not trace_aux or string.len(trace_aux) == 4 then
-			trace_aux = self:Trace_GetLuaFile(trace or debug.traceback())
-		else
-			trace_aux = self:Utils_ConvertAddonPath(string.sub(trace_aux, 1, 1) == "@" and string.sub(trace_aux, 2))
-		end
-
-		if self.lowRiskFiles_Check[trace_aux] then
-			lowRisk = true
-		else
-			for _,v in pairs(self.lowRiskFolders) do
-				local start = string.find(trace_aux, v)
-
-				if start == 1 then
-					lowRisk = true
-
-					break
-				end
-			end
-		end
-
-		if lowRisk then
-			if self.ignoredDetours[trace_aux] then
-				return true
-			end
-
+		if isLowRisk then
 			info.type = "warning"
 			info.alert = "Warning! Detour detected in a low-risk location. Ignoring it..."
-			self.ignoredDetours[trace_aux] = true
 		else
 			info.type = "detour"
 			info.alert = "Detour captured and undone!"
@@ -102,7 +81,6 @@ function BS:Detours_Validate(funcName, trace)
 			self:Detours_SetFunction(funcName, detourAddress)
 		end
 
-		-- Report
 		self:Report_Detection(info)
 
 		return false
@@ -159,13 +137,14 @@ function BS:Detours_Create(funcName, filters, failed)
 		running[funcName] = true
 
 		local trace = self:Trace_Get(debug.traceback())
+		local isLowRisk = self:Trace_IsLowRisk(trace)
 
-		self:Detours_Validate(funcName, trace)
+		self:Detours_Validate(funcName, trace, isLowRisk)
 
 		if filters then
 			local i = 1
 			for _,filter in ipairs(filters) do
-				local result = filter(self, trace, funcName, args)
+				local result = filter(self, trace, funcName, args, isLowRisk)
 
 				running[funcName] = nil
 

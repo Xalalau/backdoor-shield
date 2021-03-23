@@ -7,7 +7,7 @@
 
 -- Scan http.Fetch and http.Post contents
 -- Add persistent trace support to the called functions
-function BS:Filters_CheckHttpFetchPost(trace, funcName, args)
+function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 	local url = args[1]
 
 	local function Scan(args2)
@@ -36,8 +36,8 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args)
 			end
 		end
 
-		local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Execution blocked!", blocked } or
-		                 #warning > 0 and { "warning", "Suspicious execution!", warning }
+		local detected = not isLowRisk and (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Execution blocked!", blocked } or
+						 (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
 
 		if detected then
 			local info = {
@@ -55,7 +55,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args)
 			self:Report_Detection(info)
 		end
 
-		if #blocked[1] == 0 and #blocked[2] == 0 then
+		if isLowRisk or #blocked[1] == 0 and #blocked[2] == 0 then
 			self:Trace_Set(args[2], funcName, trace)
 
 			self:Detours_CallOriginalFunction(funcName, args)
@@ -86,7 +86,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args)
 end
 
 -- Check CompileString, CompileFile, RunString and RunStringEX contents
-function BS:Filters_CheckStrCode(trace, funcName, args)
+function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 	local code = funcName == "CompileFile" and file.Read(args[1], "LUA") or args[1]
 	local blocked = {{}, {}}
 	local warning = {}
@@ -96,8 +96,8 @@ function BS:Filters_CheckStrCode(trace, funcName, args)
 
 	self:Scan_String(trace, code, "lua", blocked, warning)
 
-	local detected = (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Execution blocked!", blocked } or
-	                 #warning > 0 and { "warning", "Suspicious execution!", warning }
+	local detected = not isLowRisk and (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Execution blocked!", blocked } or
+	                 (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
 
 	if detected then
 		local info = {
@@ -114,14 +114,14 @@ function BS:Filters_CheckStrCode(trace, funcName, args)
 		self:Report_Detection(info)
 	end
 
-	return #blocked[1] == 0 and #blocked[2] == 0 and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
+	return (isLowRisk or (#blocked[1] == 0 and #blocked[2] == 0)) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
 end
 
 -- Validate functions that can't call each other
 --   Return false if we detect something or "true" if it's fine.
 --   Note that "true" is really between quotes because we need to identify it and not pass the value forward.
 local callersWarningCooldown = {} -- Don't flood the console with messages
-function BS:Filters_CheckStack(trace, funcName, args)
+function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
 	local protectedFuncName = self:Stack_Check()
 	local detectedFuncName = funcName
 
@@ -144,9 +144,9 @@ function BS:Filters_CheckStack(trace, funcName, args)
 
 			if not whitelisted then
 				local info = {
-					type = "blocked",
+					type = isLowRisk and "warning" or "blocked",
 					folder = protectedFuncName,
-					alert = "Blocked function call!",
+					alert = isLowRisk and "Warning! Prohibited function call in a low-risk location! Ignoring it..." or "Blocked function call!",
 					func = protectedFuncName,
 					trace = trace,
 					detected = { detectedFuncName },
@@ -157,7 +157,11 @@ function BS:Filters_CheckStack(trace, funcName, args)
 			end
 		end
 
-		return false
+		if isLowRisk then
+			return "true"
+		else
+			return false
+		end
 	else
 		return "true"
 	end

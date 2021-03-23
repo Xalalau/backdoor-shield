@@ -44,7 +44,8 @@ function BS:Trace_Set(func, name, trace)
 end
 
 -- Get the correct detected lua file from a trace stack
-function BS:Trace_GetLuaFile(trace)
+function BS:Trace_GetLuaFile()
+    local trace = debug.traceback()
     local traceParts = string.Explode("\n", trace)
     local index
 
@@ -63,4 +64,32 @@ function BS:Trace_GetLuaFile(trace)
     end
 
     return self:Utils_ConvertAddonPath(string.Trim(string.Explode(":",traceParts[index])[1]))
+end
+
+-- Check if the trace is of a low-risk detection
+function BS:Trace_IsLowRisk(trace)
+    local isLowRisk = false
+    local luaFile = ""
+
+    if trace and string.len(trace) ~= 4 then
+        luaFile = self:Trace_GetLuaFile(debug.traceback())
+    else
+        luaFile = self:Utils_ConvertAddonPath(string.sub(trace, 1, 1) == "@" and string.sub(trace, 2))
+    end
+
+    if self.lowRiskFiles_Check[luaFile] then
+        isLowRisk = true
+    else
+        for _,v in pairs(self.lowRiskFolders) do
+            local start = string.find(luaFile, v)
+
+            if start == 1 then
+                isLowRisk = true
+
+                break
+            end
+        end
+    end
+
+    return isLowRisk
 end

@@ -16,7 +16,7 @@ BS.dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" }
 -- The folders checked by the scanner if none are specified (bs_scan)
 BS.foldersToScan = { "lua", "gamemode", "data" }
 
--- REAL TIME PROTECTION SETUP
+-- REAL TIME PROTECTION
 -- -----------------------------------------------------------------------------------
 
 -- In-game backdoor detection and self preservation
@@ -125,7 +125,6 @@ BS.lowRiskFiles = {
 	"lua/vgui/dhtml.lua",
 	"lua/autorun/cb-lib.lua",
 	"lua/autorun/!sh_dlib.lua",
-	"lua/autorun/server/sv_test.lua"
 }
 
 -- Whitelist for Filters_CheckStack combinations.
