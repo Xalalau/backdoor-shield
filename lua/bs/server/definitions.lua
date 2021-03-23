@@ -80,77 +80,6 @@ BS.control = {
 	["ClientsideModel"] = { filters = { "Filters_CheckStack" } },
 }
 
--- WHITE LISTS
--- -----------------------------------------------------------------------------------
-
--- Low-risk files and folders
---   Detections from these places will be considered low-risk on live detections and, at
---   first, on file scans - so they'll print smaller logs.
---[[
-   Attention!! Low-risk locations will cause detouring of protected functions to be
-   ignored! This means other addons will steal the game functions, do something with them
-   and most problably call us back because we keep the original addresses locked down.
-]]
-
-BS.lowRiskFolders = {
-	"gamemodes/darkrp/",
-	"lua/entities/gmod_wire_expression2/",
-	"lua/wire/",
-	"lua/ulx/",
-	"lua/ulib/",
-	"lua/dlib/",
-	"lua/xlib/",
-	"lua/_awesome/",
-	"lua/serverguard/",
-	"lua/klib/",
-	"lua/pac3/"
-}
-
-BS.lowRiskFiles = {
-	"lua/derma/derma.lua",
-	"lua/derma/derma_example.lua",
-	"lua/entities/gmod_wire_target_finder.lua",
-	"lua/entities/gmod_wire_keyboard/init.lua",
-	"lua/entities/info_wiremapinterface/init.lua",
-	"lua/includes/extensions/debug.lua",
-	"lua/includes/modules/constraint.lua",
-	"lua/includes/util/javascript_util.lua",
-	"lua/includes/util.lua",
-	"lua/vgui/dhtml.lua",
-	"lua/autorun/cb-lib.lua",
-	"lua/autorun/!sh_dlib.lua",
-	"lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
-	"lua/autorun/streamradio_loader.lua", -- 3D Stream Radio
-	"lua/ulib/shared/plugin.lua", -- ULib
-	"lua/dlib/sh_init.lua", -- DLib
-	"lua/dlib/core/loader.lua", -- DLib
-	"lua/dlib/modules/i18n/sh_loader.lua", -- DLib
-	"gamemodes/darkrp/gamemode/libraries/simplerr.lua", -- DarkRP
-}
-
-BS.whitelistFolders = {
-}
-
-BS.whitelistFiles = {
-}
-
--- Whitelist for Filters_CheckStack combinations.
--- e.g. { "pcall", "BroadcastLua" } means that a BroadcastLua() inside a pcall() will not generate a detection
-BS.whitelistStack = {
-}
-
--- Whitelist http.Fetch() and http.Post() urls
---   Don't scan the downloaded content, just run it normally to start checking again.
-BS.whitelistUrls = {
-	"http://www.geoplugin.net/",
-}
-
--- Whitelist snippets
---   Ignore detections containing the listed "texts".
-BS.whitelistSnippets = {
-	-- Be very careful to add items to this list! Ideally, it should never be used.
-}
-
 -- FILES SCANNER
 -- -----------------------------------------------------------------------------------
 --[[
@@ -250,4 +179,75 @@ BS.fileScanner = {
 		"0x",
 		"\\x",
 	},
+}
+
+-- WHITE LISTS
+-- -----------------------------------------------------------------------------------
+
+-- Low-risk files and folders
+--   Detections from these places will be considered low-risk on live detections and, at
+--   first, on file scans - so they'll print smaller logs.
+--[[
+   Attention!! Low-risk locations will cause detouring of protected functions to be
+   ignored! This means other addons will steal the game functions, do something with them
+   and most problably call us back because we keep the original addresses locked down.
+]]
+
+BS.lowRiskFolders = {
+	"gamemodes/darkrp/",
+	"lua/entities/gmod_wire_expression2/",
+	"lua/wire/",
+	"lua/ulx/",
+	"lua/ulib/",
+	"lua/dlib/",
+	"lua/xlib/",
+	"lua/_awesome/",
+	"lua/serverguard/",
+	"lua/klib/",
+	"lua/pac3/"
+}
+
+BS.lowRiskFiles = {
+	"lua/derma/derma.lua",
+	"lua/derma/derma_example.lua",
+	"lua/entities/gmod_wire_target_finder.lua",
+	"lua/entities/gmod_wire_keyboard/init.lua",
+	"lua/entities/info_wiremapinterface/init.lua",
+	"lua/includes/extensions/debug.lua",
+	"lua/includes/modules/constraint.lua",
+	"lua/includes/util/javascript_util.lua",
+	"lua/includes/util.lua",
+	"lua/vgui/dhtml.lua",
+	"lua/autorun/cb-lib.lua",
+	"lua/autorun/!sh_dlib.lua",
+	"lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
+	"lua/autorun/streamradio_loader.lua", -- 3D Stream Radio
+	"lua/ulib/shared/plugin.lua", -- ULib
+	"lua/dlib/sh_init.lua", -- DLib
+	"lua/dlib/core/loader.lua", -- DLib
+	"lua/dlib/modules/i18n/sh_loader.lua", -- DLib
+	"gamemodes/darkrp/gamemode/libraries/simplerr.lua", -- DarkRP
+}
+
+BS.whitelistFolders = {
+}
+
+BS.whitelistFiles = {
+}
+
+-- Whitelist for Filters_CheckStack combinations.
+-- e.g. { "pcall", "BroadcastLua" } means that a BroadcastLua() inside a pcall() will not generate a detection
+BS.whitelistStack = {
+}
+
+-- Whitelist http.Fetch() and http.Post() urls
+--   Don't scan the downloaded content, just run it normally to start checking again.
+BS.whitelistUrls = {
+	"http://www.geoplugin.net/",
+}
+
+-- Whitelist snippets
+--   Ignore detections containing the listed "texts".
+BS.whitelistSnippets = {
+	-- Be very careful to add items to this list! Ideally, it should never be used.
 }
