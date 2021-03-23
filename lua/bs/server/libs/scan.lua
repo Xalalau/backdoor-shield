@@ -376,7 +376,7 @@ function BS:Scan_Folders(args, extensions)
 	}
 
 	-- Select custom folders or a list of default folders
-	local folders = not cfgs.addonsFolderScan and args or self.foldersToScan
+	local folders = not cfgs.addonsFolderScan and args or self.fileScanner.foldersToScan
 
 	-- Deal with bars
 	for k,v in pairs(folders) do

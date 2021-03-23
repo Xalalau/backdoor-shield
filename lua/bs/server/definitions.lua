@@ -13,10 +13,9 @@ BS.liveProtection = true -- If true, will block backdoors activity. If off, you'
 -- bs_scan scans only for files with these extensions
 BS.dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" }
 
--- The folders checked by the scanner if none are specified (bs_scan)
-BS.foldersToScan = { "lua", "gamemode", "data" }
-
 BS.fileScanner = {
+	-- The folders checked by the scanner if none are specified (bs_scan)
+	foldersToScan = { "lua", "gamemode", "data" },
 	-- Print low-risk results in the console
 	printLowRisk = false,
 	-- Discard result if it's from file with only BS.suspect_suspect detections
