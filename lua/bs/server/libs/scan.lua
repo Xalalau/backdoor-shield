@@ -270,6 +270,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 					for k,v in pairs (warning) do
 						if BS.suspect_suspect_Check[v] then
 							notImportant = notImportant + 1
+							results.discarded = results.discarded + 1
 						end
 					end
 
@@ -360,7 +361,8 @@ function BS:Scan_Folders(args, extensions)
 		lastTotalPrinted = 0,
 		highRisk = {},
 		mediumRisk = {},
-		lowRisk = {}
+		lowRisk = {},
+		discarded = 0
 	}
 
 	local cfgs = {
@@ -406,6 +408,7 @@ function BS:Scan_Folders(args, extensions)
 	MsgC(self.colors.key, "      | High-Risk   : ", self.colors.highRisk, #results.highRisk .. "\n")
 	MsgC(self.colors.key, "      | Medium-Risk : ", self.colors.mediumRisk, #results.mediumRisk .. "\n") 
 	MsgC(self.colors.key, "      | Low-Risk    : ", self.colors.lowRisk, #results.lowRisk .. "\n")
+	MsgC(self.colors.key, "      | Discarded   : ", self.colors.value, results.discarded .. "\n")
 	MsgC(self.colors.key, "      | Total       : ", self.colors.value, (#results.lowRisk + #results.mediumRisk + #results.highRisk) .. "\n\n")
 
 	local logFile = self:Report_Folder(results.highRisk, results.mediumRisk, results.lowRisk)
