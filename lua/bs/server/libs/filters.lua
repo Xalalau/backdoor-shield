@@ -122,24 +122,15 @@ end
 --   Note that "true" is really between quotes because we need to identify it and not pass the value forward.
 local callersWarningCooldown = {} -- Don't flood the console with messages
 function BS:Filters_CheckStack(trace, funcName, args)
-	local detectedFuncName, protectedFuncName = self:Stack_Check()
+	local protectedFuncName = self:Stack_Check()
+	local detectedFuncName = funcName
 
 	if protectedFuncName then
-		if not callersWarningCooldown[protectedFuncName] then
-			callersWarningCooldown[protectedFuncName] = true
+		if not callersWarningCooldown[detectedFuncName] then
+			callersWarningCooldown[detectedFuncName] = true
 			timer.Simple(0.01, function()
-				callersWarningCooldown[protectedFuncName] = nil
-			end)
-
-			-- Whitelist
-			local whitelisted
-			for _,combo in pairs(self.whitelistCallCombos) do
-				if protectedFuncName == combo[1] then
-					if detectedFuncName == combo[2] then
-						whitelisted = true
-					end
-				end
-			end		
+				callersWarningCooldown[detectedFuncName] = nil
+			end)	
 
 			if not whitelisted then
 				local info = {

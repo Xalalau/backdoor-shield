@@ -22,44 +22,68 @@ BS.foldersToScan = { "lua", "gamemode", "data" }
 -- In-game backdoor detection and self preservation
 
 BS.control = {
---[[
-	["some.game.function"] = {                -- Declaring a function in a field will keep it safe from detouring
-		detour = function                     -- Automatically managed, just ignore. It's the detour function address
-		filters = string or { string, ... }   -- Add internal function names. They'll execute any extra security checks we want (following the declared order)
-		failed = type                         -- Set "failed" if you've set "filters" and need to return fail values other than the default or nil
-	},
-]]
+	--[[
+		["some.game.function"] = {                -- Declaring a function in a field will keep it safe from detouring
+			detour = function                     -- Detoured function address (Automatically managed)
+			protectStack = bool                   -- If true, the Filters_CheckStack functions will generate a detection when meeting "some.game.function"
+			filters = string or { string, ... }   -- Internal functions to execute any extra security checks we want (following the declared order)
+			failed = type                         -- Set "failed" if you've set multiple "filters" and need to return fail values other than nil
+		},
+	]]
 	["debug.getinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectDebugGetinfo" }, failed = {} },
 	["jit.util.funcinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectAddresses" } },
 	["getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" } },
 	["debug.getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" } },
 	["tostring"] = { filters = "Filters_ProtectAddresses" },
-	["http.Post"] = { filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
-	["http.Fetch"] = { filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
-	["CompileString"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
+	["http.Post"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
+	["http.Fetch"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
+	["CompileString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
 	["CompileFile"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" } },
-	["RunString"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
-	["RunStringEx"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
+	["RunString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
+	["RunStringEx"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
 	["HTTP"] = { filters = { "Filters_CheckStack" } },
-	["hook.Add"] = {},
-	["hook.Remove"] = {},
-	["hook.GetTable"] = {},
-	["net.Receive"] = {},
-	["net.Start"] = {},
-	["net.ReadHeader"] = {},
-	["net.WriteString"] = {},
-	["require"] = {},
-	["BroadcastLua"] = { filters = { "Filters_CheckStack" } },
+	["net.ReadString"] = { protectStack = true, filters = { "Filters_CheckStack" } },
+	["BroadcastLua"] = { protectStack = true, filters = { "Filters_CheckStack" } },
+	["Error"] = {},
+	["timer.Simple"] = { filters = { "Filters_CheckStack", "Filters_CheckTimers" } },
+	["timer.Create"] = { filters = { "Filters_CheckStack", "Filters_CheckTimers" } },
+	["timer.Exists"] = { filters = { "Filters_CheckStack" } },
+	["timer.Destroy"] = { filters = { "Filters_CheckStack" } },
+	["jit.util.funck"] = { filters = { "Filters_CheckStack" } },
+	["hook.Add"] = { filters = { "Filters_CheckStack" } },
+	["hook.Remove"] = { filters = { "Filters_CheckStack" } },
+	["hook.GetTable"] = { filters = { "Filters_CheckStack" } },
+	["net.ReadHeader"] = { filters = { "Filters_CheckStack" } },
+	["net.Receive"] = { filters = { "Filters_CheckStack" } },
+	["net.Start"] = { filters = { "Filters_CheckStack" } },
+	["util.NetworkIDToString"] = { filters = { "Filters_CheckStack" } },
+	["net.WriteString"] = { filters = { "Filters_CheckStack" } },
+	["file.Exists"] = { filters = { "Filters_CheckStack" } },
+	["file.Read"] = { filters = { "Filters_CheckStack" } },
+	["file.Write"] = { filters = { "Filters_CheckStack" } },
 	["pcall"] = { filters = { "Filters_CheckStack" } },
 	["xpcall"] = { filters = { "Filters_CheckStack" } },
-	["Error"] = {},
-	["jit.util.funck"] = {},
-	["util.NetworkIDToString"] = { filters = { "Filters_CheckStack" } },
-	["TypeID"] = {},
-	["timer.Simple"] = { filters = { "Filters_CheckTimers" } },
-	["timer.Create"] = { filters = { "Filters_CheckTimers" } },
-	["file.Read"] = {},
-	["file.Write"] = {},
+	["require"] = { filters = { "Filters_CheckStack" } },
+	["include"] = { filters = { "Filters_CheckStack" } },
+	["game.KickID"] = { filters = { "Filters_CheckStack" } },
+	["setfenv"] = { filters = { "Filters_CheckStack" } },
+	["game.ConsoleCommand"] = { filters = { "Filters_CheckStack" } },
+	["RunConsoleCommand"] = { filters = { "Filters_CheckStack" } },
+	["file.Delete"] = { filters = { "Filters_CheckStack" } },
+	["file.Find"] = { filters = { "Filters_CheckStack" } },
+	["util.ScreenShake"] = { filters = { "Filters_CheckStack" } },
+	["debug.getregistry"] = { filters = { "Filters_CheckStack" } },
+	["game.CleanUpMap"] = { filters = { "Filters_CheckStack" } },
+	["PrintMessage"] = { filters = { "Filters_CheckStack" } },
+	["cam.Start3D"] = { filters = { "Filters_CheckStack" } },
+	["surface.PlaySound"] = { filters = { "Filters_CheckStack" } },
+	["sound.PlayURL"] = { filters = { "Filters_CheckStack" } },
+	["concommand.Add"] = { filters = { "Filters_CheckStack" } },
+	["util.AddNetworkString"] = { filters = { "Filters_CheckStack" } },
+	["Ban"] = { filters = { "Filters_CheckStack" } },
+	["Kick"] = { filters = { "Filters_CheckStack" } },
+	["ChatPrint"] = { filters = { "Filters_CheckStack" } },
+	["ClientsideModel"] = { filters = { "Filters_CheckStack" } },
 }
 
 -- WHITE LISTS
@@ -102,11 +126,6 @@ BS.lowRiskFiles = {
 	"lua/autorun/cb-lib.lua",
 	"lua/autorun/!sh_dlib.lua",
 	"lua/autorun/server/sv_test.lua"
-}
-
--- Whitelist for Filters_CheckStack combinations.
--- e.g. { "pcall", "BroadcastLua" } means that a BroadcastLua() inside a pcall() will not generate a detection
-BS.whitelistCallCombos = {
 }
 
 -- Whitelist http.Fetch() and http.Post() urls

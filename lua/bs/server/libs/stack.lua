@@ -36,9 +36,9 @@ end
 
 -- Check for prohibited function combinations (scanning by address)
 -- If the stack is good, return false
--- If the stack is bad, return "detected func name" and "protected func name"
+-- If the stack is bad, return "protected func name"
 local function Stack_Check()
-	local counter = { increment = 1, detected = 0, firstDetection = "" } -- Do NOT add more variables other than inside this table, or the function is going to stop working
+	local counter = { increment = 1, detected = 0 } -- Do NOT add more variables other than inside this table, or the function is going to stop working
 	while true do
 		local func = _debug.getinfo(counter.increment, "flnSu" )
 		local name, value = _debug.getlocal(1, 2, counter.increment)
@@ -61,9 +61,7 @@ local function Stack_Check()
 						value.name = funcName -- Update the name just to make prints nicer in here
 						counter.detected = counter.detected + 1
 						if counter.detected == 2 then  -- The rule is that we can't have 2 protected calls stacked, so return what we've found
-							return counter.firstDetection, funcName
-						else
-							counter.firstDetection = funcName -- Get the pretty name of the first protected call to return it later, if it's the case
+							return funcName
 						end
 						break
 					end
