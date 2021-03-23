@@ -19,8 +19,9 @@ BS.foldersToScan = { "lua", "gamemode", "data" }
 BS.fileScanner = {
 	-- Print low-risk results in the console
 	printLowRisk = false,
-	-- Discard results with suspect detections only
-	discardSuspect = true,
+	-- Discard result if it's from file with only BS.suspect_suspect detections
+	-- Discard result if it's a non Lua file with less than 3 warnings and some BS.suspect_suscpect detections
+	discardVeryLowRisk = true,
 }
 
 -- REAL TIME PROTECTION
