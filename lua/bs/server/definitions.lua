@@ -3,10 +3,12 @@
     https://xalalau.com/
 --]]
 
+
 -- MAIN CONFIGURATIONS
 -- -----------------------------------------------------------------------------------
 
--- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
+-- If true, will enable code live reloading, the command bs_tests and more time without hibernation
+--   Unsafe! Only used while developing
 BS.devMode = true
 
 
@@ -16,7 +18,7 @@ BS.devMode = true
 -- In-game detouring protection and backdoor detection
 
 BS.live = {
-	-- If true, will block/warn/log backdoors activity in real time
+	-- If true, will block backdoors activity in real time
 	backdoorDetection = true, 
 
 	--[[
@@ -85,27 +87,12 @@ BS.live = {
 	},
 }
 
+
 -- FILES SCANNER
 -- -----------------------------------------------------------------------------------
---[[
-  In the real-time protection scenario, blacklists cause warnings and interruptions in
-  execution, while suspect lists add details to the logs and, consequently, help us
-  to better identify threats.
 
-  When used by the file scanner, both lists generate complete reports. In this case,
-  we use the high, medium and low divisions to assign a weight to each detection and
-  calculate a risk. For example. many low-risk detections can be listed as medium-risk,
-  while some medium plus low-risk detections can be heavy enough to be listed as high-
-  risk. This system helps to make detected backdoors more visible by showing them above
-  irrelevant results - and, in fact, they end up concentraded on high-risk with some
-  in the medium. I've never seen a detection in the low-risk section.
-
-  Finally, if someone makes the foolish decision to add a common pattern to one of these
-  lists, the addon will return many false positives, probably turning the console into
-  a giant log hell.
-
-  Be wise, be safe. And thanks for being here.
-]]
+-- Don't add common patterns to the blacklists and suspect lists, or the addon will return
+-- many false positives and probably turn the console into a giant log hell.
 
 BS.scanner = {
 	-- These extensions will never be considered as not suspicious by the file scanner
@@ -126,13 +113,15 @@ BS.scanner = {
 	ignoreBSFolders = true,
 
 	-- Detections with these chars will be considered as not suspect (at first) for files and snippets that not
-	-- fit into scanner.dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
+	-- fit into scanner.dangerousExtensions list.
+	--   Avoid false positives with non Lua files
 	notSuspect = {
 		"ÿ",
 		"", -- 000F
 	},
 
 	-- Very edge snippets, syntax and symbols that only backdoors use
+	--   High-risk
 	blacklistHigh = {
 		"‪", -- LEFT-TO-RIGHT EMBEDDING
 		"(_G)",
@@ -142,12 +131,14 @@ BS.scanner = {
 	},
 
 	-- Edge snippets, syntax and symbols that almost only backdoors use
+	--   High-risk
 	blacklistHigh_suspect = {
 		"=_G", -- Note: used by backdoors to start hiding names or create a better environment
 	},
 
 	-- Functions that backdoors love to use!
 	--   They usually run one inside the other or set/get improper stuff that almost only they need.
+	--   Medium-risk
 	blacklistMedium = {
 		"RunString",
 		"RunStringEx",
@@ -162,6 +153,7 @@ BS.scanner = {
 	},
 
 	-- Snippets, syntax and symbols that sometimes appear in normal scripts, but are usually seen in backdoors
+	--   Medium-risk
 	blacklistMedium_suspect = {
 		"_G[",
 		"_G.",
@@ -171,6 +163,7 @@ BS.scanner = {
 
 	-- Functions that some backdoors and regular scripts use - They aren't worth blocking, just warning.
 	--   I use these detections to increase the potential risk of others while scanning files.
+	--   Low-risk
 	suspect = {
 		"pcall",
 		"xpcall",
@@ -179,6 +172,7 @@ BS.scanner = {
 
 	-- Snippets, syntax and symbols that some backdoors and regular scripts use - They aren't worth blocking, just warning.
 	--   I use these detections to increase the potential risk of others while scanning files, but with a very light weight.
+	--   Low-risk
 	suspect_suspect = {
 		"]()",
 		"0x",
@@ -189,16 +183,17 @@ BS.scanner = {
 
 -- WHITE LISTS
 -- -----------------------------------------------------------------------------------
-
--- Low-risk files and folders
---   Detections from these places will be considered low-risk on live detections and, at
---   first, on file scans - so they'll print smaller logs.
 --[[
-   Attention!! Low-risk locations will cause detouring of protected functions to be
-   ignored! This means other addons will steal the game functions, do something with them
-   and most problably call us back because we keep the original addresses locked down.
-]]
+	Low-risk lists:
+		Detections from these lists are considered low risk on the file scanner and generate
+		only warnings on live protection. Even detour detections only alert!
 
+	Whitelists:
+		Detections from these lists don't appear on the file scanner and aren't protected
+		in any way. No blocking, no warnings, no logs. Detours are completely ignored!
+--]]
+
+-- Low-risk folders
 BS.lowRiskFolders = {
 	"gamemodes/darkrp/",
 	"lua/entities/gmod_wire_expression2/",
@@ -213,6 +208,7 @@ BS.lowRiskFolders = {
 	"lua/pac3/"
 }
 
+-- Low-risk files
 BS.lowRiskFiles = {
 	"lua/derma/derma.lua",
 	"lua/derma/derma_example.lua",
@@ -235,15 +231,17 @@ BS.lowRiskFiles = {
 	"gamemodes/darkrp/gamemode/libraries/simplerr.lua", -- DarkRP
 }
 
+-- Whitelisted files
 BS.whitelistFolders = {
 }
 
+-- Whitelisted folders
 BS.whitelistFiles = {
 }
 
 -- Whitelist for Filters_CheckStack combinations.
--- e.g. { "pcall", "BroadcastLua" } means that a BroadcastLua() inside a pcall() will not generate a detection
 BS.whitelistStack = {
+	--  { { "CompileString", "BroadcastLua" } } -- e.g. it means that a BroadcastLua() inside a CompileString() won't generate a detection
 }
 
 -- Whitelist http.Fetch() and http.Post() urls
