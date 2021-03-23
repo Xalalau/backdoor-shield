@@ -81,13 +81,11 @@ local function ProcessList(BS, trace, str, IsSuspicious, list, list2)
 		   not BS:Scan_CheckWhitelist(trace, BS.whitelistTraces) and
 		   not BS:Scan_CheckWhitelist(str, BS.whitelistSnippets) then
 
-			--if v == ""
-
-			if v == "=_G" then -- Since I'm not using patterns, I do some extra checks on _G to avoid false positives.
+			if v == "=_G" or v == "=_R" then -- Since I'm not using patterns, I do some extra checks on _G and _R to avoid false positives.
 				local check = string.gsub(str, "%s+", " ")
-				local strStart, strEnd = string.find(check, "=_G", nil, true)
+				local strStart, strEnd = string.find(check, v, nil, true)
 				if not strStart then
-					strStart, strEnd = string.find(check, "= _G", nil, true)
+					strStart, strEnd = string.find(check, v == "=_G" or "= _G" or "= _R", nil, true)
 				end
 
 				local nextChar = check[strEnd + 1] or "-"

@@ -207,12 +207,15 @@ BS.blacklistMedium = {
 	"http.Fetch",
 	"http.Post",
 	"debug.getinfo",
+	"game.ConsoleCommand",
 }
 
 -- Snippets, syntax and symbols that sometimes appear in normal scripts, but are usually seen in backdoors
 BS.blacklistMedium_suspect = {
 	"_G[",
 	"_G.",
+	"_R[",
+	"_R."
 }
 
 -- Functions that some backdoors and regular scripts use - They aren't worth blocking, just warning.
