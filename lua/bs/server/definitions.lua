@@ -125,6 +125,13 @@ BS.lowRiskFiles = {
 	"lua/vgui/dhtml.lua",
 	"lua/autorun/cb-lib.lua",
 	"lua/autorun/!sh_dlib.lua",
+	"lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
+	"lua/autorun/streamradio_loader.lua", -- 3D Stream Radio
+	"lua/ulib/shared/plugin.lua", -- ULib
+	"lua/dlib/sh_init.lua", -- DLib
+	"lua/dlib/core/loader.lua", -- DLib
+	"lua/dlib/modules/i18n/sh_loader.lua", -- DLib
+	"gamemodes/darkrp/gamemode/libraries/simplerr.lua", -- DarkRP
 }
 
 BS.whitelistFolders = {
@@ -142,18 +149,6 @@ BS.whitelistCallCombos = {
 --   Don't scan the downloaded content, just run it normally to start checking again.
 BS.whitelistUrls = {
 	"http://www.geoplugin.net/",
-}
-
--- Whitelist TRACE ERRORS
---   Ignore detections containging one of these lines in its trace
-BS.whitelistTraces = {
-	"lua/entities/gmod_wire_expression2/core/extloader.lua:86", -- Wiremod
-	"gamemodes/darkrp/gamemode/libraries/simplerr.lua:", -- DarkRP
-	"lua/autorun/streamradio_loader.lua:254", -- 3D Stream Radio
-	"lua/ulib/shared/plugin.lua:186", -- ULib
-	"lua/dlib/sh_init.lua:105", -- DLib
-	"lua/dlib/core/loader.lua:32", -- DLib
-	"lua/dlib/modules/i18n/sh_loader.lua:66", -- DLib
 }
 
 -- Whitelist snippets
