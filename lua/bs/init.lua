@@ -30,7 +30,7 @@ BS.folder.sv_libs = BS.folder.lua .. "server/libs/"
 BS.folder.cl_libs = BS.folder.lua .. "client/libs/"
 
 BS.colors = {
-    header = Color(0, 0, 255),
+    header = Color(255, 0, 255),
     key = Color(0, 255, 0),
     value = Color(255, 255, 255),
     message = Color(0, 255, 255),
