@@ -10,7 +10,7 @@ BS.devMode = true -- If true, will enable code live reloading, the command bs_te
 BS.liveProtection = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
 
 -- These extensions will never be considered as not suspicious by the file scanner
--- The file scanner will only look for these extensions when running bs_scan_fast 
+-- bs_scan scans only for files with these extensions
 BS.dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" }
 
 -- The folders checked by the scanner if none are specified (bs_scan)

@@ -218,7 +218,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 			local pathAux = path
 
 			-- Filter by extension (if they are specified)
-			-- Note: used by bs_scan_fast
+			-- Note: used by bs_scan
 			if extensions then
 				local isValid = false
 
