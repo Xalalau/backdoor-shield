@@ -44,8 +44,8 @@ function BS:Trace_Set(func, name, trace)
 end
 
 -- Get the correct detected lua file from a trace stack
-function BS:Trace_GetLuaFile()
-    local trace = debug.traceback()
+function BS:Trace_GetLuaFile(trace)
+    trace = trace or debug.traceback()
     local traceParts = string.Explode("\n", trace)
     local index
 
@@ -63,14 +63,20 @@ function BS:Trace_GetLuaFile()
         end
     end
 
-    return self:Utils_ConvertAddonPath(string.Trim(string.Explode(":",traceParts[index])[1]))
+    return index and self:Utils_ConvertAddonPath(string.Trim(string.Explode(":",traceParts[index])[1])) or trace and string.find(trace, ".lua") and trace or ""
 end
 
+-- Get the lua file with the correct function
 local function GetLuaFile(BS, trace)
-    if not trace or string.len(trace) ~= 4 then
+    -- No trace or the trace is [c]
+    if not trace or string.len(trace) == 4 then
         return BS:Trace_GetLuaFile(debug.traceback())
+    -- The trace is a path starting with @
+    elseif string.sub(trace, 1, 1) == "@" then
+        return BS:Utils_ConvertAddonPath(string.sub(trace, 2))
+    -- The trace is some string
     else
-        return BS:Utils_ConvertAddonPath(string.sub(trace, 1, 1) == "@" and string.sub(trace, 2))
+        return BS:Trace_GetLuaFile(trace)
     end
 end
 table.insert(BS.locals, GetLuaFile)

@@ -112,6 +112,7 @@ table.insert(BS.locals, ProcessList)
 -- Process a string according to our white, black and suspect lists
 function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if not isstring(str) then return end
+	if self:Trace_IsWhitelisted(trace) then return end
 
 	-- Check if we are dealing with binaries
 	local IsSuspicious = IsSuspect(str, ext, self.dangerousExtensions_Check, self.notSuspect)
@@ -254,7 +255,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 			end
 
 			-- Scan file
-			BS:Scan_String(nil, file.Read(path, "GAME"), ext, blocked, warning)
+			BS:Scan_String(path, file.Read(path, "GAME"), ext, blocked, warning)
 
 			local resultString = ""
 			local resultsList
