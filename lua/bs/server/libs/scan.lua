@@ -153,7 +153,7 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 		end
 	end
 
-	return blocked, warning
+	return
 end
 
 -- Build a message with the detections
