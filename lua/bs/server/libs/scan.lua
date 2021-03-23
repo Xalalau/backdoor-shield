@@ -77,9 +77,7 @@ table.insert(BS.locals, CheckCharset)
 -- Process a string according to our white, black and suspect lists
 local function ProcessList(BS, trace, str, IsSuspect, list, list2)
 	for k,v in pairs(list) do
-		if string.find(string.gsub(str, " ", ""), v, nil, true) and
-		   not BS:Scan_CheckWhitelist(str, BS.whitelistSnippets) then
-
+		if string.find(string.gsub(str, " ", ""), v, nil, true) then
 			if v == "=_G" or v == "=_R" then -- Since I'm not using patterns, I do some extra checks on _G and _R to avoid false positives.
 				local check = string.gsub(str, "%s+", " ")
 				local strStart, strEnd = string.find(check, v, nil, true)
@@ -112,6 +110,7 @@ table.insert(BS.locals, ProcessList)
 function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if not isstring(str) then return end
 	if self:Trace_IsWhitelisted(trace) then return end
+	if self:Scan_CheckWhitelist(str, self.whitelistSnippets) then return end
 
 	-- Check if we are dealing with binaries
 	local IsSuspect = IsSuspectPath(str, ext, self.dangerousExtensions_Check, self.notSuspect) and not self:Trace_IsLowRisk(trace)
