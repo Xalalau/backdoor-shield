@@ -196,7 +196,7 @@ function BS:Debug_RunTests(args)
         MsgC(self.colors.message, "\n (Waiting) Persistent trace result pending... Pass = Trace with one \"(+) BS - Persistent Trace\"; Fail = Any other trace.\n\n")
     end
 
-    function tests.all(functionsWithWaiting)
+    function tests.all(printDelayedMsg, functionsWithWaiting)
         for _,testFunc in pairs(tests) do
             if testFunc and isfunction(testFunc) and testFunc ~= tests.help and testFunc ~= tests.all then
                 for _,funcNameWait in ipairs(functionsWithWaiting) do
@@ -229,7 +229,7 @@ function BS:Debug_RunTests(args)
                     end
                 end
 
-                tests[testName](testName == "all" and functionsWithWaiting)
+                tests[testName](testName == "all" and printDelayedMsg, testName == "all" and functionsWithWaiting)
             else
                 table.insert(funcsNotFound, testName)
             end
