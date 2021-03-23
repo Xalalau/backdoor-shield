@@ -140,8 +140,8 @@ if SERVER then
     local generate = {
         { BS.lowRisk.files, BS.lowRiskFiles_Check },
         { BS.whitelists.files, BS.whitelistsFiles_check },
-        { BS.scanner.dangerousExtensions, BS.scannerDangerousExtensions_Check },
-        { BS.scanner.suspect_suspect, BS.scannerSuspect_suspect_Check }
+        { BS.filesScanner.dangerousExtensions, BS.scannerDangerousExtensions_Check },
+        { BS.filesScanner.suspect_suspect, BS.scannerSuspect_suspect_Check }
     }
 
     for _,tab in ipairs(generate) do

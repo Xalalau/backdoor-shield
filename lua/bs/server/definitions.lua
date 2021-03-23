@@ -31,12 +31,12 @@ BS.live = {
 	]]
 	control = {
 		["Ban"] = { filters = { "Filters_CheckStack" } },
-		["BroadcastLua"] = { protectStack = true, filters = { "Filters_CheckStack" } },
+	["BroadcastLua"] = { protectStack = true, filters = { "Filters_CheckStack" } },
 		["cam.Start3D"] = { filters = { "Filters_CheckStack" } },
 		["ChatPrint"] = { filters = { "Filters_CheckStack" } },
 		["ClientsideModel"] = { filters = { "Filters_CheckStack" } },
-		["CompileFile"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" } },
-		["CompileString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
+	["CompileFile"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" } },
+	["CompileString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
 		["concommand.Add"] = { filters = { "Filters_CheckStack" } },
 		["debug.getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" } },
 		["debug.getinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectDebugGetinfo" }, failed = {} },
@@ -48,15 +48,15 @@ BS.live = {
 		["file.Read"] = { filters = { "Filters_CheckStack" } },
 		["file.Write"] = { filters = { "Filters_CheckStack" } },
 		["game.CleanUpMap"] = { filters = { "Filters_CheckStack" } },
-		["game.ConsoleCommand"] = { filters = { "Filters_CheckStack" } },
+["game.ConsoleCommand"] = { filters = { "Filters_CheckStack" } },
 		["game.KickID"] = { filters = { "Filters_CheckStack" } },
 		["getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" } },
 		["hook.Add"] = { filters = { "Filters_CheckStack" } },
 		["hook.GetTable"] = { filters = { "Filters_CheckStack" } },
 		["hook.Remove"] = { filters = { "Filters_CheckStack" } },
 		["HTTP"] = { filters = { "Filters_CheckStack" } },
-		["http.Fetch"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
-		["http.Post"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
+	["http.Fetch"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
+	["http.Post"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
 		["include"] = { filters = { "Filters_CheckStack" } },
 		["jit.util.funcinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectAddresses" } },
 		["jit.util.funck"] = { filters = { "Filters_CheckStack" } },
@@ -65,13 +65,13 @@ BS.live = {
 		["net.ReadString"] = { protectStack = true, filters = { "Filters_CheckStack" } },
 		["net.Receive"] = { filters = { "Filters_CheckStack" } },
 		["net.Start"] = { filters = { "Filters_CheckStack" } },
-		["net.WriteString"] = { filters = { "Filters_CheckStack" } },
+	["net.WriteString"] = { filters = { "Filters_CheckStack" } },
 		["pcall"] = { filters = { "Filters_CheckStack" } },
 		["PrintMessage"] = { filters = { "Filters_CheckStack" } },
 		["require"] = { filters = { "Filters_CheckStack" } },
-		["RunConsoleCommand"] = { filters = { "Filters_CheckStack" } },
-		["RunString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
-		["RunStringEx"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
+["RunConsoleCommand"] = { filters = { "Filters_CheckStack" } },
+	["RunString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
+	["RunStringEx"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
 		["setfenv"] = { filters = { "Filters_CheckStack" } },
 		["sound.PlayURL"] = { filters = { "Filters_CheckStack" } },
 		["surface.PlaySound"] = { filters = { "Filters_CheckStack" } },
@@ -87,6 +87,51 @@ BS.live = {
 	},
 }
 
+
+-- FUNCTIONS SCANNER
+-- -----------------------------------------------------------------------------------
+
+BS.functions = {
+	blacklistSnippets = {
+		"‪", -- LEFT-TO-RIGHT EMBEDDING
+		"(_G)",
+		",_G,",
+		"!true",
+		"!false",
+		"_G[",
+		"_G.",
+		"_R[",
+		"_R."
+		"]()",
+		"0x",
+		"\\x",
+		"STEAM_0:",
+		"startingmoney",
+		"SendLua",
+	},
+	blacklistCvars = {
+		"rcon_password",
+		"sv_password",
+		"sv_gravity",
+		"sv_friction",
+		"sv_allowcslua",
+		"sv_password",
+		"sv_hostname",
+		"rp_resetallmoney",
+		"hostport",
+	},
+}
+
+--[[
+SetModel, DropWeapon, SetUserGroup, me:SetRunSpeed, me:SetWalkSpeed, addMoney, GiveAmmo, GodEnable, GodDisable
+Freeze, , Ignite, Fire, Kill, DoAnimationEvent, , , , , , 
+Remove, , , , ULib.unban, IPAddress, SteamID(), Nick(), OpenURL,
+ , AddText, SetWeaponColor, , Ignite, , EmitSound, , AddVelocity,
+ _R.Player.Ban, _R.Player.Kick, ULib.kick,
+ULib.ban, ULib.addBan, SetMaterial, SetModel, setDarkRPVar, storeRPName, , ,
+DarkRP.createJob, , BitcoinValue, MaxInterest, doubleChance, , ,  
+, , getip(), 
+]]
 
 -- FILES SCANNER
 -- -----------------------------------------------------------------------------------
@@ -105,7 +150,7 @@ BS.scanner = {
 	-- Print low-risk results in the console
 	printLowRisk = false,
 
-	-- Discard result if it's from file with only BS.scanner.suspect_suspect detections
+	-- Discard result if it's from file with only BS.filesScanner.suspect_suspect detections
 	discardVeryLowRisk = true,
 
 	-- Ignore our own folders

@@ -79,7 +79,7 @@ function BS:Initialize()
     -- Command to scan all files in the main/selected folders
     concommand.Add("bs_scan", function(ply, cmd, args)
         if not ply:IsValid() or ply:IsAdmin() then
-            self:Scan_Folders(args, self.scanner.dangerousExtensions)
+            self:Scan_Folders(args, self.filesScanner.dangerousExtensions)
         end
     end)
 

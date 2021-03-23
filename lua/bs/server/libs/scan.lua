@@ -113,28 +113,28 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if self:Scan_CheckWhitelist(str, self.whitelists.snippets) then return end
 
 	-- Check if we are dealing with binaries
-	local IsSuspect = IsSuspectPath(str, ext, self.scannerDangerousExtensions_Check, self.scanner.notSuspect)
+	local IsSuspect = IsSuspectPath(str, ext, self.scannerDangerousExtensions_Check, self.filesScanner.notSuspect)
 
 	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
 	if not IsSuspect then
-		IsSuspect = ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistHigh) or
-		            ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistMedium) or
-		            ProcessList(self, trace, str, IsSuspect, self.scanner.suspect)
+		IsSuspect = ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh) or
+		            ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium) or
+		            ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect)
 	end
 
 	if IsSuspect and blocked then
 		-- Search for blocked terms
 		if blocked[1] then
-			ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistHigh, blocked[1])
+			ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh, blocked[1])
 			if not ignore_suspect then
-				ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistHigh_suspect, blocked[1])
+				ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh_suspect, blocked[1])
 			end
 		end
 
 		if blocked[2] then
-			ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistMedium, blocked[2])
+			ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium, blocked[2])
 			if not ignore_suspect then
-				ProcessList(self, trace, str, IsSuspect, self.scanner.blacklistMedium_suspect, blocked[2])
+				ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium_suspect, blocked[2])
 			end
 		end
 
@@ -146,9 +146,9 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 
 	if IsSuspect and warning then
 		-- Loof for suspect terms, wich are also good to reinforce results
-		ProcessList(self, trace, str, IsSuspect, self.scanner.suspect, warning)
+		ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect, warning)
 		if not ignore_suspect then
-			ProcessList(self, trace, str, IsSuspect, self.scanner.suspect_suspect, warning)
+			ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect_suspect, warning)
 		end
 	end
 
@@ -193,7 +193,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 	       dir == "addons/" .. BS.folder.data or
 	       dir == "addons/" .. string.gsub(BS.folder.data, "/", "") .. "-master/" then
 
-		if BS.scanner.ignoreBSFolders then
+		if BS.filesScanner.ignoreBSFolders then
 			forceIgnore = true
 		else
 			forceLowRisk = true
@@ -267,8 +267,8 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 
 				-- Trash:
 
-				-- Discard result if it's from file with only BS.scanner.suspect_suspect detections
-				if BS.scanner.discardVeryLowRisk and (#blocked[1] + #blocked[2] == 0) then
+				-- Discard result if it's from file with only BS.filesScanner.suspect_suspect detections
+				if BS.filesScanner.discardVeryLowRisk and (#blocked[1] + #blocked[2] == 0) then
 					local notImportant = 0
 
 					for k,v in pairs (warning) do
@@ -327,7 +327,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 
 				-- Print
 
-				if resultsList ~= results.lowRisk or BS.scanner.printLowRisk then
+				if resultsList ~= results.lowRisk or BS.filesScanner.printLowRisk then
 					for lineCount,lineText in pairs(string.Explode("\n", resultString)) do
 						if lineCount == 1 then
 							local color = resultsList == results.highRisk and BS.colors.highRisk or -- Linux compatible colors
@@ -369,7 +369,7 @@ function BS:Scan_Folders(args, extensions)
 	}
 
 	-- Select custom folders or a list of default folders
-	local folders = not cfgs.addonsFolderScan and args or self.scanner.foldersToScan
+	local folders = not cfgs.addonsFolderScan and args or self.filesScanner.foldersToScan
 
 	-- Deal with bars
 	for k,v in pairs(folders) do
