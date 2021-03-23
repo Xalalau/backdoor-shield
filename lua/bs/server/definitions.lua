@@ -9,20 +9,6 @@
 BS.devMode = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
 BS.liveProtection = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
 
-BS.fileScanner = {
-	-- These extensions will never be considered as not suspicious by the file scanner
-	-- bs_scan scans only for files with these extensions
-	dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" },
-	-- The folders checked by the scanner if none are specified (bs_scan)
-	foldersToScan = { "lua", "gamemode", "data" },
-	-- Print low-risk results in the console
-	printLowRisk = false,
-	-- Discard result if it's from file with only BS.suspect_suspect detections
-	-- Discard result if it's a non Lua file with less than 3 warnings and some BS.suspect_suscpect detections
-	discardVeryLowRisk = true,
-	-- Ignore our own folders results
-	ignoreBSFolders = true,
-}
 
 -- REAL TIME PROTECTION
 -- -----------------------------------------------------------------------------------
@@ -187,62 +173,81 @@ BS.whitelistSnippets = {
   Be wise, be safe. And thanks for being here.
 ]]
 
--- Detections with these chars will be considered as not suspect (at first) for files and snippets that not
--- fit into fileScanner.dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
-BS.notSuspect = {
-	"ÿ",
-	"", -- 000F
-}
+BS.fileScanner = {
+	-- These extensions will never be considered as not suspicious by the file scanner
+	-- bs_scan scans only for files with these extensions
+	dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" },
 
--- Very edge snippets, syntax and symbols that only backdoors use
-BS.blacklistHigh = {
-	"‪", -- LEFT-TO-RIGHT EMBEDDING
-	"(_G)",
-	",_G,",
-	"!true",
-	"!false",
-}
+	-- The folders checked by the scanner if none are specified (bs_scan)
+	foldersToScan = { "lua", "gamemode", "data" },
 
--- Edge snippets, syntax and symbols that almost only backdoors use
-BS.blacklistHigh_suspect = {
-	"=_G", -- Note: used by backdoors to start hiding names or create a better environment
-}
+	-- Print low-risk results in the console
+	printLowRisk = false,
 
--- Functions that backdoors love to use!
---   They usually run one inside the other or set/get improper stuff that almost only they need.
-BS.blacklistMedium = {
-	"RunString",
-	"RunStringEx",
-	"CompileString",
-	"CompileFile",
-	"BroadcastLua",
-	"setfenv",
-	"http.Fetch",
-	"http.Post",
-	"debug.getinfo",
-	"game.ConsoleCommand",
-}
+	-- Discard result if it's from file with only BS.fileScanner.suspect_suspect detections
+	-- Discard result if it's a non Lua file with less than 3 warnings and some BS.suspect_suscpect detections
+	discardVeryLowRisk = true,
 
--- Snippets, syntax and symbols that sometimes appear in normal scripts, but are usually seen in backdoors
-BS.blacklistMedium_suspect = {
-	"_G[",
-	"_G.",
-	"_R[",
-	"_R."
-}
+	-- Ignore our own folders results
+	ignoreBSFolders = true,
 
--- Functions that some backdoors and regular scripts use - They aren't worth blocking, just warning.
---   I use these detections to increase the potential risk of others while scanning files.
-BS.suspect = {
-	"pcall",
-	"xpcall",
-	"SendLua",
-}
+	-- Detections with these chars will be considered as not suspect (at first) for files and snippets that not
+	-- fit into fileScanner.dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
+	notSuspect = {
+		"ÿ",
+		"", -- 000F
+	},
 
--- Snippets, syntax and symbols that some backdoors and regular scripts use - They aren't worth blocking, just warning.
---   I use these detections to increase the potential risk of others while scanning files, but with a very light weight.
-BS.suspect_suspect = {
-	"]()",
-	"0x",
-	"\\x",
+	-- Very edge snippets, syntax and symbols that only backdoors use
+	blacklistHigh = {
+		"‪", -- LEFT-TO-RIGHT EMBEDDING
+		"(_G)",
+		",_G,",
+		"!true",
+		"!false",
+	},
+
+	-- Edge snippets, syntax and symbols that almost only backdoors use
+	blacklistHigh_suspect = {
+		"=_G", -- Note: used by backdoors to start hiding names or create a better environment
+	},
+
+	-- Functions that backdoors love to use!
+	--   They usually run one inside the other or set/get improper stuff that almost only they need.
+	blacklistMedium = {
+		"RunString",
+		"RunStringEx",
+		"CompileString",
+		"CompileFile",
+		"BroadcastLua",
+		"setfenv",
+		"http.Fetch",
+		"http.Post",
+		"debug.getinfo",
+		"game.ConsoleCommand",
+	},
+
+	-- Snippets, syntax and symbols that sometimes appear in normal scripts, but are usually seen in backdoors
+	blacklistMedium_suspect = {
+		"_G[",
+		"_G.",
+		"_R[",
+		"_R."
+	},
+
+	-- Functions that some backdoors and regular scripts use - They aren't worth blocking, just warning.
+	--   I use these detections to increase the potential risk of others while scanning files.
+	suspect = {
+		"pcall",
+		"xpcall",
+		"SendLua",
+	},
+
+	-- Snippets, syntax and symbols that some backdoors and regular scripts use - They aren't worth blocking, just warning.
+	--   I use these detections to increase the potential risk of others while scanning files, but with a very light weight.
+	suspect_suspect = {
+		"]()",
+		"0x",
+		"\\x",
+	},
 }

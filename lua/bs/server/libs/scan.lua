@@ -113,28 +113,28 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if self:Scan_CheckWhitelist(str, self.whitelistSnippets) then return end
 
 	-- Check if we are dealing with binaries
-	local IsSuspect = IsSuspectPath(str, ext, self.fileScannerDangerousExtensions_Check, self.notSuspect)
+	local IsSuspect = IsSuspectPath(str, ext, self.fileScannerDangerousExtensions_Check, self.fileScanner.notSuspect)
 
 	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
 	if not IsSuspect then
-		IsSuspect = ProcessList(self, trace, str, IsSuspect, self.blacklistHigh) or
-		            ProcessList(self, trace, str, IsSuspect, self.blacklistMedium) or
-		            ProcessList(self, trace, str, IsSuspect, self.suspect)
+		IsSuspect = ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistHigh) or
+		            ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistMedium) or
+		            ProcessList(self, trace, str, IsSuspect, self.fileScanner.suspect)
 	end
 
 	if IsSuspect and blocked then
 		-- Search for blocked terms
 		if blocked[1] then
-			ProcessList(self, trace, str, IsSuspect, self.blacklistHigh, blocked[1])
+			ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistHigh, blocked[1])
 			if not ignore_suspect then
-				ProcessList(self, trace, str, IsSuspect, self.blacklistHigh_suspect, blocked[1])
+				ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistHigh_suspect, blocked[1])
 			end
 		end
 
 		if blocked[2] then
-			ProcessList(self, trace, str, IsSuspect, self.blacklistMedium, blocked[2])
+			ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistMedium, blocked[2])
 			if not ignore_suspect then
-				ProcessList(self, trace, str, IsSuspect, self.blacklistMedium_suspect, blocked[2])
+				ProcessList(self, trace, str, IsSuspect, self.fileScanner.blacklistMedium_suspect, blocked[2])
 			end
 		end
 
@@ -146,9 +146,9 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 
 	if IsSuspect and warning then
 		-- Loof for suspect terms, wich are also good to reinforce results
-		ProcessList(self, trace, str, IsSuspect, self.suspect, warning)
+		ProcessList(self, trace, str, IsSuspect, self.fileScanner.suspect, warning)
 		if not ignore_suspect then
-			ProcessList(self, trace, str, IsSuspect, self.suspect_suspect, warning)
+			ProcessList(self, trace, str, IsSuspect, self.fileScanner.suspect_suspect, warning)
 		end
 	end
 
@@ -272,12 +272,12 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 					local notImportant = 0
 
 					for k,v in pairs (warning) do
-						if BS.suspect_suspect_Check[v] then
+						if BS.fileScannerSuspect_suspect_Check[v] then
 							notImportant = notImportant + 1
 						end
 					end
 
-					-- Discard result if it's from file with only BS.suspect_suspect detections
+					-- Discard result if it's from file with only BS.fileScanner.suspect_suspect detections
 					if notImportant > 0 and notImportant == #warning then
 						results.discarded = results.discarded + 1
 						return

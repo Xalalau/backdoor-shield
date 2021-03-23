@@ -57,7 +57,7 @@ if SERVER then
     BS.fileScannerDangerousExtensions_Check = {} -- Auxiliar tables to check values faster
     BS.lowRiskFiles_Check = {}
     BS.whitelistFiles_Check = {}
-    BS.suspect_suspect_Check = {}
+    BS.fileScannerSuspect_suspect_Check = {}
 end
 
 BS.locals = {} -- Register local functions addresses, set their environment to protected, cease to exist
@@ -141,7 +141,7 @@ if SERVER then
         { BS.lowRiskFiles, BS.lowRiskFiles_Check },
         { BS.whitelistFiles, BS.whitelistFiles_Check },
         { BS.fileScanner.dangerousExtensions, BS.fileScannerDangerousExtensions_Check },
-        { BS.suspect_suspect, BS.suspect_suspect_Check }
+        { BS.fileScanner.suspect_suspect, BS.fileScannerSuspect_suspect_Check }
     }
 
     for _,tab in ipairs(generate) do
