@@ -9,11 +9,10 @@
 BS.devMode = true -- If true, will enable code live reloading, the command bs_tests and more time without hibernation (unsafe! Only used while developing)
 BS.liveProtection = true -- If true, will block backdoors activity. If off, you'll only have the the file scanner.
 
--- These extensions will never be considered as not suspicious by the file scanner
--- bs_scan scans only for files with these extensions
-BS.dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" }
-
 BS.fileScanner = {
+	-- These extensions will never be considered as not suspicious by the file scanner
+	-- bs_scan scans only for files with these extensions
+	dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" },
 	-- The folders checked by the scanner if none are specified (bs_scan)
 	foldersToScan = { "lua", "gamemode", "data" },
 	-- Print low-risk results in the console
@@ -189,7 +188,7 @@ BS.whitelistSnippets = {
 ]]
 
 -- Detections with these chars will be considered as not suspect (at first) for files and snippets that not
--- fit into dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
+-- fit into fileScanner.dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
 BS.notSuspect = {
 	"ÿ",
 	"", -- 000F

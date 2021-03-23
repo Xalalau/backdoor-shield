@@ -54,7 +54,7 @@ if SERVER then
 
     BS.traceBank = {} -- List traces saved from some functions. e.g { ["function address"] = { name = "fuction name", trace = trace } }
 
-    BS.dangerousExtensions_Check = {} -- Auxiliar tables to check values faster
+    BS.fileScannerDangerousExtensions_Check = {} -- Auxiliar tables to check values faster
     BS.lowRiskFiles_Check = {}
     BS.whitelistFiles_Check = {}
     BS.suspect_suspect_Check = {}
@@ -140,7 +140,7 @@ if SERVER then
     local generate = {
         { BS.lowRiskFiles, BS.lowRiskFiles_Check },
         { BS.whitelistFiles, BS.whitelistFiles_Check },
-        { BS.dangerousExtensions, BS.dangerousExtensions_Check },
+        { BS.fileScanner.dangerousExtensions, BS.fileScannerDangerousExtensions_Check },
         { BS.suspect_suspect, BS.suspect_suspect_Check }
     }
 

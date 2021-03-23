@@ -113,7 +113,7 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if self:Scan_CheckWhitelist(str, self.whitelistSnippets) then return end
 
 	-- Check if we are dealing with binaries
-	local IsSuspect = IsSuspectPath(str, ext, self.dangerousExtensions_Check, self.notSuspect)
+	local IsSuspect = IsSuspectPath(str, ext, self.fileScannerDangerousExtensions_Check, self.notSuspect)
 
 	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
 	if not IsSuspect then
