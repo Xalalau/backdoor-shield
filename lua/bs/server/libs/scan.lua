@@ -25,7 +25,7 @@ function BS:Scan_CheckWhitelist(str, whitelist)
 end
 
 -- Check if a file isn't suspicious (at first)
-local function IsSuspect(str, ext, dangerousExtensions, notSuspect)
+local function IsSuspectPath(str, ext, dangerousExtensions, notSuspect)
 	if dangerousExtensions[ext] then return true end
 
 	for k,v in pairs(notSuspect) do
@@ -36,7 +36,7 @@ local function IsSuspect(str, ext, dangerousExtensions, notSuspect)
 
 	return true
 end
-table.insert(BS.locals, IsSuspicious)
+table.insert(BS.locals, IsSuspectPath)
 
 -- Try to find Lua files with obfuscations
 -- ignorePatterns is used to scan files that already has other detections
@@ -75,7 +75,7 @@ end
 table.insert(BS.locals, CheckCharset)
 
 -- Process a string according to our white, black and suspect lists
-local function ProcessList(BS, trace, str, IsSuspicious, list, list2)
+local function ProcessList(BS, trace, str, IsSuspect, list, list2)
 	for k,v in pairs(list) do
 		if string.find(string.gsub(str, " ", ""), v, nil, true) and
 		   not BS:Trace_IsLowRisk(trace) and
@@ -91,14 +91,14 @@ local function ProcessList(BS, trace, str, IsSuspicious, list, list2)
 				local nextChar = check[strEnd + 1] or "-"
 
 				if nextChar == " " or nextChar == "\n" or nextChar == "\r\n" then
-					if not IsSuspicious then
+					if not IsSuspect then
 						return true
 					else
 						table.insert(list2, v)
 					end
 				end
 			else
-				if not IsSuspicious then
+				if not IsSuspect then
 					return true
 				else
 					table.insert(list2, v)
@@ -115,28 +115,28 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if self:Trace_IsWhitelisted(trace) then return end
 
 	-- Check if we are dealing with binaries
-	local IsSuspicious = IsSuspect(str, ext, self.dangerousExtensions_Check, self.notSuspect)
+	local IsSuspect = IsSuspectPath(str, ext, self.dangerousExtensions_Check, self.notSuspect)
 
 	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
-	if not IsSuspicious then
-		IsSuspicious = ProcessList(self, trace, str, IsSuspicious, self.blacklistHigh) or
-					   ProcessList(self, trace, str, IsSuspicious, self.blacklistMedium) or
-					   ProcessList(self, trace, str, IsSuspicious, self.suspect)
+	if not IsSuspect then
+		IsSuspect = ProcessList(self, trace, str, IsSuspect, self.blacklistHigh) or
+					   ProcessList(self, trace, str, IsSuspect, self.blacklistMedium) or
+					   ProcessList(self, trace, str, IsSuspect, self.suspect)
 	end
 
-	if IsSuspicious and blocked then
+	if IsSuspect and blocked then
 		-- Search for blocked terms
 		if blocked[1] then
-			ProcessList(self, trace, str, IsSuspicious, self.blacklistHigh, blocked[1])
+			ProcessList(self, trace, str, IsSuspect, self.blacklistHigh, blocked[1])
 			if not ignore_suspect then
-				ProcessList(self, trace, str, IsSuspicious, self.blacklistHigh_suspect, blocked[1])
+				ProcessList(self, trace, str, IsSuspect, self.blacklistHigh_suspect, blocked[1])
 			end
 		end
 
 		if blocked[2] then
-			ProcessList(self, trace, str, IsSuspicious, self.blacklistMedium, blocked[2])
+			ProcessList(self, trace, str, IsSuspect, self.blacklistMedium, blocked[2])
 			if not ignore_suspect then
-				ProcessList(self, trace, str, IsSuspicious, self.blacklistMedium_suspect, blocked[2])
+				ProcessList(self, trace, str, IsSuspect, self.blacklistMedium_suspect, blocked[2])
 			end
 		end
 
@@ -146,11 +146,11 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 		end
 	end
 
-	if IsSuspicious and warning then
+	if IsSuspect and warning then
 		-- Loof for suspect terms, wich are also good to reinforce results
-		ProcessList(self, trace, str, IsSuspicious, self.suspect, warning)
+		ProcessList(self, trace, str, IsSuspect, self.suspect, warning)
 		if not ignore_suspect then
-			ProcessList(self, trace, str, IsSuspicious, self.suspect_suspect, warning)
+			ProcessList(self, trace, str, IsSuspect, self.suspect_suspect, warning)
 		end
 	end
 
