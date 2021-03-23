@@ -156,14 +156,7 @@ BS.whitelistSnippets = {
 	-- Be very careful to add items to this list! Ideally, it should never be used.
 }
 
--- Detections with these chars will be considered as not suspect (at first) for files and snippets that not
--- fit into dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
-BS.notSuspect = {
-	"ÿ",
-	"", -- 000F
-}
-
--- BLACK AND SUSPECT LISTS
+-- FILES SCANNER
 -- -----------------------------------------------------------------------------------
 --[[
   In the real-time protection scenario, blacklists cause warnings and interruptions in
@@ -184,6 +177,13 @@ BS.notSuspect = {
 
   Be wise, be safe. And thanks for being here.
 ]]
+
+-- Detections with these chars will be considered as not suspect (at first) for files and snippets that not
+-- fit into dangerousExtensions list. This lowers security a bit but eliminates a lot of false positives.
+BS.notSuspect = {
+	"ÿ",
+	"", -- 000F
+}
 
 -- Very edge snippets, syntax and symbols that only backdoors use
 BS.blacklistHigh = {
