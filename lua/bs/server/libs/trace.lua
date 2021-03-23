@@ -67,7 +67,7 @@ function BS:Trace_GetLuaFile()
 end
 
 local function GetLuaFile(BS, trace)
-    if trace and string.len(trace) ~= 4 then
+    if not trace or string.len(trace) ~= 4 then
         return BS:Trace_GetLuaFile(debug.traceback())
     else
         return BS:Utils_ConvertAddonPath(string.sub(trace, 1, 1) == "@" and string.sub(trace, 2))
