@@ -142,7 +142,7 @@ BS.whitelistFiles = {
 
 -- Whitelist for Filters_CheckStack combinations.
 -- e.g. { "pcall", "BroadcastLua" } means that a BroadcastLua() inside a pcall() will not generate a detection
-BS.whitelistCallCombos = {
+BS.whitelistStack = {
 }
 
 -- Whitelist http.Fetch() and http.Post() urls
