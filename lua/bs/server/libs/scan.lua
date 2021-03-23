@@ -113,13 +113,13 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if self:Scan_CheckWhitelist(str, self.whitelistSnippets) then return end
 
 	-- Check if we are dealing with binaries
-	local IsSuspect = IsSuspectPath(str, ext, self.dangerousExtensions_Check, self.notSuspect) and not self:Trace_IsLowRisk(trace)
+	local IsSuspect = IsSuspectPath(str, ext, self.dangerousExtensions_Check, self.notSuspect)
 
 	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
 	if not IsSuspect then
 		IsSuspect = ProcessList(self, trace, str, IsSuspect, self.blacklistHigh) or
-					   ProcessList(self, trace, str, IsSuspect, self.blacklistMedium) or
-					   ProcessList(self, trace, str, IsSuspect, self.suspect)
+		            ProcessList(self, trace, str, IsSuspect, self.blacklistMedium) or
+		            ProcessList(self, trace, str, IsSuspect, self.suspect)
 	end
 
 	if IsSuspect and blocked then
@@ -185,7 +185,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 	-- Ignore nil folders
 	if not dirs then
 		return
-	-- List lua/bs/ results as low risk
+	-- List lua/bs/ results as low-risk
 	elseif string.find(dir, "lua/" .. BS.folder.lua) == 1 then
 		forceLowRisk = true
 	-- Ignore our own addons folder(s) results
@@ -286,31 +286,16 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 
 				-- Default risks:
 
-				-- Force low risk
-				if forceLowRisk then
+				-- If it's low-risk or a forced low-risk
+				if BS:Trace_IsLowRisk(path) or forceLowRisk then
 					resultsList = results.lowRisk
 				end
 
-				-- Check for files inside low risk folders
-				if not resultsList then
-					for _,v in pairs(BS.lowRiskFolders) do
-						local start = string.find(pathAux, v)
-						if start == 1 then
-							resultsList = results.lowRisk
-
-							break
-						end
-					end
-				end
-
-				-- Or if it's not a file in a low risk folder, set a default risk to maybe modify later
+				-- Or if it's not a file in a low-risk folder, set a default risk to maybe modify later
 				if not resultsList then
 					-- Non Lua detections, if they aren't false positive, are VERY unsafe
 					if ext ~= "lua" then
 						resultsList = results.highRisk
-					-- Low-risk file
-					elseif BS.lowRiskFiles_Check[pathAux] then
-						resultsList = results.lowRisk
 					-- Set the risk based on the detection precedence
 					else
 						if #blocked[1] > 0 then resultsList = results.highRisk end
@@ -327,7 +312,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 						resultsList = results.highRisk
 					end
 
-					-- If we have a low risk but there are two or more high-risk detections, set to medium-risk
+					-- If we have a low-risk but there are two or more high-risk detections, set to medium-risk
 					if resultsList == results.lowRisk and #blocked[1] >= 2 then
 						resultsList = results.mediumRisk
 					end
@@ -347,7 +332,8 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 					for lineCount,lineText in pairs(string.Explode("\n", resultString)) do
 						if lineCount == 1 then
 							local color = resultsList == results.highRisk and BS.colors.highRisk or -- Linux compatible colors
-							              resultsList == results.mediumRisk and BS.colors.mediumRisk
+							              resultsList == results.mediumRisk and BS.colors.mediumRisk or
+							              resultsList == results.lowRisk and BS.colors.lowRisk
 
 							MsgC(color, lineText .. "\n")
 						else
