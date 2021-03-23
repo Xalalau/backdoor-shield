@@ -408,8 +408,7 @@ function BS:Scan_Folders(args, extensions)
 	MsgC(self.colors.key, "      | High-Risk   : ", self.colors.highRisk, #results.highRisk .. "\n")
 	MsgC(self.colors.key, "      | Medium-Risk : ", self.colors.mediumRisk, #results.mediumRisk .. "\n") 
 	MsgC(self.colors.key, "      | Low-Risk    : ", self.colors.lowRisk, #results.lowRisk .. "\n")
-	MsgC(self.colors.key, "      | Discarded   : ", self.colors.value, results.discarded .. "\n")
-	MsgC(self.colors.key, "      | Total       : ", self.colors.value, (#results.lowRisk + #results.mediumRisk + #results.highRisk) .. "\n\n")
+	MsgC(self.colors.key, "      | Discarded   : ", self.colors.value, results.discarded .. "\n\n")
 
 	local logFile = self:Report_Folder(results.highRisk, results.mediumRisk, results.lowRisk)
 
