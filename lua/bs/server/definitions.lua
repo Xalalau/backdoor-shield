@@ -16,9 +16,11 @@ BS.dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" }
 -- The folders checked by the scanner if none are specified (bs_scan)
 BS.foldersToScan = { "lua", "gamemode", "data" }
 
--- Print file scanner low-risk results in the console
 BS.fileScanner = {
-	printLowRisk = false
+	-- Print low-risk results in the console
+	printLowRisk = false,
+	-- Discard results with suspect detections only
+	discardSuspect = true,
 }
 
 -- REAL TIME PROTECTION

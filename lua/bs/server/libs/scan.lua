@@ -263,20 +263,23 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 
 				-- Trash:
 
-				-- If it's any file with only detections from BS.suspect_suspect, discard it
-				local notImportant = 0
+				-- Check how many very unsuspecting results we have (from BS.suspect_suspect)
+				local notImportant
 
 				if (#blocked[1] + #blocked[2] == 0) then
+					notImportant = 0
+
 					for k,v in pairs (warning) do
 						if BS.suspect_suspect_Check[v] then
 							notImportant = notImportant + 1
 						end
 					end
+				end
 
-					if notImportant == #warning then
-						results.discarded = results.discarded + 1
-						return
-					end
+				-- If it's any file with only detections from BS.suspect_suspect, discard it
+				if BS.fileScanner.discardSuspect and notImportant == #warning then
+					results.discarded = results.discarded + 1
+					return
 				end
 
 				-- If it's a non Lua file with only one suspect detection or a suspect detection
