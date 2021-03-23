@@ -51,7 +51,7 @@ function BS:Trace_GetLuaFile(trace)
     end
 
     -- No trace or it's "[c]"
-    if not trace and string.len(trace) == 4 then
+    if not trace or string.len(trace) == 4 then
         trace = debug.traceback()
     end
 
