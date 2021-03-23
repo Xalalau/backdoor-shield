@@ -266,15 +266,15 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 				-- If it's any file with only detections from BS.suspect_suspect, discard it
 				local notImportant = 0
 
-				if (#blocked[1] + #blocked[2] == 0)  then
+				if (#blocked[1] + #blocked[2] == 0) then
 					for k,v in pairs (warning) do
 						if BS.suspect_suspect_Check[v] then
 							notImportant = notImportant + 1
-							results.discarded = results.discarded + 1
 						end
 					end
 
 					if notImportant == #warning then
+						results.discarded = results.discarded + 1
 						return
 					end
 				end
@@ -282,6 +282,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 				-- If it's a non Lua file with only one suspect detection or a suspect detection
 				-- from BS.suspect and other from BS.suspect_suscpect, discard it
 				if ext ~= "lua" and (#blocked[1] + #blocked[2] == 0) and (#warning == 1 or #warning == 2 and notImportant) then
+					results.discarded = results.discarded + 1
 					return
 				end
 
