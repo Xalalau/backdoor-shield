@@ -137,8 +137,14 @@ function BS:Detours_Create(funcName, filters, failed)
 		running[funcName] = true
 
 		local trace = self:Trace_Get(debug.traceback())
-		local isLowRisk = self:Trace_IsLowRisk(trace)
+		local isWhitelisted = self:Trace_IsWhitelisted(trace)
 
+		if isWhitelisted then
+			return self:Detours_CallOriginalFunction(funcName, args)
+		end
+
+		local isLowRisk = self:Trace_IsLowRisk(trace)
+		
 		self:Detours_Validate(funcName, trace, isLowRisk)
 
 		if filters then

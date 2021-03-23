@@ -66,16 +66,19 @@ function BS:Trace_GetLuaFile()
     return self:Utils_ConvertAddonPath(string.Trim(string.Explode(":",traceParts[index])[1]))
 end
 
+local function GetLuaFile(BS, trace)
+    if trace and string.len(trace) ~= 4 then
+        return BS:Trace_GetLuaFile(debug.traceback())
+    else
+        return BS:Utils_ConvertAddonPath(string.sub(trace, 1, 1) == "@" and string.sub(trace, 2))
+    end
+end
+table.insert(BS.locals, GetLuaFile)
+
 -- Check if the trace is of a low-risk detection
 function BS:Trace_IsLowRisk(trace)
     local isLowRisk = false
-    local luaFile = ""
-
-    if trace and string.len(trace) ~= 4 then
-        luaFile = self:Trace_GetLuaFile(debug.traceback())
-    else
-        luaFile = self:Utils_ConvertAddonPath(string.sub(trace, 1, 1) == "@" and string.sub(trace, 2))
-    end
+    local luaFile = GetLuaFile(self, trace)
 
     if self.lowRiskFiles_Check[luaFile] then
         isLowRisk = true
@@ -92,4 +95,26 @@ function BS:Trace_IsLowRisk(trace)
     end
 
     return isLowRisk
+end
+
+-- Check if the trace is of a whitelisted detection
+function BS:Trace_IsWhitelisted(trace)
+    local isWhitelisted = false
+    local luaFile = GetLuaFile(self, trace)
+
+    if self.whitelistFiles_Check[luaFile] then
+        isWhitelisted = true
+    else
+        for _,v in pairs(self.whitelistFolders) do
+            local start = string.find(luaFile, v)
+
+            if start == 1 then
+                isWhitelisted = true
+
+                break
+            end
+        end
+    end
+
+    return isWhitelisted
 end
