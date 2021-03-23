@@ -329,7 +329,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
 
 				-- Print
 
-				if resultsList ~= results.lowRisk then
+				if resultsList ~= results.lowRisk or BS.fileScanner.printLowRisk then
 					for lineCount,lineText in pairs(string.Explode("\n", resultString)) do
 						if lineCount == 1 then
 							local color = resultsList == results.highRisk and BS.colors.highRisk or -- Linux compatible colors
