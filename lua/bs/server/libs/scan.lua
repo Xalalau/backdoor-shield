@@ -267,7 +267,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 
 				-- Trash:
 
-				-- Deal with very unsuspecting results
+				-- Discard result if it's from file with only BS.scanner.suspect_suspect detections
 				if BS.scanner.discardVeryLowRisk and (#blocked[1] + #blocked[2] == 0) then
 					local notImportant = 0
 
@@ -277,14 +277,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 						end
 					end
 
-					-- Discard result if it's from file with only BS.scanner.suspect_suspect detections
 					if notImportant > 0 and notImportant == #warning then
-						results.discarded = results.discarded + 1
-						return
-					end
-
-					-- Discard result if it's a non Lua file with less than 3 warnings and some BS.suspect_suscpect detections
-					if ext ~= "lua" and #warning <= 2 and notImportant > 0 then
 						results.discarded = results.discarded + 1
 						return
 					end
