@@ -85,7 +85,7 @@ local function ProcessList(BS, trace, str, IsSuspicious, list, list2)
 				local check = string.gsub(str, "%s+", " ")
 				local strStart, strEnd = string.find(check, v, nil, true)
 				if not strStart then
-					strStart, strEnd = string.find(check, v == "=_G" or "= _G" or "= _R", nil, true)
+					strStart, strEnd = string.find(check, v == "=_G" and "= _G" or "= _R", nil, true)
 				end
 
 				local nextChar = check[strEnd + 1] or "-"
