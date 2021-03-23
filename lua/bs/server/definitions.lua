@@ -22,6 +22,8 @@ BS.fileScanner = {
 	-- Discard result if it's from file with only BS.suspect_suspect detections
 	-- Discard result if it's a non Lua file with less than 3 warnings and some BS.suspect_suscpect detections
 	discardVeryLowRisk = true,
+	-- Ignore our own folders results
+	ignoreBSFolders = true,
 }
 
 -- REAL TIME PROTECTION

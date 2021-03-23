@@ -174,32 +174,36 @@ end
 table.insert(BS.locals, JoinResults)
 
 -- Scan a folder
-local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore)
+local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, forceLowRisk)
 	if dir == "data/" .. BS.folder.data then
 		return
 	end
 
 	local files, dirs = file.Find(dir.."*", "GAME")
-	local forceLowRisk = false
 
 	-- Ignore nil folders
 	if not dirs then
 		return
-	-- List lua/bs/ results as low-risk
-	elseif string.find(dir, "lua/" .. BS.folder.lua) == 1 then
-		forceLowRisk = true
-	-- Ignore our own addons folder(s) results
-	elseif not dirs or
-		dir == "addons/" .. BS.folder.data or
-		dir == "addons/" .. string.gsub(BS.folder.data, "/", "") .. "-master/" then
-
+	-- Ignore nil dirs and our own folder(s) results
+	elseif not dirs then
 		forceIgnore = true
+	-- Ignore our own folder(s) results
+	elseif not forceLowRisk and
+	       string.find(dir, "lua/" .. BS.folder.lua) == 1 or
+	       dir == "addons/" .. BS.folder.data or
+	       dir == "addons/" .. string.gsub(BS.folder.data, "/", "") .. "-master/" then
+
+		if BS.fileScanner.ignoreBSFolders then
+			forceIgnore = true
+		else
+			forceLowRisk = true
+		end
 	end
 
 	-- Check directories
 	for _, fdir in pairs(dirs) do
 		if fdir ~= "/" then -- We can get a / if we start from the root
-			RecursiveScan(BS, dir .. fdir .. "/", results, cfgs, extensions, forceIgnore)
+			RecursiveScan(BS, dir .. fdir .. "/", results, cfgs, extensions, forceIgnore, forceLowRisk)
 		end
 	end
 
