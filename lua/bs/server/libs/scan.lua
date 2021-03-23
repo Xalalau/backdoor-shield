@@ -78,7 +78,6 @@ table.insert(BS.locals, CheckCharset)
 local function ProcessList(BS, trace, str, IsSuspect, list, list2)
 	for k,v in pairs(list) do
 		if string.find(string.gsub(str, " ", ""), v, nil, true) and
-		   not BS:Trace_IsLowRisk(trace) and
 		   not BS:Scan_CheckWhitelist(str, BS.whitelistSnippets) then
 
 			if v == "=_G" or v == "=_R" then -- Since I'm not using patterns, I do some extra checks on _G and _R to avoid false positives.
@@ -115,7 +114,7 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 	if self:Trace_IsWhitelisted(trace) then return end
 
 	-- Check if we are dealing with binaries
-	local IsSuspect = IsSuspectPath(str, ext, self.dangerousExtensions_Check, self.notSuspect)
+	local IsSuspect = IsSuspectPath(str, ext, self.dangerousExtensions_Check, self.notSuspect) and not self:Trace_IsLowRisk(trace)
 
 	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
 	if not IsSuspect then
