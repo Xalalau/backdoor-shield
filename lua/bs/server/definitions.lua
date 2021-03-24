@@ -88,42 +88,44 @@ BS.live = {
 }
 
 
--- FUNCTIONS SCANNER
+-- ARGUMENTS LISTS
 -- -----------------------------------------------------------------------------------
 
-BS.functions = {
-	blacklistSnippets = {
-		"‪", -- LEFT-TO-RIGHT EMBEDDING
-		"(_G)",
-		",_G,",
-		"!true",
-		"!false",
-		"_G[",
-		"_G.",
-		"_R[",
-		"_R."
-		"]()",
-		"0x",
-		"\\x",
-		"STEAM_0:",
-		"startingmoney",
-		"SendLua",
-	},
-	blacklistCvars = {
-		"rcon_password",
-		"sv_password",
-		"sv_gravity",
-		"sv_friction",
-		"sv_allowcslua",
-		"sv_password",
-		"sv_hostname",
-		"rp_resetallmoney",
-		"hostport",
-	},
+-- Some extra blacklists for arguments
+BS.arguments = {
+	blacklists = {
+		Snippets = {
+			"‪", -- LEFT-TO-RIGHT EMBEDDING
+			"(_G)",
+			",_G,",
+			"!true",
+			"!false",
+			"_G[",
+			"_G.",
+			"_R[",
+			"_R.",
+			"]()",
+			"0x",
+			"\\x",
+			"STEAM_0:",
+			"startingmoney", -- DarkRP var
+		},
+		Cvars = {
+			"rcon_password",
+			"sv_password",
+			"sv_gravity",
+			"sv_friction",
+			"sv_allowcslua",
+			"sv_password",
+			"sv_hostname",
+			"rp_resetallmoney",
+			"hostport",
+		},
+	}
 }
 
 --[[
-SetModel, DropWeapon, SetUserGroup, me:SetRunSpeed, me:SetWalkSpeed, addMoney, GiveAmmo, GodEnable, GodDisable
+SendLua, SetModel, DropWeapon, SetUserGroup, me:SetRunSpeed, me:SetWalkSpeed, addMoney, GiveAmmo, GodEnable, GodDisable
 Freeze, , Ignite, Fire, Kill, DoAnimationEvent, , , , , , 
 Remove, , , , ULib.unban, IPAddress, SteamID(), Nick(), OpenURL,
  , AddText, SetWeaponColor, , Ignite, , EmitSound, , AddVelocity,
