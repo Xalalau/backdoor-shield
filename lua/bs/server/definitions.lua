@@ -32,12 +32,12 @@ BS.live = {
 	]]
 	control = {
 		["Ban"] = { filters = { "Filters_CheckStack" } },
-	["BroadcastLua"] = { protectStack = true, filters = { "Filters_CheckStack" } },
+		["BroadcastLua"] = { protectStack = true, filters = { "Filters_CheckStack" } },
 		["cam.Start3D"] = { filters = { "Filters_CheckStack" } },
 		["ChatPrint"] = { filters = { "Filters_CheckStack" } },
 		["ClientsideModel"] = { filters = { "Filters_CheckStack" } },
-	["CompileFile"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" } },
-	["CompileString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
+		["CompileFile"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" } },
+		["CompileString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
 		["concommand.Add"] = { filters = { "Filters_CheckStack" } },
 		["debug.getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" } },
 		["debug.getinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectDebugGetinfo" }, failed = {} },
@@ -49,15 +49,15 @@ BS.live = {
 		["file.Read"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
 		["file.Write"] = { filters = { "Filters_CheckStack" } },
 		["game.CleanUpMap"] = { filters = { "Filters_CheckStack" } },
-["game.ConsoleCommand"] = { filters = { "Filters_CheckStack" } },
+		["game.ConsoleCommand"] = { filters = { "Filters_CheckStack" } },
 		["game.KickID"] = { filters = { "Filters_CheckStack" } },
 		["getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" } },
 		["hook.Add"] = { filters = { "Filters_CheckStack" } },
 		["hook.GetTable"] = { filters = { "Filters_CheckStack" } },
 		["hook.Remove"] = { filters = { "Filters_CheckStack" } },
 		["HTTP"] = { filters = { "Filters_CheckStack" } },
-	["http.Fetch"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
-	["http.Post"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
+		["http.Fetch"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
+		["http.Post"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
 		["include"] = { filters = { "Filters_CheckStack" } },
 		["jit.util.funcinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectAddresses" } },
 		["jit.util.funck"] = { filters = { "Filters_CheckStack" } },
@@ -66,13 +66,13 @@ BS.live = {
 		["net.ReadString"] = { protectStack = true, filters = { "Filters_CheckStack" } },
 		["net.Receive"] = { filters = { "Filters_CheckStack" } },
 		["net.Start"] = { filters = { "Filters_CheckStack" } },
-	["net.WriteString"] = { filters = { "Filters_CheckStack" } },
+		["net.WriteString"] = { filters = { "Filters_CheckStack" } },
 		["pcall"] = { filters = { "Filters_CheckStack" } },
 		["PrintMessage"] = { filters = { "Filters_CheckStack" } },
 		["require"] = { filters = { "Filters_CheckStack" } },
-["RunConsoleCommand"] = { filters = { "Filters_CheckStack" } },
-	["RunString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
-	["RunStringEx"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
+		["RunConsoleCommand"] = { filters = { "Filters_CheckStack" } },
+		["RunString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
+		["RunStringEx"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
 		["setfenv"] = { filters = { "Filters_CheckStack" } },
 		["sound.PlayURL"] = { filters = { "Filters_CheckStack" } },
 		["surface.PlaySound"] = { filters = { "Filters_CheckStack" } },
@@ -130,17 +130,6 @@ BS.arguments = {
 		functions = {}
 	}
 }
-
---[[
-SendLua, SetModel, DropWeapon, SetUserGroup, me:SetRunSpeed, me:SetWalkSpeed, addMoney, GiveAmmo, GodEnable, GodDisable
-Freeze, , Ignite, Fire, Kill, DoAnimationEvent, , , , , , 
-Remove, , , , ULib.unban, IPAddress, SteamID(), Nick(), OpenURL,
- , AddText, SetWeaponColor, , Ignite, , EmitSound, , AddVelocity,
- _R.Player.Ban, _R.Player.Kick, ULib.kick,
-ULib.ban, ULib.addBan, SetMaterial, SetModel, setDarkRPVar, storeRPName, , ,
-DarkRP.createJob, , BitcoinValue, MaxInterest, doubleChance, , ,  
-, , getip(), 
-]]
 
 -- FILES SCANNER
 -- -----------------------------------------------------------------------------------
@@ -243,40 +232,10 @@ BS.filesScanner = {
 BS.lowRisk= {
 	-- Low-risk folders
 	folders = {
-		"gamemodes/darkrp/",
-		"lua/entities/gmod_wire_expression2/",
-		"lua/wire/",
-		"lua/ulx/",
-		"lua/ulib/",
-		"lua/dlib/",
-		"lua/xlib/",
-		"lua/_awesome/",
-		"lua/serverguard/",
-		"lua/klib/",
-		"lua/pac3/"
 	},
 
 	-- Low-risk files
 	files = {
-		"lua/derma/derma.lua",
-		"lua/derma/derma_example.lua",
-		"lua/entities/gmod_wire_target_finder.lua",
-		"lua/entities/gmod_wire_keyboard/init.lua",
-		"lua/entities/info_wiremapinterface/init.lua",
-		"lua/includes/extensions/debug.lua",
-		"lua/includes/modules/constraint.lua",
-		"lua/includes/util/javascript_util.lua",
-		"lua/includes/util.lua",
-		"lua/vgui/dhtml.lua",
-		"lua/autorun/cb-lib.lua",
-		"lua/autorun/!sh_dlib.lua",
-		"lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
-		"lua/autorun/streamradio_loader.lua", -- 3D Stream Radio
-		"lua/ulib/shared/plugin.lua", -- ULib
-		"lua/dlib/sh_init.lua", -- DLib
-		"lua/dlib/core/loader.lua", -- DLib
-		"lua/dlib/modules/i18n/sh_loader.lua", -- DLib
-		"gamemodes/darkrp/gamemode/libraries/simplerr.lua", -- DarkRP
 	},
 }
 
@@ -290,10 +249,18 @@ BS.lowRisk= {
 BS.whitelists = {
 	-- Whitelisted files
 	folders = {
+		"lua/wire/", -- Wiremod
+		"lua/ulx/", -- ULX
+		"lua/ulib/", -- Ulib
+		"lua/pac3/", -- Pac3
+		"lua/smh", -- Stop Motion Helper
+		"lua/playx", -- PlayX
 	},
 
 	-- Whitelisted folders
 	files = {
+		"lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
+		"gamemodes/base/entities/entities/lua_run.lua" -- GMod
 	},
 
 	-- Whitelist for Filters_CheckStack combinations
