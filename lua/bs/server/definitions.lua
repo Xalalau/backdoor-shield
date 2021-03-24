@@ -139,7 +139,7 @@ DarkRP.createJob, , BitcoinValue, MaxInterest, doubleChance, , ,
 -- Don't add common patterns to the blacklists and suspect lists, or the addon will return
 -- many false positives and probably turn the console into a giant log hell.
 
-BS.scanner = {
+BS.filesScanner = {
 	-- These extensions will never be considered as not suspicious by the file scanner
 	-- bs_scan scans only for files with these extensions
 	dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" },
