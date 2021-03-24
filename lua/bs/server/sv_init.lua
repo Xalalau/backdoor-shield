@@ -5,8 +5,8 @@
 
 -- Create our protectedCalls table
 local function ProtectedCalls_Init(BS)
-	for protectedFunc,_ in pairs(BS.liveControlsBackup) do
-		if BS.liveControlsBackup[protectedFunc].protectStack then
+	for protectedFunc,_ in pairs(BS.live.control) do
+		if BS.live.control[protectedFunc].protectStack then
             BS.protectedCalls[protectedFunc] = BS:Detours_GetFunction(protectedFunc)
         end
     end

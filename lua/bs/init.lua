@@ -68,12 +68,6 @@ local function GetFilesCreationTimes(BS)
     end
 end
 
-local function SetControlsBackup(BS)
-    if SERVER then
-        BS.liveControlsBackup = table.Copy(BS.live.control) -- Get the creation time of our lua files
-    end
-end
-
 -- Include our stuff
 
 local function includeLibs(dir, isClientLib)
