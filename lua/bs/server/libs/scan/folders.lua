@@ -3,27 +3,6 @@
     https://xalalau.com/
 --]]
 
--- !! WARNING !! I'm using string.find() with patterns disabled in some functions!
--- I could enable them running string.PatternSafe() but this calls string.gsub()
--- with 13 pattern escape replacements and my scanner is already intensive enouth.
-
--- Find whitelisted detetections
-function BS:Scan_CheckWhitelist(str, whitelist)
-	local found = false
-
-	if str and #whitelist > 0 then
-		for _,allowed in pairs(whitelist)do
-			if string.find(str, allowed, nil, true) then
-				found = true
-
-				break
-			end
-		end
-	end
-
-	return found
-end
-
 -- Check if a file isn't suspicious (at first)
 local function IsSuspectPath(str, ext, dangerousExtensions, notSuspect)
 	if dangerousExtensions[ext] then return true end
@@ -38,76 +17,8 @@ local function IsSuspectPath(str, ext, dangerousExtensions, notSuspect)
 end
 table.insert(BS.locals, IsSuspectPath)
 
--- Try to find Lua files with obfuscations
--- ignorePatterns is used to scan files that already has other detections
-local function CheckCharset(str, ext, list, ignorePatterns)
-	if str and ext == "lua" then
-		local lines, count = "", 0
-
-		-- Search line by line, so we have the line numbers
-		for lineNumber,lineText in ipairs(string.Explode("\n", str, false)) do
-			-- Check char by char
-			for _,_char in ipairs(string.ToTable(lineText)) do
-				-- If we find suspicious character, take a closer look
-				if utf8.force(_char) ~= _char then
-					-- Let's eliminate as many false positives as possible by searching for common backdoor patterns
-					if ignorePatterns or (
-					   string.find(lineText, "function") or
-					   string.find(lineText, "return") or
-					   string.find(lineText, "then") or
-					   string.find(lineText, " _G") or
-					   string.find(lineText, "	_G")) then
-
-						count = count + 1
-						lines = lines .. lineNumber .. "; "
-					end
-					break
-				end
-			end
-		end
-
-		if count > 0 then
-			local plural = count > 1 and "s" or ""
-			table.insert(list, "Uncommon Charset, line" .. plural .. ": " .. lines)
-		end
-	end
-end
-table.insert(BS.locals, CheckCharset)
-
 -- Process a string according to our white, black and suspect lists
-local function ProcessList(BS, trace, str, IsSuspect, list, list2)
-	for k,v in pairs(list) do
-		if string.find(string.gsub(str, " ", ""), v, nil, true) then
-			if v == "=_G" or v == "=_R" then -- Since I'm not using patterns, I do some extra checks on _G and _R to avoid false positives.
-				local check = string.gsub(str, "%s+", " ")
-				local strStart, strEnd = string.find(check, v, nil, true)
-				if not strStart then
-					strStart, strEnd = string.find(check, v == "=_G" and "= _G" or "= _R", nil, true)
-				end
-
-				local nextChar = check[strEnd + 1] or "-"
-
-				if nextChar == " " or nextChar == "\n" or nextChar == "\r\n" then
-					if not IsSuspect then
-						return true
-					else
-						table.insert(list2, v)
-					end
-				end
-			else
-				if not IsSuspect then
-					return true
-				else
-					table.insert(list2, v)
-				end
-			end
-		end
-	end
-end
-table.insert(BS.locals, ProcessList)
-
--- Process a string according to our white, black and suspect lists
-function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
+local function Folders_CheckSource(trace, str, ext, blocked, warning, ignore_suspect)
 	if not isstring(str) then return end
 	if self:Trace_IsWhitelisted(trace) then return end
 	if self:Scan_CheckWhitelist(str, self.whitelists.snippets) then return end
@@ -117,43 +28,44 @@ function BS:Scan_String(trace, str, ext, blocked, warning, ignore_suspect)
 
 	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
 	if not IsSuspect then
-		IsSuspect = ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh) or
-		            ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium) or
-		            ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect)
+		IsSuspect = self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh) or
+		            self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium) or
+		            self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect)
 	end
 
 	if IsSuspect and blocked then
 		-- Search for blocked terms
 		if blocked[1] then
-			ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh, blocked[1])
+			self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh, blocked[1])
 			if not ignore_suspect then
-				ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh_suspect, blocked[1])
+				self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh_suspect, blocked[1])
 			end
 		end
 
 		if blocked[2] then
-			ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium, blocked[2])
+			self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium, blocked[2])
 			if not ignore_suspect then
-				ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium_suspect, blocked[2])
+				self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium_suspect, blocked[2])
 			end
 		end
 
 		-- If blocked terms are found, reinforce the search with a charset check
 		if #blocked[1] > 0 and #blocked[2] > 0 then
-			CheckCharset(str, ext, blocked[1], true)
+			self:Scan_CheckCharset(str, ext, blocked[1], true)
 		end
 	end
 
 	if IsSuspect and warning then
 		-- Loof for suspect terms, wich are also good to reinforce results
-		ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect, warning)
+		self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect, warning)
 		if not ignore_suspect then
-			ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect_suspect, warning)
+			self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect_suspect, warning)
 		end
 	end
 
 	return
 end
+table.insert(BS.locals, Folders_CheckSource)
 
 -- Build a message with the detections
 local function JoinResults(tab, alert)
@@ -257,7 +169,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 			end
 
 			-- Scan file
-			BS:Scan_String(path, file.Read(path, "GAME"), ext, blocked, warning)
+			Folders_CheckSource(path, file.Read(path, "GAME"), ext, blocked, warning)
 
 			local resultString = ""
 			local resultsList
@@ -352,7 +264,7 @@ table.insert(BS.locals, RecursiveScan)
 
 -- Process the files recusively inside the aimed folders according to our white, black and suspect lists
 -- Note: Low-risk files will be reported in the logs as well, but they won't flood the console with warnings
-function BS:Scan_Folders(args, extensions)
+function BS:Folders_Scan(args, extensions)
 	-- All results
 	local results = {
 		totalScanned = 0,
