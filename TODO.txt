@@ -1,6 +1,67 @@
-Print a warning if someone try to table.Copy _G
+Banco assassino de backdoor https://github.com/BannedGithub/Backdoor_Busting_2015
 
-Print a warning if util.AddNetworkString is created after the addons finished loading?
+
+trocar Blocked code snippet para code snippet
+
+
+
+	-- Whitelist
+	stack = { -- fazer no file scanner
+	urls = { -- fazer no file scanner
+	snippets = { -- ? Checar
+	o resto funciona
+
+
+Fazer opção para os low-risk locations printarem log reduzido no console (por padrão)
+
+
+Arquivo mais cedo q achei: E:\Servidor\gmodds\garrysmod\lua\includes\extensions/coroutine.lua (ferra o gui?)
+via https://wiki.facepunch.com/gmod/Lua_Loading_Order
+
+
+
+Found obfuscated bytecode
+Found bytecode compiler
+This will run code received through a network string, this is very bad. (critical backdoor found)
+
+
+
+
+
+Eu posso escanear o arquivo de origem de um net.Start
+é fácil de burlar mas é mais uma perturbação
+aliás, posso escanear diversos arquivos de várias funções
+faço 1 scan. Se bom = whitelist, se ruim = blacklist
+mas e se não tiver um arquivo associado?? Como pego um script assim?
+
+runstring com:
+SetModel, DropWeapon, SetUserGroup, me:SetRunSpeed, me:SetWalkSpeed, addMoney, GiveAmmo, GodEnable, GodDisable
+Freeze, , Ignite, Fire, Kill, DoAnimationEvent, sv_gravity, sv_friction, sv_password, sv_allowcslua, rp_resetallmoney, sv_hostname
+Remove, RunConsoleCommand, file.Delete, file.Find, ULib.unban, IPAddress, SteamID(), Nick(), OpenURL, hook.Add, hook.Remove,
+BroadcastLua , AddText, SetWeaponColor, RunString, Ignite, http.Fetch, http.Post, EmitSound, util.ScreenShake, AddVelocity,
+file.Exists, _G., _G[, _R., _R[, startingmoney, ChatPrint, debug.getregistry, _R.Player.Ban, _R.Player.Kick, game.KickID, ULib.kick,
+ULib.ban, ULib.addBan, SetMaterial, SetModel, setDarkRPVar, storeRPName, timer.Exists, timer.Create, timer.Destroy, game.CleanUpMap,
+DarkRP.createJob, Ban, Kick, BitcoinValue, MaxInterest, doubleChance, PrintMessage, util.AddNetworkString, net.Read, ParticleEmitter
+ClientsideModel, cam.Start3D, surface.PlaySound, sound.PlayURL, getip(), GetConVar("hostport"):GetFloat(), concommand.Add
+
+	"rcon_password",
+	"sv_password",
+	"STEAM_0:",
+
+
+--[[
+SendLua, SetModel, DropWeapon, SetUserGroup, me:SetRunSpeed, me:SetWalkSpeed, addMoney, GiveAmmo, GodEnable, GodDisable
+Freeze, , Ignite, Fire, Kill, DoAnimationEvent, , , , , , 
+Remove, , , , ULib.unban, IPAddress, SteamID(), Nick(), OpenURL,
+ , AddText, SetWeaponColor, , Ignite, , EmitSound, , AddVelocity,
+ _R.Player.Ban, _R.Player.Kick, ULib.kick,
+ULib.ban, ULib.addBan, SetMaterial, SetModel, setDarkRPVar, storeRPName, , ,
+DarkRP.createJob, , BitcoinValue, MaxInterest, doubleChance, , ,  
+, , getip(), 
+]]
+
+
+
 
 Use the older whitelists in the new filters
 check detours vs. whitelists
@@ -8,21 +69,70 @@ check if the blacklist and suspect lists usage matured well
 
 idea: save persistent trace func names as "funcName - whitelisted" when they are clear to go
 
-ignore_suspect is not being used in Scan_String
-
 rename whitelistTraceErrors to whitelistTraces?
 
 change detours whitelisting from low tisk locations to whitelistTraceErrors, that'd be MUCH safer!!
 
-add whitelistFiles and tell not to use it?
+add whitelists.files and tell not to use it?
 -- Oh... Actually it's already possible by using whitelistTraceErrors with a field like gamemodes/darkrp/gamemode/libraries/simplerr.lua:
 -- It wouldn't happen if I check the string for a number after the :
 -- But, also, there will be no easy way to do simplerr compatible...
 
+Stack_SkipBSFunctions probably doesn't work with arguments differet from 1
 
 Run scan_fast with only bs loaded:
 [[[ HIGH RISK ]]] ---------------------------------------------------------------------------- <<<
 addons/chess/reslist.lst
      [!] _G.
-
 This is ugly and bad
+
+
+
+
+
+BS.lowRisk.files
+BS.lowRisk.folders
+
+BS.whitelists.stack
+BS.whitelists.snippets
+BS.whitelistTraces
+BS.whitelists.urls
+
+------------------
+
+BS.filesScanner.notSuspect
+
+
+
+
+------------------
+
+Locais:
+
+scan = texto código
+filters = args extra
+stack = checar func name
+trace = salvar func name
+detours = especial
+
+
+
+
+
+		--[[
+		"lua/derma/derma.lua",
+		"lua/derma/derma_example.lua",
+		"lua/entities/gmod_wire_target_finder.lua",
+		"lua/entities/gmod_wire_keyboard/init.lua",
+		"lua/entities/info_wiremapinterface/init.lua",
+		"lua/includes/extensions/debug.lua",
+		"lua/includes/modules/constraint.lua",
+		"lua/includes/util/javascript_util.lua",
+		"lua/includes/util.lua",
+		"lua/vgui/dhtml.lua",
+		"lua/autorun/cb-lib.lua",
+		"lua/autorun/!sh_dlib.lua",
+		"lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
+		"lua/autorun/streamradio_loader.lua", -- 3D Stream Radio
+		"gamemodes/darkrp/gamemode/libraries/simplerr.lua", -- DarkRP
+		]]
