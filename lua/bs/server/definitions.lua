@@ -25,8 +25,9 @@ BS.live = {
 		["some.game.function"] = {                -- Declaring a function in a field will keep it safe from detouring
 			detour = function                     -- Detoured function address (Automatically managed)
 			protectStack = bool                   -- If true, the Filters_CheckStack functions will generate a detection when meeting "some.game.function"
+				isStackWarning = bool             -- Set "isStackWarning" if you've set multiple "protectStack" and need to generate a stack warning instead of a blocking
 			filters = string or { string, ... }   -- Internal functions to execute any extra security checks we want (following the declared order)
-			failed = type                         -- Set "failed" if you've set multiple "filters" and need to return fail values other than nil
+				failed = type                     -- Set "failed" if you've set multiple "filters" and need to return fail values other than nil
 		},
 	]]
 	control = {
@@ -43,9 +44,9 @@ BS.live = {
 		["debug.getregistry"] = { filters = { "Filters_CheckStack" } },
 		["Error"] = {},
 		["file.Delete"] = { filters = { "Filters_CheckStack" } },
-		["file.Exists"] = { filters = { "Filters_CheckStack" } },
-		["file.Find"] = { filters = { "Filters_CheckStack" } },
-		["file.Read"] = { filters = { "Filters_CheckStack" } },
+		["file.Exists"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
+		["file.Find"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
+		["file.Read"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
 		["file.Write"] = { filters = { "Filters_CheckStack" } },
 		["game.CleanUpMap"] = { filters = { "Filters_CheckStack" } },
 ["game.ConsoleCommand"] = { filters = { "Filters_CheckStack" } },
@@ -75,10 +76,10 @@ BS.live = {
 		["setfenv"] = { filters = { "Filters_CheckStack" } },
 		["sound.PlayURL"] = { filters = { "Filters_CheckStack" } },
 		["surface.PlaySound"] = { filters = { "Filters_CheckStack" } },
-		["timer.Create"] = { filters = { "Filters_CheckStack", "Filters_CheckTimers" } },
+		["timer.Create"] = { filters = { "Filters_CheckStack", "Filters_CheckTimers" }, isStackWarning = true },
 		["timer.Destroy"] = { filters = { "Filters_CheckStack" } },
-		["timer.Exists"] = { filters = { "Filters_CheckStack" } },
-		["timer.Simple"] = { filters = { "Filters_CheckStack", "Filters_CheckTimers" } },
+		["timer.Exists"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
+		["timer.Simple"] = { filters = { "Filters_CheckStack", "Filters_CheckTimers" }, isStackWarning = true },
 		["tostring"] = { filters = "Filters_ProtectAddresses" },
 		["util.AddNetworkString"] = { filters = { "Filters_CheckStack" } },
 		["util.NetworkIDToString"] = { filters = { "Filters_CheckStack" } },
@@ -94,7 +95,9 @@ BS.live = {
 -- Some extra blacklists for arguments
 BS.arguments = {
 	blacklists = {
-		Snippets = {
+		-- Every function set as Filters_CheckStack with isStackWarning = nil will populate this list
+		functions = {},
+		snippets = {
 			"‪", -- LEFT-TO-RIGHT EMBEDDING
 			"(_G)",
 			",_G,",
@@ -110,7 +113,7 @@ BS.arguments = {
 			"STEAM_0:",
 			"startingmoney", -- DarkRP var
 		},
-		Cvars = {
+		cvars = {
 			"rcon_password",
 			"sv_password",
 			"sv_gravity",
@@ -121,6 +124,10 @@ BS.arguments = {
 			"rp_resetallmoney",
 			"hostport",
 		},
+	},
+	suspect = {
+		-- Every function set as Filters_CheckStack withe isStackWarning = true will populate this list
+		functions = {}
 	}
 }
 

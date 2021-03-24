@@ -68,6 +68,12 @@ local function GetFilesCreationTimes(BS)
     end
 end
 
+local function SetControlsBackup(BS)
+    if SERVER then
+        BS.liveControlsBackup = table.Copy(BS.live.control) -- Create a copy of the main protection table. It contains the filter names before they turn into functions
+    end
+end
+
 -- Include our stuff
 
 local function includeLibs(dir, isClientLib)

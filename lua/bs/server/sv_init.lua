@@ -13,6 +13,24 @@ local function ProtectedCalls_Init(BS)
 end
 table.insert(BS.locals, ProtectedCalls_Init)
 
+-- Create our protectedCalls table
+local function ArgumentsFunctions_Init(BS)
+	for protectedFuncName,protectedFuncTab in pairs(BS.liveControlsBackup) do
+        if istable(protectedFuncTab.filters) then
+            for _,filter in pairs(protectedFuncTab.filters) do
+                if filter == "Filters_CheckStack" then
+                    if not protectedFuncTab.isStackWarning then
+                        table.insert(BS.arguments.blacklists.functions, protectedFuncName)
+                    else
+                        table.insert(BS.arguments.suspect.functions, protectedFuncName)
+                    end
+                end
+            end
+        end
+    end
+end
+table.insert(BS.locals, ArgumentsFunctions_Init)
+
 function BS:Initialize()
     -- Print logo
     -- https://manytools.org/hacker-tools/ascii-banner/
@@ -109,6 +127,8 @@ function BS:Initialize()
         self:Detours_Init()
 
         ProtectedCalls_Init(self)
+
+        ArgumentsFunctions_Init(self)
 
         self:Detours_SetAutoCheck()
 

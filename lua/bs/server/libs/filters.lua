@@ -11,7 +11,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 	local url = args[1]
 
 	local function Scan(args2)
-		local blocked = {{}, {}}
+		local blocked = {}
 		local warning = {}
 		local detected
 
@@ -23,20 +23,20 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 			end
 		end
 
-		self:Arguments_Scan(trace, url, "lua", blocked, warning)
+		self:Arguments_Scan(trace, url, blocked, warning)
 
 		for _,arg in pairs(args2) do
 			if isstring(arg) then
-				self:Arguments_Scan(trace, arg, "lua", blocked, warning)
+				self:Arguments_Scan(trace, arg, blocked, warning)
 			elseif istable(arg) then
 				for k,v in pairs(arg) do
-					self:Arguments_Scan(trace, k, "lua", blocked, warning)
-					self:Arguments_Scan(trace, v, "lua", blocked, warning)
+					self:Arguments_Scan(trace, k, blocked, warning)
+					self:Arguments_Scan(trace, v, blocked, warning)
 				end
 			end
 		end
 
-		local detected = not isLowRisk and (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Execution blocked!", blocked } or
+		local detected = not isLowRisk and #blocked > 0 and { "blocked", "Execution blocked!", blocked } or
 						 (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
 
 		if detected then
@@ -55,7 +55,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 			self:Report_Detection(info)
 		end
 
-		if isLowRisk or #blocked[1] == 0 and #blocked[2] == 0 then
+		if isLowRisk or not detected then
 			self:Trace_Set(args[2], funcName, trace)
 
 			self:Detours_CallOriginalFunction(funcName, args)
@@ -88,15 +88,15 @@ end
 -- Check CompileString, CompileFile, RunString and RunStringEX contents
 function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 	local code = funcName == "CompileFile" and file.Read(args[1], "LUA") or args[1]
-	local blocked = {{}, {}}
+	local blocked = {}
 	local warning = {}
 
 	if not _G[funcName] then return "" end -- RunStringEx exists but is deprecated
 	if not isstring(code) then return "" end -- Just checking
 
-	self:Arguments_Scan(trace, code, "lua", blocked, warning)
+	self:Arguments_Scan(trace, code, blocked, warning)
 
-	local detected = not isLowRisk and (#blocked[1] > 0 or #blocked[2] > 0) and { "blocked", "Execution blocked!", blocked } or
+	local detected = not isLowRisk and #blocked > 0 and { "blocked", "Execution blocked!", blocked } or
 	                 (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
 
 	if detected then
@@ -114,7 +114,7 @@ function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 		self:Report_Detection(info)
 	end
 
-	return (isLowRisk or (#blocked[1] == 0 and #blocked[2] == 0)) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
+	return (isLowRisk or not detected) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
 end
 
 -- Validate functions that can't call each other
