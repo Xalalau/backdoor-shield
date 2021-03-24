@@ -18,48 +18,48 @@ end
 table.insert(BS.locals, IsSuspectPath)
 
 -- Process a string according to our white, black and suspect lists
-local function Folders_CheckSource(trace, str, ext, blocked, warning, ignore_suspect)
+local function Folders_CheckSource(BS, trace, str, ext, blocked, warning, ignore_suspect)
 	if not isstring(str) then return end
-	if self:Trace_IsWhitelisted(trace) then return end
-	if self:Scan_CheckWhitelist(str, self.whitelists.snippets) then return end
+	if BS:Trace_IsWhitelisted(trace) then return end
+	if BS:Scan_CheckWhitelist(str, BS.whitelists.snippets) then return end
 
 	-- Check if we are dealing with binaries
-	local IsSuspect = IsSuspectPath(str, ext, self.scannerDangerousExtensions_Check, self.filesScanner.notSuspect)
+	local IsSuspect = IsSuspectPath(str, ext, BS.scannerDangerousExtensions_Check, BS.filesScanner.notSuspect)
 
 	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
 	if not IsSuspect then
-		IsSuspect = self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh) or
-		            self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium) or
-		            self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect)
+		IsSuspect = BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistHigh) or
+		            BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistMedium) or
+		            BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.suspect)
 	end
 
 	if IsSuspect and blocked then
 		-- Search for blocked terms
 		if blocked[1] then
-			self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh, blocked[1])
+			BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistHigh, blocked[1])
 			if not ignore_suspect then
-				self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistHigh_suspect, blocked[1])
+				BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistHigh_suspect, blocked[1])
 			end
 		end
 
 		if blocked[2] then
-			self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium, blocked[2])
+			BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistMedium, blocked[2])
 			if not ignore_suspect then
-				self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.blacklistMedium_suspect, blocked[2])
+				BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistMedium_suspect, blocked[2])
 			end
 		end
 
 		-- If blocked terms are found, reinforce the search with a charset check
 		if #blocked[1] > 0 and #blocked[2] > 0 then
-			self:Scan_CheckCharset(str, ext, blocked[1], true)
+			BS:Scan_CheckCharset(str, ext, blocked[1], true)
 		end
 	end
 
 	if IsSuspect and warning then
 		-- Loof for suspect terms, wich are also good to reinforce results
-		self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect, warning)
+		BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.suspect, warning)
 		if not ignore_suspect then
-			self:Scan_ProcessList(self, trace, str, IsSuspect, self.filesScanner.suspect_suspect, warning)
+			BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.suspect_suspect, warning)
 		end
 	end
 
@@ -164,12 +164,12 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 			-- Print status
 			results.totalScanned = results.totalScanned + 1
 			if results.totalScanned == results.lastTotalPrinted + 500 then
-				MsgC(self.colors.message, results.totalScanned .. " files scanned...\n")
+				MsgC(BS.colors.message, results.totalScanned .. " files scanned...\n\n")
 				results.lastTotalPrinted = results.totalScanned
 			end
 
 			-- Scan file
-			Folders_CheckSource(path, file.Read(path, "GAME"), ext, blocked, warning)
+			Folders_CheckSource(BS, path, file.Read(path, "GAME"), ext, blocked, warning)
 
 			local resultString = ""
 			local resultsList
