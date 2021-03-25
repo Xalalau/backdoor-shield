@@ -113,6 +113,7 @@ BS.live = {
 		-- Snippets, syntax and symbols that are usually only seen in backdoors
 		snippets = {
 			"‪", -- LEFT-TO-RIGHT EMBEDDING
+			"=_G",
 			"(_G)",
 			",_G,",
 			"!true",
