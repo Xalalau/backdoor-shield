@@ -66,7 +66,7 @@ local function Stack_Check()
 				end
 
 				value.func = func -- Use the address of the last function from the older stack, so we can keep track of what's happening
-				value.name = traceBank.name -- Update the name just to make prints nicer in here
+				value.name = traceBank.name
 			end
 			-- Now we are going to check if it's a protected function call
 
