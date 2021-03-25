@@ -151,7 +151,7 @@ local function Stack_SkipBSFunctions()
 			if vars.foundBSAgain then
 				local result = _debug.getinfo(vars.increment, vars.args[2])
 
-				if not string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/bs/") then
+				if not string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. self.folder.lua) then
 					if vars.args[1] == 1 then
 						return result
 					end
@@ -162,7 +162,7 @@ local function Stack_SkipBSFunctions()
 			elseif vars.foundGetinfo then
 				local result = _debug.getinfo(vars.increment, vars.args[2]) 
 				if result and
-				   string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/bs/") then
+				   string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. self.folder.lua) then
 
 					vars.foundBSAgain = true
 				else

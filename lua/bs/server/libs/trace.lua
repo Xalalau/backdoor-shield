@@ -65,7 +65,7 @@ function BS:Trace_GetLuaFile(trace)
         if not foundStackStart and string.Trim(v) == "stack traceback:" then
             foundStackStart = true
         elseif foundStackStart then
-            if not string.find(v, "/lua/bs/") and not string.find(v, "main chunk") and string.find(v, ".lua") then
+            if not string.find(v, "/lua/" .. self.folder.lua) and not string.find(v, "main chunk") and string.find(v, ".lua") then
                 index = k
                 break
             end
