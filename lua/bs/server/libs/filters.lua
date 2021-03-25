@@ -122,7 +122,7 @@ end
 --   Note that "true" is really between quotes because we need to identify it and not pass the value forward.
 local callersWarningCooldown = {} -- Don't flood the console with messages
 function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
-	local protectedFuncName = self:Stack_Check()
+	local protectedFuncName = self:Stack_Check(funcName)
 	local detectedFuncName = funcName
 
 	if protectedFuncName then
@@ -180,8 +180,7 @@ function BS:Filters_ProtectDebugGetinfo(trace, funcName, args)
 	if isfunction(args[1]) then
 		return self:Filters_ProtectAddresses(trace, funcName, args)
 	else
-		self:Stack_InsertArgs(args)
-		return self:Stack_SkipBSFunctions()
+		return self:Stack_SkipBSFunctions(args)
 	end
 end
 

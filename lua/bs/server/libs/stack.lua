@@ -30,54 +30,85 @@ function BS:Stack_Init()
 end
 
 -- Insert arguments into argsPop
-function BS:Stack_InsertArgs(args)
+local function InsertArgs(args)
     table.insert(argsPop, args)
 end
+table.insert(BS.locals, InsertArgs)
 
 -- Check for prohibited function combinations (scanning by address)
 -- If the stack is good, return false
 -- If the stack is bad, return "protected func name"
 local function Stack_Check()
-	local counter = { increment = 1, detected = 0 } -- Do NOT add more variables other than inside this table, or the function is going to stop working
+	local vars = { increment = 1, detected = 0, currentFuncAddress, currentFuncName } -- Do NOT add more variables other than inside this table, or the function is going to stop working
+
+	for k,v in ipairs(argsPop) do -- This is how I'm passing arguments
+		vars.currentFuncAddress = v[1]
+		vars.currentFuncName = v[2]
+		argsPop[k] = nil
+		break
+	end
+
 	while true do
-		local func = _debug.getinfo(counter.increment, "flnSu" )
-		local name, value = _debug.getlocal(1, 2, counter.increment)
+		local func = _debug.getinfo(vars.increment, "flnSu" )
+		local name, value = _debug.getlocal(1, 2, vars.increment)
+
 		if func == nil then break end
+
 		if value then
 			-- Update the name and address using info from the trace bank, if it's the case
 			local traceBank = BS_traceBank_Hack[tostring(value.func)]
+
 			if traceBank then
 				local func = _G
+
 				for k,v in ipairs(string.Explode(".", traceBank.name)) do
 					func = func[v]
 				end
+
 				value.func = func -- Use the address of the last function from the older stack, so we can keep track of what's happening
 				value.name = traceBank.name -- Update the name just to make prints nicer in here
 			end
 			-- Now we are going to check if it's a protected function call
+
 			if value.func then
-				for funcName,funcAddress in pairs(BS_protectedCalls_Hack) do -- I tried to use the function address as index but it doesn't work here
-					if tostring(value.func) == tostring(funcAddress) then -- I tried to compare the addresses directly but it also doesn't work here
-						value.name = funcName -- Update the name just to make prints nicer in here
-						counter.detected = counter.detected + 1
-						if counter.detected == 2 then  -- The rule is that we can't have 2 protected calls stacked, so return what we've found
-							return funcName
-						end
-						break
+				-- Find the current call
+				if vars.detected == 0 and tostring(value.func) == tostring(vars.currentFuncAddress) then -- I tried to compare the addresses directly but it doesn't work here
+					-- Debug
+					--print("---> FOUND CURRENT CALL")
+
+					vars.detected = vars.detected + 1
+					value.name = vars.currentFuncName
+				else
+					-- Find a forbidden previous caller
+					for funcName,funcAddress in pairs(BS_protectedCalls_Hack) do -- I tried to use the function address as index but it doesn't work here
+					   if vars.detected == 1 and tostring(value.func) == tostring(funcAddress) then 
+							-- Debug
+							--print("---> FOUND FORBIDDEN CALLER")
+
+							vars.detected = vars.detected + 1
+							value.name = funcName
+					   end
 					end
 				end
 			end
-			-- Debug
-			--print(value.name and value.name or "")
-			--print(value.func)
 		end
-		counter.increment = counter.increment + 1
+		-- Debug
+		--print(value.name and value.name or "")
+		--print(value.func)
+		
+		-- Forbidden caller found
+		if vars.detected == 2 then
+			return value.name
+		end
+
+		vars.increment = vars.increment + 1
 	end
 	return false
 end
 
-function BS:Stack_Check()
-    return Stack_Check()
+function BS:Stack_Check(funcName)
+	InsertArgs({ self:Detours_GetFunction(funcName), funcName })
+	return Stack_Check()
 end
 
 -- Get the function of the higher call in the stack
@@ -132,6 +163,7 @@ local function Stack_SkipBSFunctions()
 	end
 end
 
-function BS:Stack_SkipBSFunctions()
+function BS:Stack_SkipBSFunctions(args)
+	InsertArgs(args)
     return Stack_SkipBSFunctions()
 end

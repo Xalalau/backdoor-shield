@@ -265,7 +265,8 @@ BS.whitelists = {
 
 	-- Whitelist for Filters_CheckStack combinations
 	stack = {
-		--  { { "CompileString", "BroadcastLua" } } -- e.g. it means that a BroadcastLua() inside a CompileString() won't generate a detection
+		--  { "CompileString", "BroadcastLua" } -- e.g. it means that a BroadcastLua() inside a CompileString() won't generate a detection
+		{ "RunString", "RunString" }
 	},
 
 	-- Whitelist http.Fetch() and http.Post() urls
