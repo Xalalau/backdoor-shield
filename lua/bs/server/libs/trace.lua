@@ -47,7 +47,7 @@ end
 function BS:Trace_GetLuaFile(trace)
     -- The trace is a path starting with @
     if trace and string.sub(trace, 1, 1) == "@" then
-        return BS:Utils_ConvertAddonPath(string.sub(trace, 2))
+        return self:Utils_ConvertAddonPath(string.sub(trace, 2))
     end
 
     -- No trace or it's "[c]"
@@ -65,7 +65,7 @@ function BS:Trace_GetLuaFile(trace)
         if not foundStackStart and string.Trim(v) == "stack traceback:" then
             foundStackStart = true
         elseif foundStackStart then
-            if not string.find(v, "/lua/bs/") and string.find(v, ".lua") then
+            if not string.find(v, "/lua/bs/") and not string.find(v, "main chunk") and string.find(v, ".lua") then
                 index = k
                 break
             end
