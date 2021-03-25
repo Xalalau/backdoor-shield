@@ -20,6 +20,8 @@ Protect your GMod server against backdoors! Block, find, investigate and remove 
 
 Clone or download the files inside your **addons folder**.
 
+Or via workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=2215013575
+
 <br/>
 
 ## Configure
