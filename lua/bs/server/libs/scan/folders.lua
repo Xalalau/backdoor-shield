@@ -290,6 +290,9 @@ function BS:Folders_Scan(args, extensions)
 	-- Deal with bars
 	for k,v in pairs(folders) do
 		folders[k] = string.gsub(v, "\\", "/")
+		if string.sub(folders[k], 1, 1) == "/" then
+			folders[k] = folders[k]:sub(2, #v)
+		end
 		if string.sub(folders[k], -1) == "/" then
 			folders[k] = folders[k]:sub(1, #v - 1)
 		end
