@@ -139,31 +139,31 @@ BS.arguments = {
 -- many false positives and probably turn the console into a giant log hell.
 
 BS.filesScanner = {
-	-- These extensions will never be considered as not suspicious by the file scanner
-	-- bs_scan scans only for files with these extensions
+	-- These extensions will never be considered as not suspect by the file scanner.
+	-- The bs_scan command scans only for files with these extensions.
 	dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" },
 
-	-- The folders checked by the scanner if none are specified (bs_scan)
+	-- The folders checked by the scanner if none are specified (bs_scan command)
 	foldersToScan = { "lua", "gamemode", "data" },
 
 	-- Print low-risk results in the console
 	printLowRisk = false,
 
-	-- Discard result if it's from file with only BS.filesScanner.suspect_suspect detections
+	-- Discard a result if it's from a file with only BS.filesScanner.suspect_suspect detections
 	discardVeryLowRisk = true,
 
 	-- Ignore our own folders
 	ignoreBSFolders = true,
 
-	-- Detections with these chars will be considered as not suspect (at first) for files and snippets that not
-	-- fit into scanner.dangerousExtensions list.
+	-- Detections with these chars will be considered as not suspect (at first) for tested strings
+	-- that aren't from files with extensions listed in scanner.dangerousExtensions.
 	--   Avoid false positives with non Lua files
 	notSuspect = {
 		"ÿ",
 		"", -- 000F
 	},
 
-	-- Very edge snippets, syntax and symbols that only backdoors use
+	-- Very edge snippets, syntax and symbols that virtually only backdoors use
 	--   High-risk
 	blacklistHigh = {
 		"‪", -- LEFT-TO-RIGHT EMBEDDING
@@ -173,14 +173,13 @@ BS.filesScanner = {
 		"!false",
 	},
 
-	-- Edge snippets, syntax and symbols that almost only backdoors use
+	-- Edge snippets, syntax and symbols that virtually only backdoors use
 	--   High-risk
 	blacklistHigh_suspect = {
 		"=_G", -- Note: used by backdoors to start hiding names or create a better environment
 	},
 
-	-- Functions that backdoors love to use!
-	--   They usually run one inside the other or set/get improper stuff that almost only they need.
+	-- Functions that sometimes appear in normal scripts, but are usually seen in backdoors
 	--   Medium-risk
 	blacklistMedium = {
 		"RunString",
@@ -230,6 +229,8 @@ BS.filesScanner = {
 -- Detections from these lists are considered low risk on the file scanner and generate
 -- only warnings on live protection. Even detour detections only alert!
 
+-- Exception: BS.live.control functions configured with the "fast" option
+
 BS.lowRisk= {
 	-- Low-risk folders
 	folders = {
@@ -246,6 +247,8 @@ BS.lowRisk= {
 
 -- Detections from these lists don't appear on the file scanner and aren't protected
 -- in any way. No blocking, no warnings, no logs. Detours are completely ignored!
+
+-- Exception: BS.live.control functions configured with the "fast" option
 
 BS.whitelists = {
 	-- Whitelisted files
