@@ -41,7 +41,8 @@ BS.colors = {
 }
 
 if SERVER then
-    BS.reloaded = false -- Internal control to check the tool reloading state - don't change it. _G.BS_reloaded is also created to globally do the same thing
+    BS.reloaded = false -- Internal control: tell the older code that it's not running anymore, so we can turn off timers etc
+--  self.__G.BS_reloaded -- Internal control: tell the newer code that it's from a refresh, so we can do adjustments like hide the initial screen
 
     BS.detections = { -- Counting
         blocks = 0,
