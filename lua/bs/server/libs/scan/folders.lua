@@ -3,7 +3,7 @@
     https://xalalau.com/
 --]]
 
--- Check if a file isn't suspicious (at first)
+-- Check if a file isn't suspect (at first)
 local function IsSuspectPath(str, ext, dangerousExtensions, notSuspect)
 	if dangerousExtensions[ext] then return true end
 

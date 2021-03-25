@@ -34,7 +34,7 @@ function BS:Scan_CheckCharset(str, ext, list, ignorePatterns)
 		for lineNumber,lineText in ipairs(string.Explode("\n", str, false)) do
 			-- Check char by char
 			for _,_char in ipairs(string.ToTable(lineText)) do
-				-- If we find suspicious character, take a closer look
+				-- If we find a suspect character, take a closer look
 				if utf8.force(_char) ~= _char then
 					-- Let's eliminate as many false positives as possible by searching for common backdoor patterns
 					if ignorePatterns or (
