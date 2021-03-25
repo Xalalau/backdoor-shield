@@ -66,9 +66,10 @@ local function Stack_Check()
 
 	while true do
 		local func = _debug.getinfo(vars.increment, "flnSu" )
-		local name, value = _debug.getlocal(1, 2, vars.increment)
 
 		if func == nil then break end
+
+		local name, value = _debug.getlocal(1, 2, vars.increment)
 
 		if value then
 			-- Update the name and address using info from the trace bank, if it's the case
@@ -177,9 +178,10 @@ local function Stack_SkipBSFunctions()
 
 	while true do
 		local func = _debug.getinfo(vars.increment, "flnSu" )
-		local name, value = _debug.getlocal(1, 2, vars.increment)
 
 		if func == nil then break end
+
+		local name, value = _debug.getlocal(1, 2, vars.increment)
 
 		if value then
 			-- Step 4: skip BS files.
