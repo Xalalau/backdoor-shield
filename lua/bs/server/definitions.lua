@@ -28,6 +28,7 @@ BS.live = {
 				isStackWarning = bool             -- Set "isStackWarning" if you've set multiple "protectStack" and need to generate a stack warning instead of a blocking
 			filters = string or { string, ... }   -- Internal functions to execute any extra security checks we want (following the declared order)
 				failed = type                     -- Set "failed" if you've set multiple "filters" and need to return fail values other than nil
+				fast = bool                       -- Set "fast" if you've set one or none "filters" and need to run VERY fast (much less code, ignores whitelists and low-risk lists)
 		},
 	]]
 	control = {
@@ -80,7 +81,7 @@ BS.live = {
 		["timer.Destroy"] = { filters = { "Filters_CheckStack" } },
 		["timer.Exists"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
 		["timer.Simple"] = { filters = { "Filters_CheckStack", "Filters_CheckTimers" }, isStackWarning = true },
-		["tostring"] = { filters = "Filters_ProtectAddresses" },
+		["tostring"] = { filters = "Filters_ProtectAddresses", fast = true },
 		["util.AddNetworkString"] = { filters = { "Filters_CheckStack" } },
 		["util.NetworkIDToString"] = { filters = { "Filters_CheckStack" } },
 		["util.ScreenShake"] = { filters = { "Filters_CheckStack" } },

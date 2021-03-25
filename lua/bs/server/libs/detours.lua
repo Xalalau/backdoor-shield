@@ -8,6 +8,7 @@ function BS:Detours_Init()
 	for protectedFunc,_ in pairs(self.live.control) do
 		local filters = self.live.control[protectedFunc].filters
 		local failed = self.live.control[protectedFunc].failed
+		local fast = self.live.control[protectedFunc].fast
 
 		if isstring(filters) then
 			self.live.control[protectedFunc].filters = self[self.live.control[protectedFunc].filters]
@@ -20,7 +21,7 @@ function BS:Detours_Init()
 			filters = self.live.control[protectedFunc].filters
 		end
 
-		self:Detours_Create(protectedFunc, filters, failed)
+		self:Detours_Create(protectedFunc, filters, failed, fast)
 	end
 end
 
@@ -125,17 +126,27 @@ end
 
 -- Set a detour (including the filters)
 -- Note: if a filter validates but doesn't return the result from Detours_CallOriginalFunction(), just return "true" (between quotes!)
-function BS:Detours_Create(funcName, filters, failed)
-	local running = {}
+function BS:Detours_Create(funcName, filters, failed, fast)
+	local running = {} -- Avoid loops
 
 	function Detour(...)
 		local args = {...} 
 
-		if running[funcName] then -- Avoid loops
+		-- Avoid loops
+		if running[funcName] then
 			return self:Detours_CallOriginalFunction(funcName, args)
 		end
 		running[funcName] = true
 
+		-- Fast mode
+		if fast then
+			self:Detours_Validate(funcName, trace)
+			running[funcName] = nil
+
+			return filters and filters[1](self, trace, funcName, args) or self:Detours_CallOriginalFunction(funcName, args)
+		end
+
+		-- Get and check the trace
 		local trace = self:Trace_Get(debug.traceback())
 		local isWhitelisted = self:Trace_IsWhitelisted(trace)
 
@@ -147,8 +158,10 @@ function BS:Detours_Create(funcName, filters, failed)
 
 		local isLowRisk = self:Trace_IsLowRisk(trace)
 		
+		-- Check detour
 		self:Detours_Validate(funcName, trace, isLowRisk)
 
+		-- Run filters
 		if filters then
 			local i = 1
 			for _,filter in ipairs(filters) do
@@ -171,6 +184,7 @@ function BS:Detours_Create(funcName, filters, failed)
 		end
 	end
 
+	-- Set detour
 	self:Detours_SetFunction(funcName, Detour)
 	self.live.control[funcName].detour = Detour
 end
