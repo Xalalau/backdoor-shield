@@ -124,6 +124,7 @@ local callersWarningCooldown = {} -- Don't flood the console with messages
 function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
 	local protectedFuncName = self:Stack_Check(funcName)
 	local detectedFuncName = funcName
+	local whitelisted
 
 	if protectedFuncName then
 		if not callersWarningCooldown[detectedFuncName] then
@@ -133,7 +134,6 @@ function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
 			end)	
 
 			-- Whitelist
-			local whitelisted
 			for _,combo in pairs(self.whitelists.stack) do
 				if protectedFuncName == combo[1] then
 					if detectedFuncName == combo[2] then
@@ -157,7 +157,7 @@ function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
 			end
 		end
 
-		if isLowRisk then
+		if isLowRisk or whitelisted then
 			return "true"
 		else
 			return false
@@ -180,7 +180,9 @@ function BS:Filters_ProtectDebugGetinfo(trace, funcName, args)
 	if isfunction(args[1]) then
 		return self:Filters_ProtectAddresses(trace, funcName, args)
 	else
-		return self:Stack_SkipBSFunctions(args)
+		PrintTable(args)
+		local result = self:Stack_SkipBSFunctions(args)
+		return result
 	end
 end
 
