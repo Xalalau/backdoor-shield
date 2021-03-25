@@ -4,21 +4,28 @@
 --]]
 
 -- Process a string
-function BS:Arguments_Scan(trace, str, blocked, warning)
+function BS:Arguments_Scan(str, funcName, blocked, warning)
 	if not isstring(str) then return end
 	if self:Scan_CheckWhitelist(str, self.whitelists.snippets) then return end
 
     local IsSuspect = "true"
 
 	if blocked then
-        self:Scan_ProcessList(self, trace, str, IsSuspect, self.arguments.blacklists.snippets, blocked)
-        self:Scan_ProcessList(self, trace, str, IsSuspect, self.arguments.blacklists.functions, blocked)
-        self:Scan_ProcessList(self, trace, str, IsSuspect, self.arguments.blacklists.cvars, blocked)
+        -- Check stack blacklists
+        local protectStack = self.live.control[funcName].protectStack
+
+        if protectStack then
+            for _,stackBanListName in ipairs(protectStack) do
+                self:Scan_ProcessList(self, str, IsSuspect, self.live.blacklists.functions[stackBanListName], blocked)
+            end
+        end
+
         self:Scan_CheckCharset(str, "lua", blocked, true)
-	end
+        self:Scan_ProcessList(self, str, IsSuspect, self.live.blacklists.snippets, blocked)
+        self:Scan_ProcessList(self, str, IsSuspect, self.live.blacklists.cvars, blocked)
+    end
 
 	if warning then
-        self:Scan_ProcessList(self, trace, str, IsSuspect, self.arguments.suspect.functions, warning)
     end
 
 	return

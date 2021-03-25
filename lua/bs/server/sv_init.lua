@@ -18,11 +18,12 @@ local function ArgumentsFunctions_Init(BS)
 	for funcName,funcTab in pairs(BS.liveControlsBackup) do
         if istable(funcTab.filters) then
             for _,filter in pairs(funcTab.filters) do
-                if filter == "Filters_CheckStack" then
-                    if not funcTab.isStackWarning then
-                        table.insert(BS.arguments.blacklists.functions, funcName)
-                    else
-                        table.insert(BS.arguments.suspect.functions, funcName)
+                if filter == "Filters_CheckStack" and funcTab.stackBanLists then
+                    for _,stackBanListName in pairs(funcTab.stackBanLists) do
+                        if not BS.live.blacklists.functions[stackBanListName] then
+                            BS.live.blacklists.functions[stackBanListName] = {}
+                        end
+                        table.insert(BS.live.blacklists.functions[stackBanListName], funcName)
                     end
                 end
             end

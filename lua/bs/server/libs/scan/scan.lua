@@ -60,7 +60,7 @@ function BS:Scan_CheckCharset(str, ext, list, ignorePatterns)
 end
 
 -- Process a string according to our white, black and suspect lists
-function BS:Scan_ProcessList(BS, trace, str, IsSuspect, list, list2)
+function BS:Scan_ProcessList(BS, str, IsSuspect, list, list2)
 	for k,v in pairs(list) do
 		if string.find(string.gsub(str, " ", ""), v, nil, true) then
 			if v == "=_G" or v == "=_R" then -- Since I'm not using patterns, I do some extra checks on _G and _R to avoid false positives.

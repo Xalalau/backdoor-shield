@@ -23,15 +23,15 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 			end
 		end
 
-		self:Arguments_Scan(trace, url, blocked, warning)
+		self:Arguments_Scan(url, funcName, blocked, warning)
 
 		for _,arg in pairs(args2) do
 			if isstring(arg) then
-				self:Arguments_Scan(trace, arg, blocked, warning)
+				self:Arguments_Scan(arg, funcName, blocked, warning)
 			elseif istable(arg) then
 				for k,v in pairs(arg) do
-					self:Arguments_Scan(trace, k, blocked, warning)
-					self:Arguments_Scan(trace, v, blocked, warning)
+					self:Arguments_Scan(k, funcName, blocked, warning)
+					self:Arguments_Scan(v, funcName, blocked, warning)
 				end
 			end
 		end
@@ -94,7 +94,7 @@ function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 	if not _G[funcName] then return "" end -- RunStringEx exists but is deprecated
 	if not isstring(code) then return "" end -- Just checking
 
-	self:Arguments_Scan(trace, code, blocked, warning)
+	self:Arguments_Scan(code, funcName, blocked, warning)
 
 	local detected = not isLowRisk and #blocked > 0 and { "blocked", "Execution blocked!", blocked } or
 	                 (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }

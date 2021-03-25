@@ -21,83 +21,96 @@ BS.live = {
 	-- If true, will block backdoors activity in real time
 	backdoorDetection = true, 
 
+	-- Live protection main control table
 	--[[
-		["some.game.function"] = {                -- Declaring a function in a field will keep it safe from detouring
-			detour = function                     -- Detoured function address (Automatically managed)
-			protectStack = bool                   -- If true, the Filters_CheckStack functions will generate a detection when meeting "some.game.function"
-				isStackWarning = bool             -- Set "isStackWarning" if you've set multiple "protectStack" and need to generate a stack warning instead of a blocking
+		["some.game.function"] = {                -- Declaring a function in a field will keep it safe from external detouring
+			detour = function                     -- Our detoured function address (Automatically managed)
 			filters = string or { string, ... }   -- Internal functions to execute any extra security checks we want (following the declared order)
 				failed = type                     -- Set "failed" if you've set multiple "filters" and need to return fail values other than nil
-				fast = bool                       -- Set "fast" if you've set one or none "filters" and need to run VERY fast (much less code, ignores whitelists and low-risk lists)
+				fast = bool                       -- Set "fast" if you've set one or none "filters" and need to run VERY fast (much less code, ignore whitelists and low-risk lists)
+
+			-- If you've set the "Filters_CheckStack" filter:
+
+			stackBanLists = { string, ...}        -- You can create blacklists of functions by adding names here. "some.game.function" will be grouped with others in blacklists.functions[the selected name]
+			protectStack = { string, ...}         -- Select lists from blacklists.functions (created by the stackBanLists option) to block "some.game.function" from calling any of them
 		},
+
+		Current stackBanLists names:
+			harmful
+			doubtful
+			observed
 	]]
 	control = {
-		["Ban"] = { filters = { "Filters_CheckStack" } },
-		["BroadcastLua"] = { protectStack = true, filters = { "Filters_CheckStack" } },
-		["cam.Start3D"] = { filters = { "Filters_CheckStack" } },
-		["ChatPrint"] = { filters = { "Filters_CheckStack" } },
-		["ClientsideModel"] = { filters = { "Filters_CheckStack" } },
-		["CompileFile"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" } },
-		["CompileString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
-		["concommand.Add"] = { filters = { "Filters_CheckStack" } },
-		["debug.getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" } },
-		["debug.getinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectDebugGetinfo" }, failed = {} },
-		["debug.getregistry"] = { filters = { "Filters_CheckStack" } },
+		["Ban"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["BroadcastLua"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["cam.Start3D"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
+		["ChatPrint"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
+		["ClientsideModel"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
+		["CompileFile"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, stackBanLists = { "harmful" } },
+	-- To-do: Test
+	["CompileString"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, stackBanLists = { "harmful" }, failed = "" },
+		["concommand.Add"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["debug.getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" }, stackBanLists = { "harmful" } },
+		["debug.getinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectDebugGetinfo" }, stackBanLists = { "harmful" }, failed = {} },
+		["debug.getregistry"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
 		["Error"] = {},
-		["file.Delete"] = { filters = { "Filters_CheckStack" } },
-		["file.Exists"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
-		--["file.Find"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
-		["file.Read"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
-		["file.Write"] = { filters = { "Filters_CheckStack" } },
-		["game.CleanUpMap"] = { filters = { "Filters_CheckStack" } },
-		["game.ConsoleCommand"] = { filters = { "Filters_CheckStack" } },
-		["game.KickID"] = { filters = { "Filters_CheckStack" } },
-		["getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" } },
-		["hook.Add"] = { filters = { "Filters_CheckStack" } },
-		["hook.GetTable"] = { filters = { "Filters_CheckStack" } },
-		["hook.Remove"] = { filters = { "Filters_CheckStack" } },
-		["HTTP"] = { filters = { "Filters_CheckStack" } },
-		["http.Fetch"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
-		["http.Post"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" } },
-		["include"] = { filters = { "Filters_CheckStack" } },
-		["jit.util.funcinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectAddresses" } },
-		["jit.util.funck"] = { filters = { "Filters_CheckStack" } },
-		["Kick"] = { filters = { "Filters_CheckStack" } },
-		["net.ReadHeader"] = { filters = { "Filters_CheckStack" } },
-		["net.ReadString"] = { protectStack = true, filters = { "Filters_CheckStack" } },
-		["net.Receive"] = { filters = { "Filters_CheckStack" } },
-		["net.Start"] = { filters = { "Filters_CheckStack" } },
-		["net.WriteString"] = { filters = { "Filters_CheckStack" } },
-		["pcall"] = { filters = { "Filters_CheckStack" } },
-		["PrintMessage"] = { filters = { "Filters_CheckStack" } },
-		["require"] = { filters = { "Filters_CheckStack" } },
-		["RunConsoleCommand"] = { filters = { "Filters_CheckStack" } },
-		["RunString"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
-		["RunStringEx"] = { protectStack = true, filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "" },
-		["setfenv"] = { filters = { "Filters_CheckStack" } },
-		["sound.PlayURL"] = { filters = { "Filters_CheckStack" } },
-		["surface.PlaySound"] = { filters = { "Filters_CheckStack" } },
-		["timer.Create"] = { filters = { "Filters_CheckStack", "Filters_CheckTimers" }, isStackWarning = true },
-		["timer.Destroy"] = { filters = { "Filters_CheckStack" } },
-		["timer.Exists"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
-		["timer.Simple"] = { filters = { "Filters_CheckStack", "Filters_CheckTimers" }, isStackWarning = true },
+		["file.Delete"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
+		["file.Exists"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
+	-- To-do: needs fix for Pac3
+	--["file.Find"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
+		["file.Read"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
+		["file.Write"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
+		["game.CleanUpMap"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+	-- To-do: Scan commands
+	["game.ConsoleCommand"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["game.KickID"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" }, stackBanLists = { "harmful" } },
+		["hook.Add"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
+		["hook.GetTable"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
+		["hook.Remove"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
+		["HTTP"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["http.Fetch"] = { filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" }, stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
+		["http.Post"] = { filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" }, stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
+		["include"] = {},
+		["jit.util.funcinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectAddresses" }, stackBanLists = { "harmful" } },
+		["jit.util.funck"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["Kick"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["net.ReadHeader"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+	-- To-do: Scan text
+	["net.ReadString"] = {},
+	-- To-do: 
+	["net.Receive"] = { filters = { "Filters_CheckStack" }, protectStack = { "harmful" } },
+		["net.Start"] = {},
+	-- To-do: Scan text
+	["net.WriteString"] = {},
+	-- To-do: Test trace persistence
+	["pcall"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["PrintMessage"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
+		["require"] = {},
+	-- To-do: Scan commands
+	["RunConsoleCommand"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
+		["RunString"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "", stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
+		["RunStringEx"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "", stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
+		["setfenv"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["sound.PlayURL"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
+		["surface.PlaySound"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
+		["timer.Create"] = { filters = "Filters_CheckTimers" },
+		["timer.Destroy"] = {},
+		["timer.Exists"] = {},
+		["timer.Simple"] = { filters ="Filters_CheckTimers" },
 		["tostring"] = { filters = "Filters_ProtectAddresses", fast = true },
-		["util.AddNetworkString"] = { filters = { "Filters_CheckStack" } },
-		["util.NetworkIDToString"] = { filters = { "Filters_CheckStack" } },
-		["util.ScreenShake"] = { filters = { "Filters_CheckStack" } },
-		["xpcall"] = { filters = { "Filters_CheckStack" } },
+		["util.AddNetworkString"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["util.NetworkIDToString"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["util.ScreenShake"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
+	-- To-do: Test trace persistence
+	["xpcall"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
 	},
-}
 
-
--- ARGUMENTS LISTS
--- -----------------------------------------------------------------------------------
-
--- Some extra blacklists for arguments
-BS.arguments = {
 	blacklists = {
-		-- Every function set as Filters_CheckStack with isStackWarning = nil will populate this list
+		-- Every stackBanLists declaration in BS.control will merge into a functions["stackBanLists name"] list here
 		functions = {},
+
+		-- Snippets, syntax and symbols that are usually only seen in backdoors
 		snippets = {
 			"‪", -- LEFT-TO-RIGHT EMBEDDING
 			"(_G)",
@@ -114,6 +127,8 @@ BS.arguments = {
 			"STEAM_0:",
 			"startingmoney", -- DarkRP var
 		},
+
+		-- Commands that are usually executed by backdoors
 		cvars = {
 			"rcon_password",
 			"sv_password",
@@ -125,10 +140,6 @@ BS.arguments = {
 			"rp_resetallmoney",
 			"hostport",
 		},
-	},
-	suspect = {
-		-- Every function set as Filters_CheckStack with isStackWarning = true will populate this list
-		functions = {}
 	}
 }
 
@@ -271,7 +282,11 @@ BS.whitelists = {
 	-- Whitelist for Filters_CheckStack combinations
 	stack = {
 		--  { "CompileString", "BroadcastLua" } -- e.g. it means that a BroadcastLua() inside a CompileString() won't generate a detection
-		{ "RunString", "RunString" }
+		{ "RunString", "RunString" },
+		{ "pcall", "pcall" },
+		{ "xpcall", "xpcall" },
+		{ "pcall", "xpcall" },
+		{ "xpcall", "pcall" }
 	},
 
 	-- Whitelist http.Fetch() and http.Post() urls

@@ -28,24 +28,24 @@ local function Folders_CheckSource(BS, trace, str, ext, blocked, warning, ignore
 
 	-- Search for inappropriate terms for a binary but that are good for backdoors, then we won't be deceived
 	if not IsSuspect then
-		IsSuspect = BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistHigh) or
-		            BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistMedium) or
-		            BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.suspect)
+		IsSuspect = BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistHigh) or
+		            BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistMedium) or
+		            BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.suspect)
 	end
 
 	if IsSuspect and blocked then
 		-- Search for blocked terms
 		if blocked[1] then
-			BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistHigh, blocked[1])
+			BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistHigh, blocked[1])
 			if not ignore_suspect then
-				BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistHigh_suspect, blocked[1])
+				BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistHigh_suspect, blocked[1])
 			end
 		end
 
 		if blocked[2] then
-			BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistMedium, blocked[2])
+			BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistMedium, blocked[2])
 			if not ignore_suspect then
-				BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.blacklistMedium_suspect, blocked[2])
+				BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistMedium_suspect, blocked[2])
 			end
 		end
 
@@ -57,9 +57,9 @@ local function Folders_CheckSource(BS, trace, str, ext, blocked, warning, ignore
 
 	if IsSuspect and warning then
 		-- Loof for suspect terms, wich are also good to reinforce results
-		BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.suspect, warning)
+		BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.suspect, warning)
 		if not ignore_suspect then
-			BS:Scan_ProcessList(BS, trace, str, IsSuspect, BS.filesScanner.suspect_suspect, warning)
+			BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.suspect_suspect, warning)
 		end
 	end
 
