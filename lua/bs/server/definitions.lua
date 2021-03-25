@@ -127,7 +127,7 @@ BS.arguments = {
 		},
 	},
 	suspect = {
-		-- Every function set as Filters_CheckStack withe isStackWarning = true will populate this list
+		-- Every function set as Filters_CheckStack with isStackWarning = true will populate this list
 		functions = {}
 	}
 }
