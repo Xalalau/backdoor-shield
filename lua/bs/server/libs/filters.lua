@@ -180,7 +180,6 @@ function BS:Filters_ProtectDebugGetinfo(trace, funcName, args)
 	if isfunction(args[1]) then
 		return self:Filters_ProtectAddresses(trace, funcName, args)
 	else
-		PrintTable(args)
 		local result = self:Stack_SkipBSFunctions(args)
 		return result
 	end
