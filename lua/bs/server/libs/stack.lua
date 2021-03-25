@@ -7,8 +7,9 @@
    only work when it's this mess. Test each changed line if you want to touch them, or you'll
    regret it bitterly!
 
-   Note: I can't check the stack in the wrong environment, so don't use this here:
-   table.insert(BS.locals, some_function)
+   Note: I can't check the stack in the wrong environment, so don't use this:
+     table.insert(BS.locals, some_function)
+   when there're _debug.getinfo or _debug.getlocal present.
 ]]
 
 -- I can't pass arguments or move the functions to our environment, so I copy my tables locally
@@ -20,10 +21,19 @@ local _debug = {}
 _debug.getinfo = debug.getinfo   
 _debug.getlocal = debug.getlocal
 
+local _string = {}
+_string.Explode = string.Explode
+_string.find = string.find
+
+local _tostring = tostring
+local _ipairs = ipairs
+local _pairs = pairs
+local __G = _G
+
 -- Workaround to pass arguments
 local argsPop = {}
 
--- Copy some tables locally
+-- Copy some tables locally (also a workaround)
 function BS:Stack_Init()
 	BS_protectedCalls_Hack = table.Copy(self.protectedCalls)
 	BS_traceBank_Hack = self.traceBank
@@ -47,7 +57,7 @@ local function Stack_Check()
 	}
 
 	-- This is how I'm passing arguments
-	for k,arg in ipairs(argsPop) do
+	for k,arg in _ipairs(argsPop) do
 		vars.currentFuncAddress = arg[1]
 		vars.currentFuncName = arg[2]
 		argsPop[k] = nil
@@ -62,12 +72,12 @@ local function Stack_Check()
 
 		if value then
 			-- Update the name and address using info from the trace bank, if it's the case
-			local traceBank = BS_traceBank_Hack[tostring(value.func)]
+			local traceBank = BS_traceBank_Hack[_tostring(value.func)]
 
 			if traceBank then
-				local func = _G
+				local func = __G
 
-				for k,v in ipairs(string.Explode(".", traceBank.name)) do
+				for k,v in _ipairs(_string.Explode(".", traceBank.name)) do
 					func = func[v]
 				end
 
@@ -78,7 +88,7 @@ local function Stack_Check()
 			-- Now we are going to check if it's a protected function call
 			if value.func then
 				-- Find the current call
-				if vars.detected == 0 and tostring(value.func) == tostring(vars.currentFuncAddress) then -- I tried to compare the addresses directly but it doesn't work here
+				if vars.detected == 0 and _tostring(value.func) == _tostring(vars.currentFuncAddress) then -- I tried to compare the addresses directly but it doesn't work here
 					-- Debug
 					--print("---> FOUND CURRENT CALL")
 
@@ -86,8 +96,8 @@ local function Stack_Check()
 					value.name = vars.currentFuncName
 				else
 					-- Find a forbidden previous caller
-					for funcName,funcAddress in pairs(BS_protectedCalls_Hack) do -- I tried to use the function address as index but it doesn't work here
-					   if vars.detected == 1 and tostring(value.func) == tostring(funcAddress) then 
+					for funcName,funcAddress in _pairs(BS_protectedCalls_Hack) do -- I tried to use the function address as index but it doesn't work here
+					   if vars.detected == 1 and _tostring(value.func) == _tostring(funcAddress) then 
 							-- Debug
 							--print("---> FOUND FORBIDDEN CALLER")
 
@@ -156,7 +166,7 @@ local function Stack_SkipBSFunctions()
 	}
 
 	-- This is how I'm passing arguments
-	for k,arg in ipairs(argsPop) do
+	for k,arg in _ipairs(argsPop) do
 		vars.requiredStackLevel = arg[1]
 		vars.requiredFields = arg[2]
 		vars.luaFolder = arg[3]
@@ -178,7 +188,7 @@ local function Stack_SkipBSFunctions()
 			if vars.foundBSAgain then
 				local result = _debug.getinfo(vars.increment, vars.requiredFields)
 
-				if not string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. vars.luaFolder) then
+				if not _string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. vars.luaFolder) then
 					if vars.requiredStackLevel == 1 then
 						return result
 					end
@@ -191,7 +201,7 @@ local function Stack_SkipBSFunctions()
 				local result = _debug.getinfo(vars.increment, vars.requiredFields) 
 
 				if result and
-				   string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. vars.luaFolder) then
+				   _string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. vars.luaFolder) then
 
 					vars.foundBSAgain = true
 				else
