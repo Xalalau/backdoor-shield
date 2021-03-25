@@ -151,6 +151,7 @@ local function Stack_SkipBSFunctions()
 		foundBSAgain = false,
 		requiredStackLevel,
 		requiredFields,
+		luaFolder,
 		args
 	}
 
@@ -158,6 +159,7 @@ local function Stack_SkipBSFunctions()
 	for k,arg in ipairs(argsPop) do
 		vars.requiredStackLevel = arg[1]
 		vars.requiredFields = arg[2]
+		vars.luaFolder = arg[3]
 		argsPop[k] = nil
 
 		break
@@ -176,7 +178,7 @@ local function Stack_SkipBSFunctions()
 			if vars.foundBSAgain then
 				local result = _debug.getinfo(vars.increment, vars.requiredFields)
 
-				if not string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. self.folder.lua) then
+				if not string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. vars.luaFolder) then
 					if vars.requiredStackLevel == 1 then
 						return result
 					end
@@ -189,7 +191,7 @@ local function Stack_SkipBSFunctions()
 				local result = _debug.getinfo(vars.increment, vars.requiredFields) 
 
 				if result and
-				   string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. self.folder.lua) then
+				   string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. vars.luaFolder) then
 
 					vars.foundBSAgain = true
 				else
@@ -223,6 +225,7 @@ local function Stack_SkipBSFunctions()
 end
 
 function BS:Stack_SkipBSFunctions(args)
+	table.insert(args, self.folder.lua)
 	InsertArgs(args)
     return Stack_SkipBSFunctions()
 end
