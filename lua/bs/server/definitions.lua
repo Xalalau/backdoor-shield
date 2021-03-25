@@ -45,7 +45,7 @@ BS.live = {
 		["Error"] = {},
 		["file.Delete"] = { filters = { "Filters_CheckStack" } },
 		["file.Exists"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
-		["file.Find"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
+		--["file.Find"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
 		["file.Read"] = { filters = { "Filters_CheckStack" }, isStackWarning = true },
 		["file.Write"] = { filters = { "Filters_CheckStack" } },
 		["game.CleanUpMap"] = { filters = { "Filters_CheckStack" } },
