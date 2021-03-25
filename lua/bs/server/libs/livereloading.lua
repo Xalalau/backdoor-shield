@@ -9,8 +9,6 @@ function BS:LiveReloading_Set()
     local name = "BS_LiveReloading"
 
     if self.devMode and not timer.Exists(name) then
-        self.__G.BS_reloaded = false
-
         timer.Create(name, 0.2, 0, function()
             for k,v in pairs(self:Utils_GetFilesCreationTimes()) do
                 if v ~= self.filenames[k] then
@@ -18,11 +16,13 @@ function BS:LiveReloading_Set()
 
                     self:Detours_Remove()
 
-                    self.__G.BS_reloaded = true
                     self.reloaded = true
 
+                    self.__G.BS_reloaded = true
                     timer.Simple(0.01, function()
                         include("bs/init.lua")
+
+                        self.__G.BS_reloaded = nil
                     end)
 
                     timer.Remove(name)
