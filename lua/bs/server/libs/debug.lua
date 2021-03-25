@@ -48,7 +48,7 @@ function BS:Debug_RunTests(args)
             bak(0, function() end)
         end
         self.__G["timer"]["Simple"] = detour
-        detour()
+        self.__G["timer"]["Simple"]()
         print()
         if self.__G["timer"]["Simple"] ~= detour then
             MsgC(self.colors.message, " (Pass) Detour undone.\n")
