@@ -132,7 +132,7 @@ end
 
 -- Return the result debug.getinfo result skipping our functions
 local function Stack_SkipBSFunctions()
-	local vars = { increment = 1, foundGetinfo = false, args }
+	local vars = { increment = 1, skipLevel = false, foundGetinfo = false, foundBSAgain = false, args }
 	for k,v in ipairs(argsPop) do -- This is how I'm passing arguments
 		vars.args = v
 		argsPop[k] = nil
@@ -145,16 +145,42 @@ local function Stack_SkipBSFunctions()
 		--print(value.name)
 		--print(value.func == debug.getinfo)
 		if value then
-			if vars.foundGetinfo then
-				if vars.args[1] == 1 then
-					return _debug.getinfo(vars.increment, vars.args[2])
+			-- Step 4: skip BS files.
+			--         The correct result is the top of the stack.
+			--         If the required stack level is out of bounds, this loop will break, because we skipped a level in step 2.
+			if vars.foundBSAgain then
+				local result = _debug.getinfo(vars.increment, vars.args[2])
+
+				if not string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/bs/") then
+					if vars.args[1] == 1 then
+						return result
+					end
+					vars.args[1] = vars.args[1] - 1
 				end
-				vars.args[1] = vars.args[1] - 1
+			-- Step 3: Keep going until stack level is 1 and return if it's not checking BS files.
+			--         If BS files are found, skip then.
+			elseif vars.foundGetinfo then
+				local result = _debug.getinfo(vars.increment, vars.args[2]) 
+				if result and
+				   string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/bs/") then
+
+					vars.foundBSAgain = true
+				else
+					if vars.args[1] == 1 then
+						return result
+					end
+					vars.args[1] = vars.args[1] - 1
+				end
+			-- Step 2: Skip a stack level, so we can check the stack locally using vars.
+			elseif vars.skipLevel then
+				vars.foundGetinfo = true
+			-- Step 1: Find debug.getinfo.
+			--         Return if the stack level is 1.
 			elseif value.func == debug.getinfo then
 				if vars.args[1] == 1 then
 					return _debug.getinfo(vars.increment, vars.args[2])
 				else
-					vars.foundGetinfo = true
+					vars.skipLevel = true
 					vars.args[1] = vars.args[1] - 1
 				end
 			end
