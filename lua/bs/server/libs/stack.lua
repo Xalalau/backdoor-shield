@@ -3,7 +3,7 @@
     https://xalalau.com/
 
    HACKS: For some reason these functions are EXTREMELY temperamental! I was unable to use the
-   code nested, to pass arguments and even to freely write variables or acceptable syntax. They
+   nested code, to pass arguments and even to freely write variables or acceptable syntax. They
    only work when it's this mess. Test each changed line if you want to touch them, or you'll
    regret it bitterly!
 
@@ -39,11 +39,17 @@ table.insert(BS.locals, InsertArgs)
 -- If the stack is good, return false
 -- If the stack is bad, return "protected func name"
 local function Stack_Check()
-	local vars = { increment = 1, detected = 0, currentFuncAddress, currentFuncName } -- Do NOT add more variables other than inside this table, or the function is going to stop working
+	local vars = { -- Note: adding new variables outside this table can break the function for some reason
+		increment = 1,
+		detected = 0,
+		currentFuncAddress,
+		currentFuncName
+	}
 
-	for k,v in ipairs(argsPop) do -- This is how I'm passing arguments
-		vars.currentFuncAddress = v[1]
-		vars.currentFuncName = v[2]
+	-- This is how I'm passing arguments
+	for k,arg in ipairs(argsPop) do
+		vars.currentFuncAddress = arg[1]
+		vars.currentFuncName = arg[2]
 		argsPop[k] = nil
 		break
 	end
@@ -68,8 +74,8 @@ local function Stack_Check()
 				value.func = func -- Use the address of the last function from the older stack, so we can keep track of what's happening
 				value.name = traceBank.name
 			end
+	
 			-- Now we are going to check if it's a protected function call
-
 			if value.func then
 				-- Find the current call
 				if vars.detected == 0 and tostring(value.func) == tostring(vars.currentFuncAddress) then -- I tried to compare the addresses directly but it doesn't work here
@@ -92,6 +98,7 @@ local function Stack_Check()
 				end
 			end
 		end
+
 		-- Debug
 		--print(value.name and value.name or "")
 		--print(value.func)
@@ -114,16 +121,21 @@ end
 -- Get the function of the higher call in the stack
 local function Stack_GetTopFunctionAddress()
 	local vars = { increment = 1, func = nil }
+
 	while true do
 		local func = _debug.getinfo(vars.increment, "flnSu")
 		local name, value = _debug.getlocal(1, 2, vars.increment)
+
 		if func == nil then break end
+
 		if value then
             vars.func = value.func
 		end
+
 		vars.increment = vars.increment + 1
 	end
-    return vars.func
+
+	return vars.func
 end
 
 function BS:Stack_GetTopFunctionAddress()
@@ -132,44 +144,60 @@ end
 
 -- Return the result debug.getinfo result skipping our functions
 local function Stack_SkipBSFunctions()
-	local vars = { increment = 1, skipLevel = false, foundGetinfo = false, foundBSAgain = false, args }
-	for k,v in ipairs(argsPop) do -- This is how I'm passing arguments
-		vars.args = v
+	local vars = { -- Note: adding new variables outside this table can break the function for some reason
+		increment = 1,
+		skipLevel = false, 
+		foundGetinfo = false,
+		foundBSAgain = false,
+		requiredStackLevel,
+		requiredFields,
+		args
+	}
+
+	-- This is how I'm passing arguments
+	for k,arg in ipairs(argsPop) do
+		vars.requiredStackLevel = arg[1]
+		vars.requiredFields = arg[2]
 		argsPop[k] = nil
+
 		break
 	end
+
 	while true do
 		local func = _debug.getinfo(vars.increment, "flnSu" )
 		local name, value = _debug.getlocal(1, 2, vars.increment)
+
 		if func == nil then break end
-		--print(value.name)
-		--print(value.func == debug.getinfo)
+
 		if value then
 			-- Step 4: skip BS files.
 			--         The correct result is the top of the stack.
 			--         If the required stack level is out of bounds, this loop will break, because we skipped a level in step 2.
 			if vars.foundBSAgain then
-				local result = _debug.getinfo(vars.increment, vars.args[2])
+				local result = _debug.getinfo(vars.increment, vars.requiredFields)
 
 				if not string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. self.folder.lua) then
-					if vars.args[1] == 1 then
+					if vars.requiredStackLevel == 1 then
 						return result
 					end
-					vars.args[1] = vars.args[1] - 1
+
+					vars.requiredStackLevel = vars.requiredStackLevel - 1
 				end
 			-- Step 3: Keep going until stack level is 1 and return if it's not checking BS files.
 			--         If BS files are found, skip then.
 			elseif vars.foundGetinfo then
-				local result = _debug.getinfo(vars.increment, vars.args[2]) 
+				local result = _debug.getinfo(vars.increment, vars.requiredFields) 
+
 				if result and
 				   string.find(_debug.getinfo(vars.increment,"S")["short_src"], "/lua/" .. self.folder.lua) then
 
 					vars.foundBSAgain = true
 				else
-					if vars.args[1] == 1 then
+					if vars.requiredStackLevel == 1 then
 						return result
 					end
-					vars.args[1] = vars.args[1] - 1
+
+					vars.requiredStackLevel = vars.requiredStackLevel - 1
 				end
 			-- Step 2: Skip a stack level, so we can check the stack locally using vars.
 			elseif vars.skipLevel then
@@ -177,14 +205,19 @@ local function Stack_SkipBSFunctions()
 			-- Step 1: Find debug.getinfo.
 			--         Return if the stack level is 1.
 			elseif value.func == debug.getinfo then
-				if vars.args[1] == 1 then
-					return _debug.getinfo(vars.increment, vars.args[2])
+				if vars.requiredStackLevel == 1 then
+					return _debug.getinfo(vars.increment, vars.requiredFields)
 				else
 					vars.skipLevel = true
-					vars.args[1] = vars.args[1] - 1
+					vars.requiredStackLevel = vars.requiredStackLevel - 1
 				end
 			end
+
+			--Debug
+			--print(value.name)
+			--print(value.func == debug.getinfo)
 		end
+
 		vars.increment = vars.increment + 1
 	end
 end
