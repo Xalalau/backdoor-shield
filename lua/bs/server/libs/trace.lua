@@ -7,7 +7,7 @@
 function BS:Trace_Get(currentTrace)
     local bankedTraceTab = self.traceBank[tostring(self:Stack_GetTopFunctionAddress())]
     local bankedTrace = bankedTraceTab and bankedTraceTab.trace
-    local newFullTrace = (bankedTrace and ("      (+) BS - Persistent Trace" .. bankedTrace .. "") or "\n") .. "      " .. currentTrace .. "\n"
+    local newFullTrace = (bankedTrace and ("\n      (+) BS - Persistent Trace" .. bankedTrace .. "") or "\n") .. "      " .. currentTrace .. "\n"
     local newFullTraceClean
 
     -- Let's remove older banked traces from the result if they exist
