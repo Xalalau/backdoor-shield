@@ -277,11 +277,15 @@ function BS:Folders_Scan(args, extensions)
 
 	local cfgs = {
 		addonsFolder = {}, 	-- Note: results from addons folder take precedence over lua folder.
-		addonsFolderScan = #args == 0 and true -- The addons folder will not be scanned if args is set
 	}
 
 	-- Select custom folders or a list of default folders
-	local folders = not cfgs.addonsFolderScan and args or self.filesScanner.foldersToScan
+	local folders = #args > 0 and args or self.filesScanner.foldersToScan
+
+	if not folders then
+		MsgC(self.colors.message, "\n" .. self.alert .. " no folders selected.\n\n")
+		return
+	end
 
 	-- Deal with bars
 	for k,v in pairs(folders) do
@@ -291,21 +295,37 @@ function BS:Folders_Scan(args, extensions)
 		end
 	end
 
+	-- If no folders are selected, we're going to use the default ones from foldersToScan
+	-- In both cases we are going to put "addons" in the first position if it's present, because:
+	--   Manually installed addons have a much higher chance of infection;
+	--   Results from the addons folder always have the the full file paths;
+	--   I record what we're doing and compare later to avoid scanning a file twice.
+	local i = 2
+	local foldersAux = {}
+	for _,folder in ipairs(folders) do
+		if folder == "addons" then
+			foldersAux[1] = folder
+			i = i - 1
+		else
+			foldersAux[i] = folder
+		end
+
+		i = i + 1
+	end
+	if not foldersAux[1] then
+		foldersAux[1] = foldersAux[#foldersAux]
+		foldersAux[#foldersAux] = nil
+	end
+	folders = foldersAux
+
 	MsgC(self.colors.header, "\n" .. self.alert .. " Scanning GMod and all the mounted contents...\n\n\n")
 
-	-- Scan addons folder
-	-- Manually installed addons have a much higher chance of infection.
-	-- Results from the addons folder always have the the full file paths
-	-- To avoid scanning a file twice, I record what we're doing and compare later.
-	if cfgs.addonsFolderScan then
-		RecursiveScan(self, "addons/", results, cfgs, extensions)
-		cfgs.addonsFolderScan = false
-	end
-
-	-- Scan the other selected folders
-	for _,folder in pairs(folders) do
+	-- Start scanning folders
+	for _,folder in ipairs(folders) do
 		if folder == "" or file.Exists(folder .. "/", "GAME") then
 			RecursiveScan(self, folder == "" and folder or folder .. "/", results, cfgs, extensions)
+		else
+			MsgC(self.colors.message, "\n" .. self.alert .. " Folder not found: " .. folder .. "\n\n")
 		end
 	end
 
