@@ -140,6 +140,8 @@ function BS:Detours_Create(funcName, filters, failed)
 		local isWhitelisted = self:Trace_IsWhitelisted(trace)
 
 		if isWhitelisted then
+			running[funcName] = nil
+
 			return self:Detours_CallOriginalFunction(funcName, args)
 		end
 
