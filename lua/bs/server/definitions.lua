@@ -21,6 +21,7 @@ BS.detour = {
 	blockChanges = true, 
 }
 
+
 -- REAL TIME PROTECTION
 -- -----------------------------------------------------------------------------------
 
@@ -33,6 +34,9 @@ BS.live = {
 	-- Block backdoors activity
 	-- This should never be turned off, but it's here in case you want to get infected on purpose to generate more logs
 	blockThreats = true, 
+
+	-- Show a small window at the top left alerting admins about detections and warnings
+	alertAdmins = true,
 
 	-- Live protection main control table
 	--[[

@@ -202,12 +202,14 @@ function BS:Report_Detection(infoIn)
 	end
 
 	-- Send a GUI update
-	for _,ply in pairs(player.GetHumans()) do
-		if ply:IsAdmin() then
-			net.Start("BS_AddNotification")
-			net.WriteString(tostring(self.count.detections))
-			net.WriteString(tostring(self.count.warnings))
-			net.Send(ply)
+	if self.live.alertAdmins then
+		for _,ply in pairs(player.GetHumans()) do
+			if ply:IsAdmin() then
+				net.Start("BS_AddNotification")
+				net.WriteString(tostring(self.count.detections))
+				net.WriteString(tostring(self.count.warnings))
+				net.Send(ply)
+			end
 		end
 	end
 
