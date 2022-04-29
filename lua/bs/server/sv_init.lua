@@ -57,14 +57,12 @@ function BS:Initialize()
 
     ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝      
 
-    Real-time blocking of suspicious executions, function protection against
-    detouring, malware scanner and detailed detection logs.
+    | Real-time protection | Anti detour | Malware scanner | Detailed logs |
 
     To set custom black and white lists, edit the definitions file:
     addons/backdoor-shield/lua/bs/server/definitions.lua
-    You can also avoid unnecessary warnings in the console this way.
 
-    Logs are located in: "garrysmod/data/]] .. self.folder.data .. [["
+    Logs directory: "garrysmod/data/]] .. self.folder.data .. [["
 
     Disclaimer: This addon will by no means solve all your problems, it's
     just a tool created for self-interest research. - Xalalau
@@ -81,16 +79,17 @@ function BS:Initialize()
           data folders.
 
     -------------------------------------------------------------------]],
-    [5] = [[
-    |                                                                 |
-    |        Live reloading in turned on! The addon is unsafe!        |
-    |                    Command bs_tests added.                      |
-    |                                                                 |
-    -------- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --------]] }
+    [5] = "    -------- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --------" }
 
     if not self.__G.BS_reloaded then
-        for _, str in ipairs(logo) do
-            if _ == 5 and not self.devMode then continue end
+        for k, str in ipairs(logo) do
+            if k == 5 then
+                print("    | Live detection = " .. (self.live.isOn and "true" or "false !!!!"))
+                print("    | Live blocking = " .. (self.live.blockThreats and "true" or "false !!!!"))
+                print("    | Anti detour = " .. (self.detour.blockChanges and "true" or "false !!!!"))
+                print("    | Alerts window = " .. (self.live.alertAdmins and "true" or "false !!!!"))
+                print("    | Dev mode = " .. (self.devMode and "true !!!! The addon functions are exposed!" or "false"))
+            end 
             print(str)
         end
 

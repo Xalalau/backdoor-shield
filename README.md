@@ -2,15 +2,11 @@
 
 Protect your GMod server against backdoors! Block, find, investigate and remove them.
 
-![logo](https://i.imgur.com/sAze5Q4.png)
+![image](https://user-images.githubusercontent.com/5098527/165896813-85405615-4c63-468f-89d5-3aa7ead002ba.png)
 
 ## !! WARNING !!
 
->DO-NOT-USE this addon on a server with paid mods!!!! Many of them have DRM. In some cases they'll only be blocked, in others you may lose your license and you'll have to recover it by support!
->
->If you suspect that your free or downloaded addons are causing problems, run them with Backdoor Shield in a separate instance! After cleaning up, go back to your main server taking everything in order!
-> 
-> I'm not responsible for any loss. This software is distributed under the MIT license.
+>DO-NOT-USE this addon on servers with paid mods!!!! Many of them have complex DRMs, which in most cases get detected and blocked. This can lead to serious authentication problems and even license loss! If you suspect that your addons are infected, run them along Backdoor Shield in a clean server/GMod instance!
 >
 >Also, consider that this addon just gives you an extra layer of security! You'll be able to scan your files and avoid a series of unwanted executions with a basic real-time protection, but don't think that it'll get you out of all troubles!
 
