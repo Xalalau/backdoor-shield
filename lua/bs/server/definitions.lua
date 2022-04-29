@@ -112,7 +112,7 @@ BS.live = {
 
 		-- Snippets, syntax and symbols that are usually only seen in backdoors
 		snippets = {
-			"‪", -- LEFT-TO-RIGHT EMBEDDING
+			"‪", -- U+202a
 			"=_G",
 			"(_G)",
 			",_G,",
@@ -179,7 +179,7 @@ BS.filesScanner = {
 	-- Very edge snippets, syntax and symbols that virtually only backdoors use
 	--   High-risk
 	blacklistHigh = {
-		"‪", -- LEFT-TO-RIGHT EMBEDDING
+		"‪", -- U+202a
 		"(_G)",
 		",_G,",
 		"!true",
