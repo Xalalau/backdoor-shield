@@ -11,7 +11,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 	local url = args[1]
 
 	local function Scan(args2)
-		local blocked = {}
+		local detected = {}
 		local warning = {}
 		local detected
 
@@ -23,20 +23,20 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 			end
 		end
 
-		self:Arguments_Scan(url, funcName, blocked, warning)
+		self:Arguments_Scan(url, funcName, detected, warning)
 
 		for _,arg in pairs(args2) do
 			if isstring(arg) then
-				self:Arguments_Scan(arg, funcName, blocked, warning)
+				self:Arguments_Scan(arg, funcName, detected, warning)
 			elseif istable(arg) then
 				for k,v in pairs(arg) do
-					self:Arguments_Scan(k, funcName, blocked, warning)
-					self:Arguments_Scan(v, funcName, blocked, warning)
+					self:Arguments_Scan(k, funcName, detected, warning)
+					self:Arguments_Scan(v, funcName, detected, warning)
 				end
 			end
 		end
 
-		local detected = not isLowRisk and #blocked > 0 and { "blocked", "Execution " .. (self.live.blockThreats and "blocked!" or "detected!"), blocked } or
+		local detected = not isLowRisk and #detected > 0 and { "detected", "Execution detected!", detected } or
 						 (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
 
 		if detected then
@@ -88,15 +88,15 @@ end
 -- Check CompileString, CompileFile, RunString and RunStringEX contents
 function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 	local code = funcName == "CompileFile" and file.Read(args[1], "LUA") or args[1]
-	local blocked = {}
+	local detected = {}
 	local warning = {}
 
 	if not _G[funcName] then return "" end -- RunStringEx exists but is deprecated
 	if not isstring(code) then return "" end -- Just checking
 
-	self:Arguments_Scan(code, funcName, blocked, warning)
+	self:Arguments_Scan(code, funcName, detected, warning)
 
-	local detected = not isLowRisk and #blocked > 0 and { "blocked", "Execution " .. (self.live.blockThreats and "blocked!" or "detected!"), blocked } or
+	local detected = not isLowRisk and #detected > 0 and { "detected", "Execution detected!", detected } or
 	                 (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
 
 	if detected then
@@ -144,9 +144,9 @@ function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
 
 			if not whitelisted then
 				local info = {
-					type = isLowRisk and "warning" or "blocked",
+					type = isLowRisk and "warning" or "detected",
 					folder = protectedFuncName,
-					alert = isLowRisk and "Warning! Prohibited function call in a low-risk location! Ignoring it..." or self.live.blockThreats and "Blocked function call!" or "Detected function call!",
+					alert = isLowRisk and "Warning! Prohibited function call in a low-risk location! Ignoring it..." or "Detected function call!",
 					func = protectedFuncName,
 					trace = trace,
 					detected = { detectedFuncName },

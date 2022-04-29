@@ -44,8 +44,8 @@ if SERVER then
     BS.reloaded = false -- Internal control: tell the older code that it's not running anymore, so we can turn off timers etc
 --  self.__G.BS_reloaded -- Internal control: tell the newer code that it's from a refresh, so we can do adjustments like hide the initial screen
 
-    BS.detections = { -- Counting
-        blocks = 0,
+    BS.count = { -- Counting
+        detections = 0,
         warnings = 0
     }
 

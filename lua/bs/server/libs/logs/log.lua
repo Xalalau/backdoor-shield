@@ -29,7 +29,7 @@ local function FormatTypesList(snippet, file)
 	if not snippet and not file then return end
 
 	local messages = {
-		["snippet"] = "Blocked code snippet",
+		["snippet"] = "Detected code snippet",
 		["file"] = "Full Lua file: " ,
 	}
 
@@ -94,11 +94,11 @@ table.insert(BS.locals, FormatLog)
 		infoIn = {
 		*	alert =  Message explaining the detection
 			func = Name of the bad function
-			detected = List of the prohibited calls detected inside the blocked function
-		*	type = Detection type. I commonly use "blocked", "warning" and "detour"
+			detected = List of the prohibited calls detected inside the detected function
+		*	type = Detection type. I commonly use "detected", "warning" and "detour"
 			folder = Main folder to store this dectetion. I commonly use the detected function name, so it's easier to find the real threats
 			trace = Lua function call stack. Due to my persistent trace system, it can contain multiple stacks
-			snippet = Blocked code snippet
+			snippet = Detected code snippet
 			file = File where detection occurred
 		}
 
@@ -115,12 +115,12 @@ function BS:Report_Detection(infoIn)
 
 	--[[
 		dayFolder            e.g.	/03-16-2021/
-			typeFile             		log_blocked.txt
+			typeFile             		log_detected.txt
 			mainFolder           		/http.Fetch/
-				logFolder        			/23.57.47 - blocked/
+				logFolder        			/23.57.47 - detected/
 					logFile      				[Log].txt
 					luaFile      				Full Lua file.txt
-					snippetFile  				Blocked code snippet.txt
+					snippetFile  				Detected code snippet.txt
 	]]
 	local dayFolder = self.folder.data .. date .. "/"
 	local typeFile = dayFolder .. "/log_" .. infoIn.type .. ".txt"
@@ -128,7 +128,7 @@ function BS:Report_Detection(infoIn)
 	local logFolder = mainFolder and ValidateFolderName(mainFolder .. timeFormat1 .. " - " .. infoIn.type .. "/")
 	local logFile = logFolder and logFolder .. "/[Log].txt"
 	local luaFile =  logFolder and infoIn.file and logFolder .. "Full Lua file.txt"
-	local snippetFile =  logFolder and infoIn.snippet and logFolder .. "Blocked code snippet.txt"
+	local snippetFile =  logFolder and infoIn.snippet and logFolder .. "Detected code snippet.txt"
 
 	local filesGenerated = logFolder and FormatTypesList(infoIn.snippet, infoIn.file)
 
@@ -150,16 +150,16 @@ function BS:Report_Detection(infoIn)
 --[[
 	Full log preview (e.g.):
 
-	[Backdoor Shield] Execution blocked!
+	[Backdoor Shield] Execution detected!
 		Date & Time: 03-14-2021 | 23h 57m 47s
 		Function: http.Fetch
 		Detected:
 			CompileString
 			http.Fetch
 		Url: https://gvac.cz/link/fuck.php?key=McIjefKcSOKuWbTxvLWC
-		Log Folder: data/backdoor-shield/03-14-2021/http.Fetch/23.57.47 - blocked/
+		Log Folder: data/backdoor-shield/03-14-2021/http.Fetch/23.57.47 - detected/
 		Log Contents:
-			Blocked code snippet
+			Detected code snippet
 			Full Lua file: addons/ariviaf4/lua/autorun/_arivia_load.lua
 		Location:
 		  (+)
@@ -196,17 +196,17 @@ function BS:Report_Detection(infoIn)
 
 	-- Update counter
 	if infoIn.type == "warning" then
-		self.detections.warnings = self.detections.warnings + 1
+		self.count.warnings = self.count.warnings + 1
 	else
-		self.detections.blocks = self.detections.blocks + 1
+		self.count.detections = self.count.detections + 1
 	end
 
 	-- Send a GUI update
 	for _,ply in pairs(player.GetHumans()) do
 		if ply:IsAdmin() then
 			net.Start("BS_AddNotification")
-			net.WriteString(tostring(self.detections.blocks))
-			net.WriteString(tostring(self.detections.warnings))
+			net.WriteString(tostring(self.count.detections))
+			net.WriteString(tostring(self.count.warnings))
 			net.Send(ply)
 		end
 	end

@@ -18,7 +18,7 @@ end
 table.insert(BS.locals, IsSuspectPath)
 
 -- Process a string according to our white, black and suspect lists
-local function Folders_CheckSource(BS, trace, str, ext, blocked, warning, ignore_suspect)
+local function Folders_CheckSource(BS, trace, str, ext, detected, warning, ignore_suspect)
 	if not isstring(str) then return end
 	if BS:Trace_IsWhitelisted(trace) then return end
 	if BS:Scan_CheckWhitelist(str, BS.whitelists.snippets) then return end
@@ -33,25 +33,25 @@ local function Folders_CheckSource(BS, trace, str, ext, blocked, warning, ignore
 		            BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.suspect)
 	end
 
-	if IsSuspect and blocked then
-		-- Search for blocked terms
-		if blocked[1] then
-			BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistHigh, blocked[1])
+	if IsSuspect and detected then
+		-- Search for detected terms
+		if detected[1] then
+			BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistHigh, detected[1])
 			if not ignore_suspect then
-				BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistHigh_suspect, blocked[1])
+				BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistHigh_suspect, detected[1])
 			end
 		end
 
-		if blocked[2] then
-			BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistMedium, blocked[2])
+		if detected[2] then
+			BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistMedium, detected[2])
 			if not ignore_suspect then
-				BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistMedium_suspect, blocked[2])
+				BS:Scan_ProcessList(BS, str, IsSuspect, BS.filesScanner.blacklistMedium_suspect, detected[2])
 			end
 		end
 
-		-- If blocked terms are found, reinforce the search with a charset check
-		if #blocked[1] > 0 and #blocked[2] > 0 then
-			BS:Scan_CheckCharset(str, ext, blocked[1], true)
+		-- If detected terms are found, reinforce the search with a charset check
+		if #detected[1] > 0 and #detected[2] > 0 then
+			BS:Scan_CheckCharset(str, ext, detected[1], true)
 		end
 	end
 
@@ -125,7 +125,7 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 
 		if not cfgs.addonsFolder[path] then
 			local ext = string.GetExtensionFromFilename(v)
-			local blocked = {{}, {}}
+			local detected = {{}, {}}
 			local warning = {}
 			local pathAux = path
 
@@ -169,18 +169,18 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 			end
 
 			-- Scan file
-			Folders_CheckSource(BS, path, file.Read(path, "GAME"), ext, blocked, warning)
+			Folders_CheckSource(BS, path, file.Read(path, "GAME"), ext, detected, warning)
 
 			local resultString = ""
 			local resultsList
 
 			-- Build, print and stock the result
-			if #blocked[1] > 0 or #blocked[2] > 0 or #warning > 0 then
+			if #detected[1] > 0 or #detected[2] > 0 or #warning > 0 then
 
 				-- Trash:
 
 				-- Discard result if it's from file with only BS.filesScanner.suspect_suspect detections
-				if BS.filesScanner.discardVeryLowRisk and (#blocked[1] + #blocked[2] == 0) then
+				if BS.filesScanner.discardVeryLowRisk and (#detected[1] + #detected[2] == 0) then
 					local notImportant = 0
 
 					for k,v in pairs (warning) do
@@ -209,8 +209,8 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 						resultsList = results.highRisk
 					-- Set the risk based on the detection precedence
 					else
-						if #blocked[1] > 0 then resultsList = results.highRisk end
-						if not resultsList and #blocked[2] > 0 then resultsList = results.mediumRisk end
+						if #detected[1] > 0 then resultsList = results.highRisk end
+						if not resultsList and #detected[2] > 0 then resultsList = results.mediumRisk end
 						if not resultsList and #warning > 0 then resultsList = results.lowRisk end
 					end
 				end
@@ -219,12 +219,12 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 
 				if not forceLowRisk then
 					-- If we don't have a high-risk but there are three or more medium-risk detections, set to high-risk
-					if resultsList ~= results.highRisk and #blocked[2] > 2 then
+					if resultsList ~= results.highRisk and #detected[2] > 2 then
 						resultsList = results.highRisk
 					end
 
 					-- If we have a low-risk but there are two or more high-risk detections, set to medium-risk
-					if resultsList == results.lowRisk and #blocked[1] >= 2 then
+					if resultsList == results.lowRisk and #detected[1] >= 2 then
 						resultsList = results.mediumRisk
 					end
 				end
@@ -232,8 +232,8 @@ local function RecursiveScan(BS, dir, results, cfgs, extensions, forceIgnore, fo
 				-- Build
 
 				resultString = path
-				resultString = resultString .. JoinResults(blocked[1], "[!!]")
-				resultString = resultString .. JoinResults(blocked[2], "[!]")
+				resultString = resultString .. JoinResults(detected[1], "[!!]")
+				resultString = resultString .. JoinResults(detected[2], "[!]")
 				resultString = resultString .. JoinResults(warning, "[.]")
 				resultString = resultString .. "\n"
 

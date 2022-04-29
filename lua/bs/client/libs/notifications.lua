@@ -70,7 +70,7 @@ net.Receive("BS_AddNotification", function()
         CreateNotification()
     end
 
-    text_warning:SetText(net.ReadString() .. " blocks / " .. net.ReadString() .. " warnings")
+    text_warning:SetText(net.ReadString() .. " detections / " .. net.ReadString() .. " warnings")
 
     timer.Create("BS_HideNotification", 12, 1, function()
         notification:Hide()
