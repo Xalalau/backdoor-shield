@@ -36,7 +36,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 			end
 		end
 
-		local detected = not isLowRisk and #blocked > 0 and { "blocked", "Execution blocked!", blocked } or
+		local detected = not isLowRisk and #blocked > 0 and { "blocked", "Execution " .. (self.live.blockThreats and "blocked!" or "detected!"), blocked } or
 						 (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
 
 		if detected then
@@ -55,7 +55,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 			self:Report_Detection(info)
 		end
 
-		if not blockThreats or isLowRisk or not detected then
+		if not self.live.blockThreats or isLowRisk or not detected then
 			self:Trace_Set(args[2], funcName, trace)
 
 			self:Detours_CallOriginalFunction(funcName, args)
@@ -96,7 +96,7 @@ function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 
 	self:Arguments_Scan(code, funcName, blocked, warning)
 
-	local detected = not isLowRisk and #blocked > 0 and { "blocked", "Execution blocked!", blocked } or
+	local detected = not isLowRisk and #blocked > 0 and { "blocked", "Execution " .. (self.live.blockThreats and "blocked!" or "detected!"), blocked } or
 	                 (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
 
 	if detected then
@@ -114,7 +114,7 @@ function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 		self:Report_Detection(info)
 	end
 
-	return (not blockThreats or isLowRisk or not detected) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
+	return (not self.live.blockThreats or isLowRisk or not detected) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
 end
 
 -- Validate functions that can't call each other
@@ -146,7 +146,7 @@ function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
 				local info = {
 					type = isLowRisk and "warning" or "blocked",
 					folder = protectedFuncName,
-					alert = isLowRisk and "Warning! Prohibited function call in a low-risk location! Ignoring it..." or "Blocked function call!",
+					alert = isLowRisk and "Warning! Prohibited function call in a low-risk location! Ignoring it..." or self.live.blockThreats and "Blocked function call!" or "Detected function call!",
 					func = protectedFuncName,
 					trace = trace,
 					detected = { detectedFuncName },
@@ -157,7 +157,7 @@ function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
 			end
 		end
 
-		if isLowRisk or whitelisted then
+		if not self.live.blockThreats or isLowRisk or whitelisted then
 			return "true"
 		else
 			return false
