@@ -55,7 +55,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 			self:Report_Detection(info)
 		end
 
-		if isLowRisk or not detected then
+		if not blockThreats or isLowRisk or not detected then
 			self:Trace_Set(args[2], funcName, trace)
 
 			self:Detours_CallOriginalFunction(funcName, args)
@@ -114,7 +114,7 @@ function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 		self:Report_Detection(info)
 	end
 
-	return (isLowRisk or not detected) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
+	return (not blockThreats or isLowRisk or not detected) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
 end
 
 -- Validate functions that can't call each other

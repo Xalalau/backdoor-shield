@@ -18,8 +18,12 @@ BS.devMode = true
 -- In-game detouring protection and backdoor detection
 
 BS.live = {
-	-- If true, will block backdoors activity in real time
+	-- Turn on the real time detections
 	isOn = true, 
+
+	-- Block backdoors activity
+	-- This should never be turned off, but it's here in case you want to get infected on purpose to generate more logs
+	blockThreats = true, 
 
 	-- Live protection main control table
 	--[[
