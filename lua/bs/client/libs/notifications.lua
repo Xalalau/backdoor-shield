@@ -46,7 +46,7 @@ local function CreateNotification()
     notification:SetPos(panelInfo.x, panelInfo.y)
     notification:SetSize(panelInfo.width, panelInfo.height)
     notification:SetBackgroundColor(Color(31, 31, 31))
-    notification:Hide()
+    notification:Show()
 
     local icon_warning = vgui.Create("DImage", notification)
     icon_warning:SetPos(iconWarningInfo.x, iconWarningInfo.y)
@@ -70,7 +70,6 @@ net.Receive("BS_AddNotification", function()
         CreateNotification()
     end
 
-    notification:Show()
     text_warning:SetText(net.ReadString() .. " blocks / " .. net.ReadString() .. " warnings")
 
     timer.Create("BS_HideNotification", 12, 1, function()
