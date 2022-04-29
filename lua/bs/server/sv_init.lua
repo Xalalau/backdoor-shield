@@ -128,7 +128,7 @@ function BS:Initialize()
 
     -- Set live protection
 
-    if self.live.backdoorDetection then
+    if self.live.isOn then
         self:Detours_Init()
 
         ProtectedCalls_Init(self)

@@ -19,7 +19,7 @@ BS.devMode = true
 
 BS.live = {
 	-- If true, will block backdoors activity in real time
-	backdoorDetection = true, 
+	isOn = true, 
 
 	-- Live protection main control table
 	--[[
