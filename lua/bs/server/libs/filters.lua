@@ -13,7 +13,6 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 	local function Scan(args2)
 		local detected = {}
 		local warning = {}
-		local detected
 
 		for k,v in pairs(self.whitelists.urls) do
 			local urlStart = string.find(url, v)
@@ -36,18 +35,18 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 			end
 		end
 
-		local detected = not isLowRisk and #detected > 0 and { "detected", "Execution detected!", detected } or
-						 (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
+		local report = not isLowRisk and #detected > 0 and { "detected", "Execution detected!", detected } or
+					   (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
 
-		if detected then
+		if report then
 			local info = {
-				type = detected[1],
+				type = report[1],
 				folder = funcName,
-				alert = detected[2],
+				alert = report[2],
 				func = funcName,
 				trace = trace,
 				url = url,
-				detected = detected[3],
+				detected = report[3],
 				snippet = table.ToString(args2, "arguments", true),
 				file = self:Trace_GetLuaFile(trace)
 			}
@@ -55,7 +54,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 			self:Report_Detection(info)
 		end
 
-		if not self.live.blockThreats or isLowRisk or not detected then
+		if not self.live.blockThreats or isLowRisk or not report then
 			self:Trace_Set(args[2], funcName, trace)
 
 			self:Detours_CallOriginalFunction(funcName, args)
@@ -96,17 +95,17 @@ function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 
 	self:Arguments_Scan(code, funcName, detected, warning)
 
-	local detected = not isLowRisk and #detected > 0 and { "detected", "Execution detected!", detected } or
-	                 (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
+	local report = not isLowRisk and #detected > 0 and { "detected", "Execution detected!", detected } or
+	               (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
 
-	if detected then
+	if report then
 		local info = {
-			type = detected[1],
+			type = report[1],
 			folder = funcName,
-			alert = detected[2],
+			alert = report[2],
 			func = funcName,
 			trace = trace,
-			detected = detected[3],
+			detected = report[3],
 			snippet = code,
 			file = self:Trace_GetLuaFile(trace)
 		}
@@ -114,7 +113,7 @@ function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 		self:Report_Detection(info)
 	end
 
-	return (not self.live.blockThreats or isLowRisk or not detected) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
+	return (not self.live.blockThreats or isLowRisk or not report) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
 end
 
 -- Validate functions that can't call each other
