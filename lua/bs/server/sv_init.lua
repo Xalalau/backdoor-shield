@@ -1,5 +1,5 @@
 --[[
-    2020-2021 Xalalau Xubilozo. MIT License
+    2020-2022 Xalalau Xubilozo. MIT License
     https://xalalau.com/
 --]]
 
@@ -48,7 +48,7 @@ function BS:Initialize()
     ██████╔╝██║  ██║╚██████╗██║  ██╗██████╔╝╚██████╔╝╚██████╔╝██║  ██║
     ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═════╝  ╚═════╝  ╚═════╝ ╚═╝  ╚═╝
 
-    ███████╗██╗  ██╗██╗███████╗██╗     ██████╗   2020-2021
+    ███████╗██╗  ██╗██╗███████╗██╗     ██████╗   2020-2022
     ██╔════╝██║  ██║██║██╔════╝██║     ██╔══██╗  Xalalau Xubilozo
     ███████╗███████║██║█████╗  ██║     ██║  ██║  MIT License
     ╚════██║██╔══██║██║██╔══╝  ██║     ██║  ██║]],
@@ -57,16 +57,20 @@ function BS:Initialize()
 
     ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝      
 
-    The security is performed by automatically blocking executions,
-    correcting some changes and warning about suspicious activity, but
-    you may also:
+    Real-time blocking of suspicious executions, function protection against
+    detouring, malware scanner and detailed detection logs.
 
-    1) Set custom black and white lists directly in the definitions file.
-    Don't leave warnings on the console and make exceptions whenever you
-    want. Logs are located in: "garrysmod/data/]] .. self.folder.data .. [["
+    To set custom black and white lists, edit the definitions file:
+    addons/backdoor-shield/lua/bs/server/definitions.lua
+    You can also avoid unnecessary warnings in the console this way.
+
+    Logs are located in: "garrysmod/data/]] .. self.folder.data .. [["
+
+    Disclaimer: This addon will by no means solve all your problems, it's
+    just a tool created for self-interest research. - Xalalau
     ]],
     [4] = [[
-    2) Use these commands:
+    Commands:
     |
     |-> bs_scan FOLDER(S)       Recursively scan lua, txt, vmt, dat and
     |                           json files in FOLDER(S).
