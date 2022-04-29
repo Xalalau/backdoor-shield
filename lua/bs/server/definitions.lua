@@ -12,6 +12,15 @@
 BS.devMode = true
 
 
+-- DETOUR CONFIGURATIONS
+-- -----------------------------------------------------------------------------------
+
+BS.detour = {
+	-- Block detouring protected functions
+	-- This should never be turned off, but it's here in case you want to disable it
+	blockChanges = true, 
+}
+
 -- REAL TIME PROTECTION
 -- -----------------------------------------------------------------------------------
 

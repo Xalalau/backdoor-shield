@@ -77,9 +77,11 @@ function BS:Detours_Validate(funcName, trace, isLowRisk)
 			info.alert = "Warning! Detour detected in a low-risk location. Ignoring it..."
 		else
 			info.type = "detour"
-			info.alert = "Detour captured and undone!"
+			info.alert = "Detour detected" .. (self.detour.blockChanges and " and undone!" or "!")
 
-			self:Detours_SetFunction(funcName, detourAddress)
+			if self.detour.blockChanges then
+				self:Detours_SetFunction(funcName, detourAddress)
+			end
 		end
 
 		self:Report_Detection(info)
