@@ -1,8 +1,7 @@
 Banco assassino de backdoor https://github.com/BannedGithub/Backdoor_Busting_2015
 
 
-trocar Blocked code snippet para code snippet
-
+logar o conteúdo de runstring etc mesmo que não seja uma detecção
 
 
 	-- Whitelist
