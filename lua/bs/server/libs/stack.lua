@@ -1,5 +1,5 @@
 --[[
-    2020-2021 Xalalau Xubilozo. MIT License
+    2020-2022 Xalalau Xubilozo. MIT License
     https://xalalau.com/
 
    HACKS: For some reason these functions are EXTREMELY temperamental! I was unable to use the
