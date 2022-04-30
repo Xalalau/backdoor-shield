@@ -78,17 +78,20 @@ function BS:Initialize()
         * If no folder is defined, it'll scan addons, lua, gamemode and
           data folders.
 
-    -------------------------------------------------------------------]],
-    [5] = "    -------- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --------" }
+    Enabled features:
+    |]],
+    [5] = [[
+
+    -------- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --------]] }
 
     if not self.__G.BS_reloaded then
         for k, str in ipairs(logo) do
             if k == 5 then
-                print("    | Live detection = " .. (self.live.isOn and "true" or "false !!!!"))
-                print("    | Live blocking = " .. (self.live.blockThreats and "true" or "false !!!!"))
-                print("    | Anti detour = " .. (self.detour.blockChanges and "true" or "false !!!!"))
-                print("    | Alerts window = " .. (self.live.alertAdmins and "true" or "false !!!!"))
-                print("    | Dev mode = " .. (self.devMode and "true !!!! The addon functions are exposed!" or "false"))
+                print("    |-> [" .. (self.live.isOn and "x" or " ") .. "] Live detection")
+                print("    |-> [" .. (self.live.blockThreats and "x" or " ") .. "] Live blocking")
+                print("    |-> [" .. (self.detour.blockChanges and "x" or " ") .. "] Anti detour")
+                print("    |-> [" .. (self.live.alertAdmins and "x" or " ") .. "] Alerts window")
+                print("    |-> [" .. (self.devMode and "x" or " ") .. "] Dev mode")
             end 
             print(str)
         end
