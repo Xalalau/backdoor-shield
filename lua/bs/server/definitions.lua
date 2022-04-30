@@ -281,9 +281,10 @@ BS.lowRisk= {
 -- Exception: BS.live.control functions configured with the "fast" option
 
 BS.whitelists = {
-	-- Whitelisted files
+	-- Whitelisted folders
 	folders = {
 		"lua/wire/", -- Wiremod
+		"lua/entities/gmod_wire_expression2/", -- Wiremod
 		"lua/ulx/", -- ULX
 		"lua/ulib/", -- Ulib
 		"lua/pac3/", -- Pac3
@@ -291,7 +292,7 @@ BS.whitelists = {
 		"lua/playx", -- PlayX
 	},
 
-	-- Whitelisted folders
+	-- Whitelisted files
 	files = {
 		"lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
 		"gamemodes/base/entities/entities/lua_run.lua" -- GMod
