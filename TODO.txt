@@ -1,5 +1,22 @@
 Banco assassino de backdoor https://github.com/BannedGithub/Backdoor_Busting_2015
 
+Há casos de gente escondendo coisas em "lua_run". Eu não escaneio isso.
+
+Eu devia emitir alertas quando algumas funções que alimentam tabelas assim são chamadas
+	local Fuck1 = {
+		server_name 	= Name,
+		map 			= Map,
+		gamemodename 	= Game,
+		server_ip 		= math.random(1,244).."."..math.random(1,244).."."..math.random(1,244).."."..math.random(1,244),
+		serverport		= utilx.OneIn(3) and "27016" or "27015"
+		server_rcon		= utilx.OneIn(3) and HAC.RandomString() or "No rcon"
+		serverpass 		= utilx.OneIn(5) and table.RandomEx(HSP.ChatFilter.Abbreviations).what or "",
+		currentplayers 	= tostring(Tot),
+		maxplayers 		= tostring(Max),
+		infector 		= "Third Person Controller",
+		infector_ver 	= "3.3",
+	}
+ex: quem precisa de server_ip e serverport? 
 
 logar o conteúdo de runstring etc mesmo que não seja uma detecção
 
@@ -33,7 +50,7 @@ aliás, posso escanear diversos arquivos de várias funções
 faço 1 scan. Se bom = whitelist, se ruim = blacklist
 mas e se não tiver um arquivo associado?? Como pego um script assim?
 
-runstring com:
+Vi um runstring com:
 SetModel, DropWeapon, SetUserGroup, me:SetRunSpeed, me:SetWalkSpeed, addMoney, GiveAmmo, GodEnable, GodDisable
 Freeze, , Ignite, Fire, Kill, DoAnimationEvent, sv_gravity, sv_friction, sv_password, sv_allowcslua, rp_resetallmoney, sv_hostname
 Remove, RunConsoleCommand, file.Delete, file.Find, ULib.unban, IPAddress, SteamID(), Nick(), OpenURL, hook.Add, hook.Remove,
