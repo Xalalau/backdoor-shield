@@ -116,14 +116,15 @@ function BS:Detours_SetFunction(funcName, newfunc, env)
 
 	local newTable = {}
 	local newTableCurrent = newTable
+
+	local lib = env
 	local explodedFuncName = string.Explode(".", funcName)
+	local totalParts = #explodedFuncName
 
-	for k,namePart in ipairs(explodedFuncName) do
-		newTableCurrent[namePart] = k == #explodedFuncName and newfunc or {}
-		newTableCurrent = newTableCurrent[namePart]
+	for k, partName in ipairs(explodedFuncName) do
+		lib[partName] = k == totalParts and newfunc or lib[partName] or {}
+		lib = lib[partName]
 	end
-
-	table.Merge(env, newTable)
 end
 
 -- Set a detour (including the filters)
