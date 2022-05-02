@@ -115,7 +115,7 @@ BS.live = {
 		["timer.Destroy"] = {},
 		["timer.Exists"] = {},
 		["timer.Simple"] = { filters ="Filters_CheckTimers" },
-		["tostring"] = { filters = "Filters_ProtectAddresses", fast = true },
+		--["tostring"] = { filters = "Filters_ProtectAddresses", fast = true }, -- unstable
 		["util.AddNetworkString"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
 		["util.NetworkIDToString"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
 		["util.ScreenShake"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
@@ -168,105 +168,97 @@ BS.live = {
 -- Don't add common patterns to the blacklists and suspect lists, or the addon will return
 -- many false positives and probably turn the console into a giant log hell.
 
-BS.filesScanner = {
+BS.scanner = {
 	-- These extensions will never be considered as not suspect by the file scanner.
 	-- The bs_scan command scans only for files with these extensions.
 	dangerousExtensions = { "lua", "txt" , "vmt", "dat", "json" },
 
 	-- The folders checked by the scanner if none are specified (bs_scan command)
-	foldersToScan = { "addons", "lua", "gamemode", "data" },
+	foldersToScan = { "addons", "lua", "gamemodes", "data" },
 
 	-- Print low-risk results in the console
 	printLowRisk = false,
 
-	-- Discard a result if it's from a file with only BS.filesScanner.suspect_suspect detections
-	discardVeryLowRisk = true,
+	-- Discard results that didn't even get the low risk weight
+	discardUnderLowRisk = true,
 
 	-- Ignore our own folders
 	ignoreBSFolders = true,
 
-	-- Detections with these chars will be considered as not suspect (at first) for tested strings
-	-- that aren't from files with extensions listed in scanner.dangerousExtensions.
-	--   Avoid false positives with non Lua files
+	-- Avoid false positives with non Lua files
+	--   Detections with these chars will be considered as not suspect (at first) for tested strings
+	--   that aren't from files with extensions listed in the dangerousExtensions table.
 	notSuspect = {
 		"ÿ",
-		"", -- 000F
+		"" -- 000F
 	},
 
-	-- Very edge snippets, syntax and symbols that virtually only backdoors use
-	--   High-risk
-	blacklistHigh = {
-		"‪", -- U+202a
-		"(_G)",
-		",_G,",
-		"!true",
-		"!false",
+	-- Current risk thresholds:
+	thresholds = {
+		high = 15,
+		medium = 10,
+		low = 5
 	},
 
-	-- Edge snippets, syntax and symbols that virtually only backdoors use
-	--   High-risk
-	blacklistHigh_suspect = {
-		"=_G", -- Note: used by backdoors to start hiding names or create a better environment
+	-- Blacklisted terms and their detection weights
+	--   The blacklist can have functions, snippets, syntax and symbols as keys
+	--   The weight of each detection is summed and compared to the risk thresholds
+	blacklist_check = {
+		["‪"] = 15, -- U+202a
+		["(_G)"] = 15,
+		[",_G,"] = 15,
+		["!true"] = 15,
+		["!false"] = 15,
+		["=_G"] = 12, -- Used by backdoors to start hiding names or create a new environment
+		["RunString"] = 10,
+		["RunStringEx"] = 10,
+		["CompileString"] = 8,
+		["CompileFile"] = 8,
+		["http.Fetch"] = 5,
+		["http.Post"] = 5,
+		["game.ConsoleCommand"] = 5,
+		["debug.getinfo"] = 4,
+		["setfenv"] = 4,
+		["BroadcastLua"] = 3,
+		["SendLua"] = 3,
+		["_G["] = 2,
+		["_G."] = 2,
+		["_R["] = 2,
+		["_R."] = 2,
+		["pcall"] = 1,
+		["xpcall"] = 1,
+		["]()"] = 1,
+		["0x"] = 1,
+		["\\x"] = 1
 	},
 
-	-- Functions that sometimes appear in normal scripts, but are usually seen in backdoors
-	--   Medium-risk
-	blacklistMedium = {
-		"RunString",
-		"RunStringEx",
-		"CompileString",
-		"CompileFile",
-		"BroadcastLua",
-		"setfenv",
-		"http.Fetch",
-		"http.Post",
-		"debug.getinfo",
-		"game.ConsoleCommand",
+	-- Weight reduction in detections
+	counterWeights = {
+		notSuspect = -15,
+		loose = -10
 	},
 
-	-- Snippets, syntax and symbols that sometimes appear in normal scripts, but are usually seen in backdoors
-	--   Medium-risk
-	blacklistMedium_suspect = {
-		"_G[",
-		"_G.",
-		"_R[",
-		"_R."
-	},
-
-	-- Functions that some backdoors and regular scripts use - They aren't worth blocking, just warning.
-	--   I use these detections to increase the potential risk of others while scanning files.
-	--   Low-risk
-	suspect = {
-		"pcall",
-		"xpcall",
-		"SendLua",
-	},
-
-	-- Snippets, syntax and symbols that some backdoors and regular scripts use - They aren't worth blocking, just warning.
-	--   I use these detections to increase the potential risk of others while scanning files, but with a very light weight.
-	--   Low-risk
-	suspect_suspect = {
-		"]()",
-		"0x",
-		"\\x",
-	},
+	-- Weight increase in detections
+	extraWeights = {
+		notLuaFile = 15,
+	}
 }
 
 
--- LOW-RISK LISTS
+-- LOOSE DETECTION LISTS
 -- -----------------------------------------------------------------------------------
 
--- Detections from these lists are considered low risk on the file scanner and generate
--- only warnings on live protection. Even detour detections only alert!
+-- Detections from these lists will receive weight reduction on file scanner and
+-- generate only warnings on live and detour protection!
 
--- Exception: BS.live.control functions configured with the "fast" option
+-- Exception: BS.live.control functions configured with the "fast" option -- ??????????????????????
 
-BS.lowRisk= {
-	-- Low-risk folders
+BS.loose = {
+	-- Loose folders
 	folders = {
 	},
 
-	-- Low-risk files
+	-- Loose files
 	files = {
 	},
 }
@@ -283,11 +275,11 @@ BS.lowRisk= {
 BS.whitelists = {
 	-- Whitelisted folders
 	folders = {
-		"lua/wire/", -- Wiremod
-		"lua/entities/gmod_wire_expression2/", -- Wiremod
-		"lua/ulx/", -- ULX
-		"lua/ulib/", -- Ulib
-		"lua/pac3/", -- Pac3
+		"lua/wire", -- Wiremod
+		"lua/entities/gmod_wire_expression2", -- Wiremod
+		"lua/ulx", -- ULX
+		"lua/ulib", -- Ulib
+		"lua/pac3", -- Pac3
 		"lua/smh", -- Stop Motion Helper
 		"lua/playx", -- PlayX
 	},
@@ -295,7 +287,10 @@ BS.whitelists = {
 	-- Whitelisted files
 	files = {
 		"lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
-		"gamemodes/base/entities/entities/lua_run.lua" -- GMod
+		"lua/entities/info_wiremapinterface/init.lua", -- Wiremod
+		"gamemodes/base/entities/entities/lua_run.lua", -- GMod
+		"lua/vgui/dhtml.lua", -- GMod
+		"lua/derma/derma.lua" -- GMod
 	},
 
 	-- Whitelist for Filters_CheckStack combinations

@@ -14,7 +14,7 @@ function BS:Detours_Init()
 			self.live.control[protectedFunc].filters = self[self.live.control[protectedFunc].filters]
 			filters = { self.live.control[protectedFunc].filters }
 		elseif istable(filters) then
-			for k,_ in ipairs(filters) do
+			for k, _ in ipairs(filters) do
 				self.live.control[protectedFunc].filters[k] = self[self.live.control[protectedFunc].filters[k]]
 			end
 
@@ -54,7 +54,7 @@ function BS:Detours_SetAutoCheck()
 end
 
 -- Protect a detoured address
-function BS:Detours_Validate(funcName, trace, isLowRisk)
+function BS:Detours_Validate(funcName, trace, isLoose)
 	local currentAddress = self:Detours_GetFunction(funcName)
 	local detourAddress = self.live.control[funcName].detour
 	local luaFile
@@ -72,7 +72,7 @@ function BS:Detours_Validate(funcName, trace, isLowRisk)
 			trace = trace or luaFile
 		}
 
-		if isLowRisk then
+		if isLoose then
 			info.type = "warning"
 			info.alert = "Warning! Detour detected in a low-risk location. Ignoring it..."
 		else
@@ -84,7 +84,7 @@ function BS:Detours_Validate(funcName, trace, isLowRisk)
 			end
 		end
 
-		self:Report_Detection(info)
+		self:Report_LiveDetection(info)
 
 		return false
 	end
@@ -103,8 +103,8 @@ function BS:Detours_GetFunction(funcName, env)
 	env = env or self.__G
 	local currentFunc = {}
 
-	for k,v in ipairs(string.Explode(".", funcName)) do
-		currentFunc[k] = currentFunc[k - 1] and currentFunc[k - 1][v] or env[v]
+	for k, funcNamePart in ipairs(string.Explode(".", funcName)) do
+		currentFunc[k] = currentFunc[k - 1] and currentFunc[k - 1][funcNamePart] or env[funcNamePart]
 	end
 
 	return currentFunc[#currentFunc]
@@ -159,16 +159,16 @@ function BS:Detours_Create(funcName, filters, failed, fast)
 			return self:Detours_CallOriginalFunction(funcName, args)
 		end
 
-		local isLowRisk = self:Trace_IsLowRisk(trace)
+		local isLoose = self:Trace_IsLoose(trace)
 		
 		-- Check detour
-		self:Detours_Validate(funcName, trace, isLowRisk)
+		self:Detours_Validate(funcName, trace, isLoose)
 
 		-- Run filters
 		if filters then
 			local i = 1
 			for _,filter in ipairs(filters) do
-				local result = filter(self, trace, funcName, args, isLowRisk)
+				local result = filter(self, trace, funcName, args, isLoose)
 
 				running[funcName] = nil
 
@@ -195,7 +195,7 @@ end
 -- Remove our detours
 -- Used only by live reloading functions
 function BS:Detours_Remove()
-	for k,v in pairs(self.live.control) do
+	for k, _ in pairs(self.live.control) do
 		self:Detours_SetFunction(k, self:Detours_GetFunction(k, _G))
 	end
 end

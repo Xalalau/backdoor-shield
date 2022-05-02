@@ -30,14 +30,14 @@ local function FormatTypesList(snippet, file)
 
 	local messages = {
 		["snippet"] = "Detected code snippet",
-		["file"] = "Full Lua file: " ,
+		["file"] = "Full Lua file" ,
 	}
 
 	local indent = "        "
 	local result = [[
 
 ]] .. (snippet and indent .. (messages["snippet"] .. "\n") or "") .. [[
-]] .. (file and indent .. (messages["file"] .. file) or "")
+]] .. (file and indent .. (messages["file"]) or "")
 
 	return result
 end
@@ -106,7 +106,7 @@ table.insert(BS.locals, FormatLog)
 
 	Note: Using the type "warning" will generate full file logs but smaller console prints
 ]]
-function BS:Report_Detection(infoIn)
+function BS:Report_LiveDetection(infoIn)
 	-- Format the report informations
 	local timestamp = os.time()
 	local date = os.date("%Y-%m-%d", timestamp)
@@ -122,7 +122,7 @@ function BS:Report_Detection(infoIn)
 					luaFile      				Full Lua file.txt
 					snippetFile  				Detected code snippet.txt
 	]]
-	local dayFolder = self.folder.data .. date .. "/"
+	local dayFolder = self.folder.data .. "/" .. date .. "/"
 	local typeFile = dayFolder .. "/log_" .. infoIn.type .. ".txt"
 	local mainFolder = infoIn.folder and dayFolder .. infoIn.folder .. "/"
 	local logFolder = mainFolder and ValidateFolderName(mainFolder .. timeFormat1 .. " - " .. infoIn.type .. "/")
@@ -137,12 +137,13 @@ function BS:Report_Detection(infoIn)
 	local info = { -- If you change the fields order, update FormatLog(). Also, use "::" to identify the color position
 		self.alert .. " " .. infoIn.alert or "",
 		"\n    Date & time:: " .. date .. " | " .. timeFormat2,
+		infoIn.trace and "\n    Location:: " .. self:Trace_GetLuaFile(infoIn.trace) or "",
 		infoIn.func and "\n    Function:: " .. infoIn.func or "",
-		detected and "\n    Detected::" .. detected or "",
+		detected and "\n    Trying to call::" .. detected or "",
 		infoIn.url and "\n    Url:: " .. infoIn.url or "",
 		"\n    Log Folder:: data/" .. (logFolder or dayFolder),
 		filesGenerated and "\n    Log Contents:: " .. filesGenerated or "",
-		infoIn.trace and "\n    Location:: " .. infoIn.trace or ""
+		infoIn.trace and "\n    Trace:: " .. infoIn.trace or ""
 	}
 
 	local fullLog, partialLog = FormatLog(info)
@@ -152,16 +153,17 @@ function BS:Report_Detection(infoIn)
 
 	[Backdoor Shield] Execution detected!
 		Date & Time: 03-14-2021 | 23h 57m 47s
+		Location: addons/ariviaf4/lua/autorun/_arivia_load.lua:111
 		Function: http.Fetch
-		Detected:
+		Trying to call:
 			CompileString
 			http.Fetch
 		Url: https://gvac.cz/link/fuck.php?key=McIjefKcSOKuWbTxvLWC
 		Log Folder: data/backdoor-shield/03-14-2021/http.Fetch/23.57.47 - detected/
 		Log Contents:
 			Detected code snippet
-			Full Lua file: addons/ariviaf4/lua/autorun/_arivia_load.lua
-		Location:
+			Full Lua file
+		Trace:
 		  (+)
 		  stack traceback:
 			addons/backdoor-shield/lua/bs/server/modules/detouring/functions.lua:80: in function 'Fetch'
@@ -176,15 +178,22 @@ function BS:Report_Detection(infoIn)
 
 	-- Print to console
 	for linePos,lineText in ipairs(string.Explode("\n", partialLog or fullLog)) do
-		local colors = string.Explode("::", lineText)
+		local lineParts = string.Explode("::", lineText)
 
 		if linePos == 2 then
-			MsgC(infoIn.type == "warning" and self.colors.mediumRisk or self.colors.highRisk, lineText .. "\n")
-		elseif #colors > 0 then
-			if not colors[2] then
-				MsgC(self.colors.value, colors[1] .. "\n")
+			local alertInfo = infoIn.type == "detected" and {
+				color = self.colors.highRisk,
+				prefix = " [HIGH] "
+			} or {
+				color = self.colors.mediumRisk,
+				prefix = " [Medium] "
+			}
+			MsgC(alertInfo.color, "▉▉▉", self.colors.value, alertInfo.prefix .. lineText .. "\n")
+		elseif #lineParts > 0 then
+			if not lineParts[2] then
+				MsgC(self.colors.value, lineParts[1] .. "\n")
 			else
-				MsgC(self.colors.key, colors[1] .. ":", self.colors.value, colors[2] .. "\n")
+				MsgC(self.colors.key, lineParts[1] .. ":", self.colors.value, lineParts[2] .. "\n")
 			end
 		else
 			print(lineText)
@@ -242,25 +251,54 @@ function BS:Report_Detection(infoIn)
 	end
 end
 
--- Print scan detections to a file
-function BS:Report_Folder(highRisk, mediumRisk, lowRisk)
+-- Print scan detections to console
+function BS:Report_ScanDetection(resultString, resultsList, results)
+	if resultsList ~= results.lowRisk or self.scanner.printLowRisk then
+		for lineCount, lineText in pairs(string.Explode("\n", resultString)) do
+			if lineCount == 1 then
+				local lineInfo = resultsList == results.highRisk and { " [HIGH] ", self.colors.highRisk } or -- Linux compatible colors
+								 resultsList == results.mediumRisk and { " [Medium] ", self.colors.mediumRisk } or
+								 resultsList == results.lowRisk and { " [low] ", self.colors.lowRisk }
+
+				MsgC(lineInfo[2], "▉▉▉", self.colors.value, lineInfo[1] .. lineText .. "\n")
+			else
+				print(lineText)
+			end
+		end
+	end
+end
+
+-- Print scan results to console and file
+function BS:Report_ScanResults(results)
+	MsgC(self.colors.header, "\nScan results:\n\n")
+
+	MsgC(self.colors.key, "    Files scanned: ", self.colors.value, results.totalScanned .. "\n\n")
+
+	MsgC(self.colors.key, "    Detections:\n")
+	MsgC(self.colors.key, "      | High-Risk   : ", self.colors.value, #results.highRisk .. "\n")
+	MsgC(self.colors.key, "      | Medium-Risk : ", self.colors.value, #results.mediumRisk .. "\n") 
+	MsgC(self.colors.key, "      | Low-Risk    : ", self.colors.value, #results.lowRisk .. "\n")
+	MsgC(self.colors.key, "      | Discarded   : ", self.colors.value, results.discarded .. "\n\n")
+
 	local timestamp = os.time()
 	local date = os.date("%Y-%m-%d", timestamp)
 	local time = os.date("%Hh %Mm %Ss", timestamp)
-	local logFile = self.folder.data .. "Scan_" .. date .. "_(" .. time .. ").txt"
+	local logFile = self.folder.data .. "/Scan_" .. date .. "_(" .. time .. ").txt"
 
 	local topSeparator = "\n\n\n\n\n"
 	local bottomSeparator = "\n-----------------------------------------------------------------------------------\n\n"
 
 	local message = [[
 [HIGH RISK detections] ]] .. bottomSeparator ..[[
-]] .. table.ToString(highRisk, "Results", true) .. [[
+]] .. table.ToString(results.highRisk, "Results", true) .. [[
 ]] .. topSeparator .. "[MEDIUM RISK detections]" .. bottomSeparator .. [[
-]] .. table.ToString(mediumRisk, "Results", true) .. [[
+]] .. table.ToString(results.mediumRisk, "Results", true) .. [[
 ]] .. topSeparator .. "[LOW RISK detections]" .. bottomSeparator .. [[
-]] .. table.ToString(lowRisk, "Results", true)
+]] .. table.ToString(results.lowRisk, "Results", true)
 
 	file.Append(logFile, message)
 
-	return logFile
+	MsgC(self.colors.key, "    Saved as: ", self.colors.value, "data/" .. logFile .. "\n\n")
+
+	MsgC(self.colors.message, "Check the log file for more information.\n\n")
 end

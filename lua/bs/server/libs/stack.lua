@@ -14,7 +14,7 @@
 
 -- I can't pass arguments or move the functions to our environment, so I copy my tables locally
 local BS_protectedCalls_Hack
-local BS_traceBank_Hack
+local BS_traceStacks_Hack
 
 -- Protect against detouring and always get real results
 local _debug = {}
@@ -36,7 +36,7 @@ local argsPop = {}
 -- Copy some tables locally (also a workaround)
 function BS:Stack_Init()
 	BS_protectedCalls_Hack = table.Copy(self.protectedCalls)
-	BS_traceBank_Hack = self.traceBank
+	BS_traceStacks_Hack = self.traceStacks
 end
 
 -- Insert arguments into argsPop
@@ -57,7 +57,7 @@ local function Stack_Check()
 	}
 
 	-- This is how I'm passing arguments
-	for k,arg in _ipairs(argsPop) do
+	for k, arg in _ipairs(argsPop) do
 		vars.currentFuncAddress = arg[1]
 		vars.currentFuncName = arg[2]
 		argsPop[k] = nil
@@ -72,18 +72,18 @@ local function Stack_Check()
 		local name, value = _debug.getlocal(1, 2, vars.increment)
 
 		if value then
-			-- Update the name and address using info from the trace bank, if it's the case
-			local traceBank = BS_traceBank_Hack[_tostring(value.func)]
+			-- Update the name and address using info from the trace stacks, if it's the case
+			local traceStacks = BS_traceStacks_Hack[_tostring(value.func)]
 
-			if traceBank then
+			if traceStacks then
 				local func = __G
 
-				for k,v in _ipairs(_string.Explode(".", traceBank.name)) do
-					func = func[v]
+				for k, funcNamePart in _ipairs(_string.Explode(".", traceStacks.name)) do
+					func = func[funcNamePart]
 				end
 
 				value.func = func -- Use the address of the last function from the older stack, so we can keep track of what's happening
-				value.name = traceBank.name
+				value.name = traceStacks.name
 			end
 	
 			-- Now we are going to check if it's a protected function call
@@ -167,7 +167,7 @@ local function Stack_SkipBSFunctions()
 	}
 
 	-- This is how I'm passing arguments
-	for k,arg in _ipairs(argsPop) do
+	for k, arg in _ipairs(argsPop) do
 		vars.requiredStackLevel = arg[1]
 		vars.requiredFields = arg[2]
 		vars.luaFolder = arg[3]

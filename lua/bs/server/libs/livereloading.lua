@@ -10,8 +10,8 @@ function BS:LiveReloading_Set()
 
     if self.devMode and not timer.Exists(name) then
         timer.Create(name, 0.2, 0, function()
-            for k,v in pairs(self:Utils_GetFilesCreationTimes()) do
-                if v ~= self.filenames[k] then
+            for fileName, creationTime in pairs(self:Utils_GetFilesCreationTimes()) do
+                if creationTime ~= self.filenames[fileName] then
                     MsgC(self.colors.reload, self.alert .. " Reloading...\n")
 
                     self:Detours_Remove()

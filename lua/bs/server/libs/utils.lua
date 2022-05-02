@@ -34,16 +34,16 @@ function BS:Utils_GetFilesCreationTimes()
             return
         end
     
-        for _, fdir in pairs(dirs) do
-            GetRecursive(dir .. fdir .. "/")
+        for _, subDir in ipairs(dirs) do
+            GetRecursive(dir .. subDir .. "/")
         end
     
-        for k,v in pairs(files) do
-            times[dir .. v] =  file.Time(dir .. v, "LUA")
+        for k, _file in ipairs(files) do
+            times[dir .. _file] =  file.Time(dir .. _file, "LUA")
         end 
     end
 
-    GetRecursive(self.folder.lua)
+    GetRecursive(self.folder.lua .. "/")
 
     return times
 end
@@ -56,9 +56,9 @@ function BS:Utils_ConvertAddonPath(path, forceConvertion)
     if forceConvertion or string.sub(path, 1, 7) == "addons/" then
         corvertedPath = ""
 
-        for k,v in pairs(string.Explode("/", path)) do
+        for k, pathPart in ipairs(string.Explode("/", path)) do
             if k > 2 then
-                corvertedPath = corvertedPath .. "/" .. v
+                corvertedPath = corvertedPath .. "/" .. pathPart
             end
         end
 

@@ -28,13 +28,13 @@ function BS:Debug_RunTests(args)
 
     tests.textAux = {}
 
-    for _,textTab in pairs(tests.text) do
+    for _,textTab in ipairs(tests.text) do
         tests.textAux[textTab[1]] = textTab[2]
     end
 
     function tests.help()
         MsgC(self.colors.header, "\n  Available tests:\n\n")
-        for _,textTab in pairs(tests.text) do
+        for _,textTab in ipairs(tests.text) do
             local colorParts = string.Explode("::", string.format("     %-18s:: %s", textTab[1], textTab[2]))
             MsgC(self.colors.key, colorParts[1], self.colors.value, colorParts[2] .. "\n")
         end
@@ -81,7 +81,7 @@ function BS:Debug_RunTests(args)
     function tests.tostring()
         MsgC(self.colors.header, "\n-----> tostring: " .. tests.textAux["tostring"] .. "\n")
         print()
-        if string.find(self.__G.tostring(self.__G["jit"]["util"]["funcinfo"]), "builtin") then
+        if string.find(self.__G.tostring(self.__G["jit"]["util"]["funcinfo"]), "builtin", nil, true) then
             MsgC(self.colors.message, " (Pass) A selected detour (jit.util.funcinfo) is invisible.\n")
         else
             MsgC(self.colors.message, " (Fail) A selected detour (jit.util.funcinfo) is visible!\n")

@@ -7,36 +7,36 @@
 
 -- Scan http.Fetch and http.Post contents
 -- Add persistent trace support to the called functions
-function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
+function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLoose)
 	local url = args[1]
 
 	local function Scan(args2)
 		local detected = {}
 		local warning = {}
 
-		for k,v in pairs(self.whitelists.urls) do
-			local urlStart = string.find(url, v)
+		for _, whitelistedUrl in ipairs(self.whitelists.urls) do
+			local urlStart = string.find(url, whitelistedUrl, nil, true)
 
 			if urlStart and urlStart == 1 then
 				return self:Detours_CallOriginalFunction(funcName, args)
 			end
 		end
 
-		self:Arguments_Scan(url, funcName, detected, warning)
+		self:Scan_Argument(url, funcName, detected, warning)
 
-		for _,arg in pairs(args2) do
+		for _, arg in ipairs(args2) do
 			if isstring(arg) then
-				self:Arguments_Scan(arg, funcName, detected, warning)
+				self:Scan_Argument(arg, funcName, detected, warning)
 			elseif istable(arg) then
-				for k,v in pairs(arg) do
-					self:Arguments_Scan(k, funcName, detected, warning)
-					self:Arguments_Scan(v, funcName, detected, warning)
+				for k, v in ipairs(arg) do
+					self:Scan_Argument(k, funcName, detected, warning)
+					self:Scan_Argument(v, funcName, detected, warning)
 				end
 			end
 		end
 
-		local report = not isLowRisk and #detected > 0 and { "detected", "Execution detected!", detected } or
-					   (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
+		local report = not isLoose and #detected > 0 and { "detected", "Execution detected!", detected } or
+					   (isLoose or #warning > 0) and { "warning", "Suspicious execution".. (isLoose and " in a low-risk location" or "") .."!" .. (isLoose and " Ignoring it..." or ""), warning }
 
 		if report then
 			local info = {
@@ -51,10 +51,10 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 				file = self:Trace_GetLuaFile(trace)
 			}
 
-			self:Report_Detection(info)
+			self:Report_LiveDetection(info)
 		end
 
-		if not self.live.blockThreats or isLowRisk or not report then
+		if not self.live.blockThreats or isLoose or not report then
 			self:Trace_Set(args[2], funcName, trace)
 
 			self:Detours_CallOriginalFunction(funcName, args)
@@ -85,7 +85,7 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLowRisk)
 end
 
 -- Check CompileString, CompileFile, RunString and RunStringEX contents
-function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
+function BS:Filters_CheckStrCode(trace, funcName, args, isLoose)
 	local code = funcName == "CompileFile" and file.Read(args[1], "LUA") or args[1]
 	local detected = {}
 	local warning = {}
@@ -93,10 +93,10 @@ function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 	if not _G[funcName] then return "" end -- RunStringEx exists but is deprecated
 	if not isstring(code) then return "" end -- Just checking
 
-	self:Arguments_Scan(code, funcName, detected, warning)
+	self:Scan_Argument(code, funcName, detected, warning)
 
-	local report = not isLowRisk and #detected > 0 and { "detected", "Execution detected!", detected } or
-	               (isLowRisk or #warning > 0) and { "warning", "Suspicious execution".. (isLowRisk and " in a low-risk location" or "") .."!" .. (isLowRisk and " Ignoring it..." or ""), warning }
+	local report = not isLoose and #detected > 0 and { "detected", "Execution detected!", detected } or
+	               (isLoose or #warning > 0) and { "warning", "Suspicious execution".. (isLoose and " in a low-risk location" or "") .."!" .. (isLoose and " Ignoring it..." or ""), warning }
 
 	if report then
 		local info = {
@@ -110,17 +110,17 @@ function BS:Filters_CheckStrCode(trace, funcName, args, isLowRisk)
 			file = self:Trace_GetLuaFile(trace)
 		}
 
-		self:Report_Detection(info)
+		self:Report_LiveDetection(info)
 	end
 
-	return (not self.live.blockThreats or isLowRisk or not report) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
+	return (not self.live.blockThreats or isLoose or not report) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
 end
 
 -- Validate functions that can't call each other
 --   Return false if we detect something or "true" if it's fine.
 --   Note that "true" is really between quotes because we need to identify it and not pass the value forward.
 local callersWarningCooldown = {} -- Don't flood the console with messages
-function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
+function BS:Filters_CheckStack(trace, funcName, args, isLoose)
 	local protectedFuncName = self:Stack_Check(funcName)
 	local detectedFuncName = funcName
 	local whitelisted
@@ -133,7 +133,7 @@ function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
 			end)	
 
 			-- Whitelist
-			for _,combo in pairs(self.whitelists.stack) do
+			for _,combo in ipairs(self.whitelists.stack) do
 				if protectedFuncName == combo[1] then
 					if detectedFuncName == combo[2] then
 						whitelisted = true
@@ -143,20 +143,20 @@ function BS:Filters_CheckStack(trace, funcName, args, isLowRisk)
 
 			if not whitelisted then
 				local info = {
-					type = isLowRisk and "warning" or "detected",
+					type = isLoose and "warning" or "detected",
 					folder = protectedFuncName,
-					alert = isLowRisk and "Warning! Prohibited function call in a low-risk location! Ignoring it..." or "Detected function call!",
+					alert = isLoose and "Warning! Prohibited function call in a low-risk location! Ignoring it..." or "Detected function call!",
 					func = protectedFuncName,
 					trace = trace,
 					detected = { detectedFuncName },
 					file = self:Trace_GetLuaFile(trace)
 				}
 
-				self:Report_Detection(info)
+				self:Report_LiveDetection(info)
 			end
 		end
 
-		if not self.live.blockThreats or isLowRisk or whitelisted then
+		if not self.live.blockThreats or isLoose or whitelisted then
 			return "true"
 		else
 			return false
@@ -187,6 +187,7 @@ end
 -- Hide our detours
 --   These functions are used to verify if other functions have valid addresses:
 --     debug.getinfo, jit.util.funcinfo and tostring
+--     Note: using this filter inside tostring is still unstable
 local checking = {}
 function BS:Filters_ProtectAddresses(trace, funcName, args)
 	if checking[funcName] then -- Avoid loops
@@ -195,9 +196,9 @@ function BS:Filters_ProtectAddresses(trace, funcName, args)
 	checking[funcName] = true
 
 	if args[1] and isfunction(args[1]) then
-		for k,v in pairs(self.live.control) do
-			if args[1] == v.detour then
-				args[1] = self:Detours_GetFunction(k, _G)
+		for funcName, funcTab in pairs(self.live.control) do
+			if args[1] == funcTab.detour then
+				args[1] = self:Detours_GetFunction(funcName, _G)
 				break
 			end
 		end
@@ -223,7 +224,7 @@ function BS:Filters_ProtectEnvironment(trace, funcName, args)
 			file = self:Trace_GetLuaFile(trace)
 		}
 
-		self:Report_Detection(info)
+		self:Report_LiveDetection(info)
 	end
 
 	return result

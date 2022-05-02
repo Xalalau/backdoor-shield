@@ -60,11 +60,11 @@ end
 function BS:MsgC(...)
     local this_sequence = color_clear_sequence
 
-    for k, v in ipairs({...}) do
-        if istable(v) then
-            this_sequence = sequence_from_color(v)
+    for k, arg in ipairs({...}) do
+        if istable(arg) then
+            this_sequence = sequence_from_color(arg)
         else
-            self:PrintColored(this_sequence, tostring(v))
+            self:PrintColored(this_sequence, tostring(arg))
         end
     end
 end

@@ -24,10 +24,10 @@ BS.version = "V. 1.8+ (GitHub)"
 
 BS.alert = "[Backdoor Shield]"
 BS.folder = {}
-BS.folder.data = "backdoor-shield/"
-BS.folder.lua = "bs/"
-BS.folder.sv_libs = BS.folder.lua .. "server/libs/"
-BS.folder.cl_libs = BS.folder.lua .. "client/libs/"
+BS.folder.data = "backdoor-shield"
+BS.folder.lua = "bs"
+BS.folder.sv_libs = BS.folder.lua .. "/server/libs"
+BS.folder.cl_libs = BS.folder.lua .. "/client/libs"
 
 BS.colors = {
     header = Color(255, 0, 255),
@@ -53,12 +53,12 @@ if SERVER then
 
     BS.protectedCalls = {} -- List of functions that can't call each other. e.g. { ["function name"] = detoured function address }
 
-    BS.traceBank = {} -- List traces saved from some functions. e.g { ["function address"] = { name = "fuction name", trace = trace } }
+    BS.traceStacks = {} -- List traces saved from some functions. e.g { ["function address"] = { name = "fuction name", trace = trace } }
 
     BS.scannerDangerousExtensions_Check = {} -- Auxiliar tables to check values faster
-    BS.lowRiskFiles_Check = {}
+    BS.looseFiles_Check = {}
     BS.whitelistsFiles_check = {}
-    BS.scannerSuspect_suspect_Check = {}
+    BS.scannerBlacklist = {}
 end
 
 BS.locals = {} -- Register local functions addresses, set their environment to protected, cease to exist
@@ -78,19 +78,19 @@ end
 -- Include our stuff
 
 local function includeLibs(dir, isClientLib)
-    local files, dirs = file.Find( dir.."*", "LUA" )
+    local files, dirs = file.Find( dir .. "*", "LUA" )
 
     if not dirs then return end
 
-    for _, fdir in pairs(dirs) do
-        includeLibs(dir .. fdir .. "/", isClientLib)
+    for _, subDir in ipairs(dirs) do
+        includeLibs(dir .. subDir .. "/", isClientLib)
     end
 
-    for k,v in pairs(files) do
+    for k, _file in ipairs(files) do
         if SERVER and isClientLib then
-            AddCSLuaFile(dir .. v)
+            AddCSLuaFile(dir .. _file)
         else
-            include(dir .. v)
+            include(dir .. _file)
         end
     end 
 end
@@ -98,11 +98,11 @@ end
 if SERVER then
     AddCSLuaFile("autorun/client/bs_cl_autorun.lua")
 
-    include(BS.folder.lua .. "server/definitions.lua")
-    include(BS.folder.lua .. "server/sv_init.lua")
-    includeLibs(BS.folder.sv_libs)
+    include(BS.folder.lua .. "/server/definitions.lua")
+    include(BS.folder.lua .. "/server/sv_init.lua")
+    includeLibs(BS.folder.sv_libs .. "/")
 end
-includeLibs(BS.folder.cl_libs, true)
+includeLibs(BS.folder.cl_libs .. "/", true)
 
 -- Get the creation time of each Lua game file
 GetFilesCreationTimes(BS)
@@ -117,8 +117,10 @@ local BS_AUX = table.Copy(BS)
 BS = nil
 local BS = BS_AUX
 
--- Set our custom environment to main functions
+-- Create a deep copy of the global table
 local __G_SAFE = table.Copy(_G)
+
+-- Set our custom environment to main functions
 for _,v in pairs(BS)do
     if isfunction(v) then
         setfenv(v, __G_SAFE)
@@ -126,7 +128,7 @@ for _,v in pairs(BS)do
 end
 
 -- Set our custom environment to local functions
-for _,v in pairs(BS.locals)do
+for _,v in ipairs(BS.locals)do
     setfenv(v, __G_SAFE)
 end
 BS.locals = nil
@@ -139,17 +141,21 @@ if SERVER then
 
      -- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks
     local generate = {
-        { BS.lowRisk.files, BS.lowRiskFiles_Check },
+        { BS.loose.files, BS.looseFiles_Check },
+        { BS.loose.folders, BS.looseFolders_Check },
         { BS.whitelists.files, BS.whitelistsFiles_check },
-        { BS.filesScanner.dangerousExtensions, BS.scannerDangerousExtensions_Check },
-        { BS.filesScanner.suspect_suspect, BS.scannerSuspect_suspect_Check }
+        { BS.scanner.dangerousExtensions, BS.scannerDangerousExtensions_Check },
     }
 
-    for _,tab in ipairs(generate) do
-        for _,field in ipairs(tab[1]) do
+    for _, tab in ipairs(generate) do
+        for _, field in ipairs(tab[1]) do
             tab[2][field] = true
         end
     end
+
+	for term, _ in pairs(BS.scanner.blacklist_check) do
+		table.insert(BS.scannerBlacklist, term)
+	end
 
     -- Create our data folder
 

@@ -5,25 +5,25 @@
 
 -- Try to get a stored trace given any function address
 function BS:Trace_Get(currentTrace)
-    local bankedTraceTab = self.traceBank[tostring(self:Stack_GetTopFunctionAddress())]
-    local bankedTrace = bankedTraceTab and bankedTraceTab.trace
-    local newFullTrace = (bankedTrace and ("\n      (+) BS - Persistent Trace" .. bankedTrace .. "") or "\n") .. "      " .. currentTrace .. "\n"
+    local stackedTraceInfo = self.traceStacks[tostring(self:Stack_GetTopFunctionAddress())]
+    local stackedTrace = stackedTraceInfo and stackedTraceInfo.trace
+    local newFullTrace = (stackedTrace and ("\n      (+) BS - Persistent Trace" .. stackedTrace .. "") or "\n") .. "      " .. currentTrace .. "\n"
     local newFullTraceClean
 
-    -- Let's remove older banked traces from the result if they exist
-    if bankedTrace ~= "" then
-        local _, countBankedTraces = string.gsub(newFullTrace, "(+)", "")
+    -- Let's remove older stacked traces from the result if they exist
+    if stackedTrace ~= "" then
+        local _, countstackedTraces = string.gsub(newFullTrace, "(+)", "")
 
-        if countBankedTraces >= 2 then
-            local bankedTracesCounter = 0
+        if countstackedTraces >= 2 then
+            local stackedTracesCounter = 0
             newFullTraceClean = "\n"
 
-            for k,v in ipairs(string.Explode("\n", newFullTrace)) do
-                if string.find(v, "(+)") then
-                    bankedTracesCounter = bankedTracesCounter + 1
+            for k, traceLine in ipairs(string.Explode("\n", newFullTrace)) do
+                if string.find(traceLine, "(+)", nil, true) then
+                    stackedTracesCounter = stackedTracesCounter + 1
                 end
-                if bankedTracesCounter > countBankedTraces - 1 then
-                    newFullTraceClean = newFullTraceClean .. v .. "\n"
+                if stackedTracesCounter > countstackedTraces - 1 then
+                    newFullTraceClean = newFullTraceClean .. traceLine .. "\n"
                 end
             end
         end
@@ -34,13 +34,13 @@ end
 
 -- Store a trace associated to a specific function that will lose it
 function BS:Trace_Set(func, name, trace)
-    local bankedTrace = self.traceBank[tostring(self:Stack_GetTopFunctionAddress())]
+    local stackedTrace = self.traceStacks[tostring(self:Stack_GetTopFunctionAddress())]
 
-    if bankedTrace then
-        trace = bankedTrace.trace .. trace
+    if stackedTrace then
+        trace = stackedTrace.trace .. trace
     end
 
-    self.traceBank[tostring(func)] = { name = name, trace = trace }
+    self.traceStacks[tostring(func)] = { name = name, trace = trace }
 end
 
 -- Get the correct detected lua file from a trace stack
@@ -55,46 +55,46 @@ function BS:Trace_GetLuaFile(trace)
         trace = debug.traceback()
     end
 
-    local traceParts = string.Explode("\n", trace)
+    local traceLines = string.Explode("\n", trace)
     local index
 
     -- From the trace top to the bottom:
     --   Find "stack traceback:", skip our own files and get the first valid lua file
     local foundStackStart
-    for k,v in ipairs(traceParts) do
-        if not foundStackStart and string.Trim(v) == "stack traceback:" then
+    for k, traceLine in ipairs(traceLines) do
+        if not foundStackStart and string.Trim(traceLine) == "stack traceback:" then
             foundStackStart = true
         elseif foundStackStart then
-            if not string.find(v, "/lua/" .. self.folder.lua) and not string.find(v, "main chunk") and string.find(v, ".lua") then
+            if not string.find(traceLine, "/lua/" .. self.folder.lua, nil, true) and not string.find(traceLine, "main chunk", nil, true) and string.find(traceLine, ".lua", nil, true) then
                 index = k
                 break
             end
         end
     end
 
-    return index and self:Utils_ConvertAddonPath(string.Trim(string.Explode(":",traceParts[index])[1])) or trace and string.find(trace, ".lua") and trace or ""
+    return index and self:Utils_ConvertAddonPath(string.Trim(string.Explode(":",traceLines[index])[1])) or trace and string.find(trace, ".lua", nil, true) and trace or ""
 end
 
 -- Check if the trace is of a low-risk detection
-function BS:Trace_IsLowRisk(trace)
-    local isLowRisk = false
+function BS:Trace_IsLoose(trace)
+    local isLoose = false
     local luaFile = self:Trace_GetLuaFile(trace)
 
-    if self.lowRiskFiles_Check[luaFile] then
-        isLowRisk = true
+    if self.looseFiles_Check[luaFile] then
+        isLoose = true
     else
-        for _,v in pairs(self.lowRisk.folders) do
-            local start = string.find(luaFile, v)
+        for _,v in ipairs(self.loose.folders) do
+            local start = string.find(luaFile, v, nil, true)
 
             if start == 1 then
-                isLowRisk = true
+                isLoose = true
 
                 break
             end
         end
     end
 
-    return isLowRisk
+    return isLoose
 end
 
 -- Check if the trace is of a whitelisted detection
@@ -105,12 +105,11 @@ function BS:Trace_IsWhitelisted(trace)
     if self.whitelistsFiles_check[luaFile] then
         isWhitelisted = true
     else
-        for _,v in pairs(self.whitelists.folders) do
-            local start = string.find(luaFile, v)
+        for _, _file in ipairs(self.whitelists.folders) do
+            local start = string.find(luaFile, _file, nil, true)
 
             if start == 1 then
                 isWhitelisted = true
-
                 break
             end
         end

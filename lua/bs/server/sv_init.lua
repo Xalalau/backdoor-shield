@@ -17,9 +17,9 @@ table.insert(BS.locals, ProtectedCalls_Init)
 local function ArgumentsFunctions_Init(BS)
 	for funcName,funcTab in pairs(BS.liveControlsBackup) do
         if istable(funcTab.filters) then
-            for _,filter in pairs(funcTab.filters) do
+            for _,filter in ipairs(funcTab.filters) do
                 if filter == "Filters_CheckStack" and funcTab.stackBanLists then
-                    for _,stackBanListName in pairs(funcTab.stackBanLists) do
+                    for _,stackBanListName in ipairs(funcTab.stackBanLists) do
                         if not BS.live.blacklists.functions[stackBanListName] then
                             BS.live.blacklists.functions[stackBanListName] = {}
                         end
@@ -104,14 +104,14 @@ function BS:Initialize()
     -- Command to scan all files in the main/selected folders
     concommand.Add("bs_scan", function(ply, cmd, args)
         if not ply:IsValid() or ply:IsAdmin() then
-            self:Folders_Scan(args, self.filesScanner.dangerousExtensions)
+            self:Scan_Folders(args, self.scanner.dangerousExtensions)
         end
     end)
 
     -- Command to scan some files in the main/selected folders
     concommand.Add("bs_scan_full", function(ply, cmd, args)
         if not ply:IsValid() or ply:IsAdmin() then
-            self:Folders_Scan(args)
+            self:Scan_Folders(args)
         end
     end)
 
