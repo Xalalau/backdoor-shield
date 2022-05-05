@@ -41,7 +41,7 @@ function BS:Scan_Blacklist(BS, str, blacklist)
 						strStart, strEnd = string.find(strSingleWhiteSpaces, term == "=_G" and "= _G" or "= _R", nil, true)
 					end
 
-					local nextChar = strRemovedSpaces[strEnd + 1] or "-"
+					local nextChar = strSingleWhiteSpaces[strEnd + 1] or "-"
 
 					if nextChar == "\t" or nextChar == " " or nextChar == "\n" or nextChar == "\r\n" then
 						foundTerms[term] = foundTerms[term] or {}
