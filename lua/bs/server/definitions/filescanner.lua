@@ -20,6 +20,9 @@ BS.scanner = {
 	-- Print low-risk results in the console
 	printLowRisk = false,
 
+	-- Print detection lines in the console
+	printLines = true,
+
 	-- Discard results that didn't even get the low risk weight
 	discardUnderLowRisk = true,
 

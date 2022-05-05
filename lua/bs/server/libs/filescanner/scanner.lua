@@ -66,11 +66,13 @@ local function JoinResults(BS, detected)
 			end
 
 			if termTab[2] then
-				lines = "\n\n" .. indentation .. indentation
-				for k, lineNumber in SortedPairsByValue(termTab[2]) do
-					lines = lines .. lineNumber .. " "
+				if BS.scanner.printLines then
+					lines = "\n\n" .. indentation .. indentation
+					for k, lineNumber in SortedPairsByValue(termTab[2]) do
+						lines = lines .. lineNumber .. " "
+					end
+					lines = lines .. "\n"
 				end
-				lines = lines .. "\n"
 
 				weight = weight * termTab[3]
 			end
