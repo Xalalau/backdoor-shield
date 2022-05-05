@@ -1,3 +1,8 @@
+--[[
+    2020-2022 Xalalau Xubilozo. MIT License
+    https://xalalau.com/
+--]]
+
 -- That will fix color code printing for linux SRCDS
 -- SRCDS on linux doesn't support 256 color mode
 -- So we have to detour MSGC and replace it for the available ones.

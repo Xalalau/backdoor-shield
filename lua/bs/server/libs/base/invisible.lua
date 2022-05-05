@@ -1,3 +1,8 @@
+--[[
+    2020-2022 Xalalau Xubilozo. MIT License
+    https://xalalau.com/
+--]]
+
 BS.UTF8InvisibleChars = {
     -- Source: https://github.com/microsoft/vscode/blob/bb5215fff67fd9f40e247a353cc0e5e84a28f49f/src/vs/base/common/strings.ts#L1175
     -- Thank you, VSCode!

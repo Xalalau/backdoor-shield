@@ -14,13 +14,13 @@ function BS:AutoReloading_Set()
                 if creationTime ~= self.filenames[fileName] then
                     MsgC(self.colors.reload, self.alert .. " Reloading...\n")
 
-                    self:Detours_Remove()
+                    self:Detour_Remove()
 
                     self.reloaded = true
 
                     self.__G.BS_reloaded = true
                     timer.Simple(0.01, function()
-                        include("bs/init.lua")
+                        include(self.folder.lua .. "/init.lua")
 
                         self.__G.BS_reloaded = nil
                     end)

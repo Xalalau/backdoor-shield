@@ -4,11 +4,10 @@
 --]]
 
 -- Initialize detours and filters from the control table
-function BS:Detours_Init()
+function BS:Detour_Init()
 	for protectedFunc,_ in pairs(self.live.control) do
 		local filters = self.live.control[protectedFunc].filters
 		local failed = self.live.control[protectedFunc].failed
-		local fast = self.live.control[protectedFunc].fast
 
 		if isstring(filters) then
 			self.live.control[protectedFunc].filters = self[self.live.control[protectedFunc].filters]
@@ -21,7 +20,7 @@ function BS:Detours_Init()
 			filters = self.live.control[protectedFunc].filters
 		end
 
-		self:Detours_Create(protectedFunc, filters, failed, fast)
+		self:Detour_Create(protectedFunc, filters, failed)
 	end
 end
 
@@ -29,7 +28,7 @@ end
 -- 	 First 5m running: check every 5s
 -- 	 Later: check every 60s
 -- This function isn't really necessary, but it's good for advancing detections
-function BS:Detours_SetAutoCheck()
+function BS:Detour_SetAutoCheck()
 	local function SetAuto(name, delay)
 		timer.Create(name, delay, 0, function()
 			if self.reloaded then
@@ -39,7 +38,7 @@ function BS:Detours_SetAutoCheck()
 			end
 
 			for funcName,_ in pairs(self.live.control) do
-				self:Detours_Validate(funcName)
+				self:Detour_Validate(funcName)
 			end
 		end)
 	end
@@ -54,8 +53,8 @@ function BS:Detours_SetAutoCheck()
 end
 
 -- Protect a detoured address
-function BS:Detours_Validate(funcName, trace, isLoose)
-	local currentAddress = self:Detours_GetFunction(funcName)
+function BS:Detour_Validate(funcName, trace, isLoose)
+	local currentAddress = self:Detour_GetFunction(funcName)
 	local detourAddress = self.live.control[funcName].detour
 	local luaFile
 
@@ -77,10 +76,10 @@ function BS:Detours_Validate(funcName, trace, isLoose)
 			info.alert = "Warning! Detour detected in a low-risk location. Ignoring it..."
 		else
 			info.type = "detour"
-			info.alert = "Detour detected" .. (self.detour.blockChanges and " and undone!" or "!")
+			info.alert = "Detour detected" .. (self.live.undoDetours and " and undone!" or "!")
 
-			if self.detour.blockChanges then
-				self:Detours_SetFunction(funcName, detourAddress)
+			if self.live.undoDetours then
+				self:Detour_SetFunction(funcName, detourAddress)
 			end
 		end
 
@@ -93,13 +92,13 @@ function BS:Detours_Validate(funcName, trace, isLoose)
 end
 
 -- Call an original game function from our protected environment
--- Note: It was created to simplify these calls directly from Detours_GetFunction()
-function BS:Detours_CallOriginalFunction(funcName, args)
-	return self:Detours_GetFunction(funcName, _G)(unpack(args))
+-- Note: It was created to simplify these calls directly from Detour_GetFunction()
+function BS:Detour_CallOriginalFunction(funcName, args)
+	return self:Detour_GetFunction(funcName, _G)(unpack(args))
 end
 
 -- Get a function address by name from a selected environment
-function BS:Detours_GetFunction(funcName, env)
+function BS:Detour_GetFunction(funcName, env)
 	env = env or self.__G
 	local currentFunc = {}
 
@@ -111,7 +110,7 @@ function BS:Detours_GetFunction(funcName, env)
 end
 
 -- Update a function address by name in a selected environment
-function BS:Detours_SetFunction(funcName, newfunc, env)
+function BS:Detour_SetFunction(funcName, newfunc, env)
 	env = env or self.__G
 
 	local newTable = {}
@@ -128,8 +127,8 @@ function BS:Detours_SetFunction(funcName, newfunc, env)
 end
 
 -- Set a detour (including the filters)
--- Note: if a filter validates but doesn't return the result from Detours_CallOriginalFunction(), just return "true" (between quotes!)
-function BS:Detours_Create(funcName, filters, failed, fast)
+-- Note: if a filter validates but doesn't return the result from Detour_CallOriginalFunction(), just return "true" (between quotes!)
+function BS:Detour_Create(funcName, filters, failed)
 	local running = {} -- Avoid loops
 
 	function Detour(...)
@@ -137,17 +136,9 @@ function BS:Detours_Create(funcName, filters, failed, fast)
 
 		-- Avoid loops
 		if running[funcName] then
-			return self:Detours_CallOriginalFunction(funcName, args)
+			return self:Detour_CallOriginalFunction(funcName, args)
 		end
 		running[funcName] = true
-
-		-- Fast mode
-		if fast then
-			self:Detours_Validate(funcName, trace)
-			running[funcName] = nil
-
-			return filters and filters[1](self, trace, funcName, args) or self:Detours_CallOriginalFunction(funcName, args)
-		end
 
 		-- Get and check the trace
 		local trace = self:Trace_Get(debug.traceback())
@@ -156,13 +147,13 @@ function BS:Detours_Create(funcName, filters, failed, fast)
 		if isWhitelisted then
 			running[funcName] = nil
 
-			return self:Detours_CallOriginalFunction(funcName, args)
+			return self:Detour_CallOriginalFunction(funcName, args)
 		end
 
 		local isLoose = self:Trace_IsLoose(trace)
 		
 		-- Check detour
-		self:Detours_Validate(funcName, trace, isLoose)
+		self:Detour_Validate(funcName, trace, isLoose)
 
 		-- Run filters
 		if filters then
@@ -175,7 +166,7 @@ function BS:Detours_Create(funcName, filters, failed, fast)
 				if not result then
 					return failed
 				elseif i == #filters then
-					return result ~= "true" and result or self:Detours_CallOriginalFunction(funcName, args)
+					return result ~= "true" and result or self:Detour_CallOriginalFunction(funcName, args)
 				end
 
 				i = i + 1
@@ -183,19 +174,19 @@ function BS:Detours_Create(funcName, filters, failed, fast)
 		else
 			running[funcName] = nil
 
-			return self:Detours_CallOriginalFunction(funcName, args)
+			return self:Detour_CallOriginalFunction(funcName, args)
 		end
 	end
 
 	-- Set detour
-	self:Detours_SetFunction(funcName, Detour)
+	self:Detour_SetFunction(funcName, Detour)
 	self.live.control[funcName].detour = Detour
 end
 
 -- Remove our detours
 -- Used only by auto reloading functions
-function BS:Detours_Remove()
+function BS:Detour_Remove()
 	for k, _ in pairs(self.live.control) do
-		self:Detours_SetFunction(k, self:Detours_GetFunction(k, _G))
+		self:Detour_SetFunction(k, self:Detour_GetFunction(k, _G))
 	end
 end

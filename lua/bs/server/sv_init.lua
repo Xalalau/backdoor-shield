@@ -7,7 +7,7 @@
 local function ProtectedCalls_Init(BS)
 	for funcName,_ in pairs(BS.live.control) do
 		if BS.live.control[funcName].protectStack then
-            BS.protectedCalls[funcName] = BS:Detours_GetFunction(funcName)
+            BS.protectedCalls[funcName] = BS:Detour_GetFunction(funcName)
         end
     end
 end
@@ -18,7 +18,7 @@ local function ArgumentsFunctions_Init(BS)
 	for funcName,funcTab in pairs(BS.liveControlsBackup) do
         if istable(funcTab.filters) then
             for _,filter in ipairs(funcTab.filters) do
-                if filter == "Live_ScanStack" and funcTab.stackBanLists then
+                if filter == "Filter_ScanStack" and funcTab.stackBanLists then
                     for _,stackBanListName in ipairs(funcTab.stackBanLists) do
                         if not BS.live.blacklists.functions[stackBanListName] then
                             BS.live.blacklists.functions[stackBanListName] = {}
@@ -89,7 +89,7 @@ function BS:Initialize()
             if k == 5 then
                 print("    |-> [" .. (self.live.isOn and "x" or " ") .. "] Live detection")
                 print("    |-> [" .. (self.live.blockThreats and "x" or " ") .. "] Live blocking")
-                print("    |-> [" .. (self.detour.blockChanges and "x" or " ") .. "] Anti detour")
+                print("    |-> [" .. (self.live.undoDetours and "x" or " ") .. "] Anti detour")
                 print("    |-> [" .. (self.live.alertAdmins and "x" or " ") .. "] Alerts window")
                 print("    |-> [" .. (self.devMode and "x" or " ") .. "] Dev mode")
             end 
@@ -104,14 +104,14 @@ function BS:Initialize()
     -- Command to scan all files in the main/selected folders
     concommand.Add("bs_scan", function(ply, cmd, args)
         if not ply:IsValid() or ply:IsAdmin() then
-            self:Files_Scan(args, self.scanner.dangerousExtensions)
+            self:Scanner_Start(args, self.scanner.dangerousExtensions)
         end
     end)
 
     -- Command to scan some files in the main/selected folders
     concommand.Add("bs_scan_full", function(ply, cmd, args)
         if not ply:IsValid() or ply:IsAdmin() then
-            self:Files_Scan(args)
+            self:Scanner_Start(args)
         end
     end)
 
@@ -131,13 +131,13 @@ function BS:Initialize()
     -- Set live protection
 
     if self.live.isOn then
-        self:Detours_Init()
+        self:Detour_Init()
 
         ProtectedCalls_Init(self)
 
         ArgumentsFunctions_Init(self)
 
-        self:Detours_SetAutoCheck()
+        self:Detour_SetAutoCheck()
 
         self:Stack_Init()
 

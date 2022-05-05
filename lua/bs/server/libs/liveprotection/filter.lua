@@ -4,9 +4,9 @@
 --]]
 
 -- Process a string passed by argument
-function BS:Live_ScanArgument(str, funcName, detected, warning)
+function BS:Filter_ScanArgument(str, funcName, detected, warning)
 	if not isstring(str) then return end
-	if self:Scan_Whitelist(str, self.whitelists.snippets) then return end
+	if self:Scan_Whitelist(str, self.live.whitelists.snippets) then return end
 
 	if detected then
         -- Check stack blacklists
@@ -45,30 +45,30 @@ end
 
 -- Scan http.Fetch and http.Post contents
 -- Add persistent trace support to the called functions
-function BS:Live_ScanHttpFetchPost(trace, funcName, args, isLoose)
+function BS:Filter_ScanHttpFetchPost(trace, funcName, args, isLoose)
 	local url = args[1]
 
 	local function Scan(args2)
 		local detected = {}
 		local warning = {}
 
-		for _, whitelistedUrl in ipairs(self.whitelists.urls) do
+		for _, whitelistedUrl in ipairs(self.live.whitelists.urls) do
 			local urlStart = string.find(url, whitelistedUrl, nil, true)
 
 			if urlStart and urlStart == 1 then
-				return self:Detours_CallOriginalFunction(funcName, args)
+				return self:Detour_CallOriginalFunction(funcName, args)
 			end
 		end
 
-		self:Live_ScanArgument(url, funcName, detected, warning)
+		self:Filter_ScanArgument(url, funcName, detected, warning)
 
 		for _, arg in ipairs(args2) do
 			if isstring(arg) then
-				self:Live_ScanArgument(arg, funcName, detected, warning)
+				self:Filter_ScanArgument(arg, funcName, detected, warning)
 			elseif istable(arg) then
 				for k, v in ipairs(arg) do
-					self:Live_ScanArgument(k, funcName, detected, warning)
-					self:Live_ScanArgument(v, funcName, detected, warning)
+					self:Filter_ScanArgument(k, funcName, detected, warning)
+					self:Filter_ScanArgument(v, funcName, detected, warning)
 				end
 			end
 		end
@@ -95,7 +95,7 @@ function BS:Live_ScanHttpFetchPost(trace, funcName, args, isLoose)
 		if not self.live.blockThreats or isLoose or not report then
 			self:Trace_Set(args[2], funcName, trace)
 
-			self:Detours_CallOriginalFunction(funcName, args)
+			self:Detour_CallOriginalFunction(funcName, args)
 		end
 	end
 
@@ -123,7 +123,7 @@ function BS:Live_ScanHttpFetchPost(trace, funcName, args, isLoose)
 end
 
 -- Check CompileString, CompileFile, RunString and RunStringEX contents
-function BS:Live_ScanStrCode(trace, funcName, args, isLoose)
+function BS:Filter_ScanStrCode(trace, funcName, args, isLoose)
 	local code = funcName == "CompileFile" and file.Read(args[1], "LUA") or args[1]
 	local detected = {}
 	local warning = {}
@@ -131,7 +131,7 @@ function BS:Live_ScanStrCode(trace, funcName, args, isLoose)
 	if not _G[funcName] then return "" end -- RunStringEx exists but is deprecated
 	if not isstring(code) then return "" end -- Just checking
 
-	self:Live_ScanArgument(code, funcName, detected, warning)
+	self:Filter_ScanArgument(code, funcName, detected, warning)
 
 	local report = not isLoose and #detected > 0 and { "detected", "Execution detected!", detected } or
 	               (isLoose or #warning > 0) and { "warning", "Suspicious execution".. (isLoose and " in a low-risk location" or "") .."!" .. (isLoose and " Ignoring it..." or ""), warning }
@@ -151,14 +151,14 @@ function BS:Live_ScanStrCode(trace, funcName, args, isLoose)
 		self:Report_LiveDetection(info)
 	end
 
-	return (not self.live.blockThreats or isLoose or not report) and self:Detours_CallOriginalFunction(funcName, #args > 0 and args or {""})
+	return (not self.live.blockThreats or isLoose or not report) and self:Detour_CallOriginalFunction(funcName, #args > 0 and args or {""})
 end
 
 -- Validate functions that can't call each other
 --   Return false if we detect something or "true" if it's fine.
 --   Note that "true" is really between quotes because we need to identify it and not pass the value forward.
 local callersWarningCooldown = {} -- Don't flood the console with messages
-function BS:Live_ScanStack(trace, funcName, args, isLoose)
+function BS:Filter_ScanStack(trace, funcName, args, isLoose)
 	local protectedFuncName = self:Stack_Check(funcName)
 	local detectedFuncName = funcName
 	local whitelisted
@@ -171,7 +171,7 @@ function BS:Live_ScanStack(trace, funcName, args, isLoose)
 			end)	
 
 			-- Whitelist
-			for _,combo in ipairs(self.whitelists.stack) do
+			for _,combo in ipairs(self.live.whitelists.stack) do
 				if protectedFuncName == combo[1] then
 					if detectedFuncName == combo[2] then
 						whitelisted = true
@@ -205,17 +205,17 @@ function BS:Live_ScanStack(trace, funcName, args, isLoose)
 end
 
 -- Add persistent trace support to the function called by timers
-function BS:Live_ScanTimers(trace, funcName, args)
+function BS:Filter_ScanTimers(trace, funcName, args)
 	self:Trace_Set(args[2], funcName, trace)
 
-	return self:Detours_CallOriginalFunction(funcName, args)
+	return self:Detour_CallOriginalFunction(funcName, args)
 end
 
 -- Hide our detours
 --   Force getinfo to jump our functions
-function BS:Live_ProtectDebugGetinfo(trace, funcName, args)
+function BS:Filter_ProtectDebugGetinfo(trace, funcName, args)
 	if isfunction(args[1]) then
-		return self:Live_ProtectAddresses(trace, funcName, args)
+		return self:Filter_ProtectAddresses(trace, funcName, args)
 	else
 		local result = self:Stack_SkipBSFunctions(args)
 		return result
@@ -227,30 +227,30 @@ end
 --     debug.getinfo, jit.util.funcinfo and tostring
 --     Note: using this filter inside tostring is still unstable
 local checking = {}
-function BS:Live_ProtectAddresses(trace, funcName, args)
+function BS:Filter_ProtectAddresses(trace, funcName, args)
 	if checking[funcName] then -- Avoid loops
-		return self:Detours_CallOriginalFunction(funcName, args)
+		return self:Detour_CallOriginalFunction(funcName, args)
 	end
 	checking[funcName] = true
 
 	if args[1] and isfunction(args[1]) then
 		for funcName, funcTab in pairs(self.live.control) do
 			if args[1] == funcTab.detour then
-				args[1] = self:Detours_GetFunction(funcName, _G)
+				args[1] = self:Detour_GetFunction(funcName, _G)
 				break
 			end
 		end
 	end
 
 	checking[funcName] = nil
-	return self:Detours_CallOriginalFunction(funcName, args)
+	return self:Detour_CallOriginalFunction(funcName, args)
 end
 
 -- Protect our custom environment
 --   Don't return it!
 --     getfenv and debug.getfenv
-function BS:Live_ProtectEnvironment(trace, funcName, args)
-	local result = self:Detours_CallOriginalFunction(funcName, args)
+function BS:Filter_ProtectEnvironment(trace, funcName, args)
+	local result = self:Detour_CallOriginalFunction(funcName, args)
 	result = result == _G and self.__G or result
 
 	if result == self.__G then

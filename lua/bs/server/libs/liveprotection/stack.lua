@@ -2,14 +2,14 @@
     2020-2022 Xalalau Xubilozo. MIT License
     https://xalalau.com/
 
-   HACKS: For some reason these functions are EXTREMELY temperamental! I was unable to use the
-   nested code, to pass arguments and even to freely write variables or acceptable syntax. They
-   only work when it's this mess. Test each changed line if you want to touch them, or you'll
-   regret it bitterly!
+	HACKS: For some reason these functions are EXTREMELY temperamental! I was unable to use the
+	nested code, to pass arguments and even to freely write variables or acceptable syntax. They
+	only work when it's this mess. Test each changed line if you want to touch them, or you'll
+	regret it bitterly!
 
-   Note: I can't check the stack in the wrong environment, so don't use this:
-     table.insert(BS.locals, some_function)
-   when there're _debug.getinfo or _debug.getlocal present.
+	Note: I can't check the stack in the wrong environment, so don't use this:
+		table.insert(BS.locals, some_function)
+	when there're _debug.getinfo or _debug.getlocal present.
 ]]
 
 -- I can't pass arguments or move the functions to our environment, so I copy my tables locally
@@ -125,7 +125,7 @@ local function Stack_Check()
 end
 
 function BS:Stack_Check(funcName)
-	InsertArgs({ self:Detours_GetFunction(funcName), funcName })
+	InsertArgs({ self:Detour_GetFunction(funcName), funcName })
 	return Stack_Check()
 end
 

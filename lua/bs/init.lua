@@ -1,9 +1,7 @@
 --[[
     2020-2022 Xalalau Xubilozo. MIT License
     https://xalalau.com/
---]]
 
---[[
     Main structure initialization:
 
     > BS table (global vars + include code);
@@ -57,8 +55,9 @@ if SERVER then
 
     -- Inversed tables, used to search values faster
     BS.scannerDangerousExtensions_InverseTab = {}
-    BS.looseFiles_InverseTab = {}
-    BS.whitelistsFiles_InverseTab = {}
+    BS.scannerLooseFiles_InverseTab = {}
+    BS.liveLooseFiles_InverseTab = {}
+    BS.liveWhitelistsFiles_InverseTab = {}
 
     -- Iversed tables forced to ipairs
     BS.scannerBlacklist_InverseIpairsTab = {}
@@ -101,9 +100,10 @@ end
 if SERVER then
     AddCSLuaFile("autorun/client/bs_cl_autorun.lua")
 
-    include(BS.folder.lua .. "/server/definitions.lua")
+    include(BS.folder.lua .. "/server/definitions/main.lua")
+    include(BS.folder.lua .. "/server/definitions/liveprotection.lua")
+    include(BS.folder.lua .. "/server/definitions/filescanner.lua")
     include(BS.folder.lua .. "/server/sv_init.lua")
-    include(BS.folder.lua .. "/server/invisible.lua")
     includeLibs(BS.folder.sv_libs .. "/")
 end
 includeLibs(BS.folder.cl_libs .. "/", true)
@@ -145,9 +145,9 @@ if SERVER then
 
      -- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks
     local inverseIpairs = {
-        { BS.loose.files, BS.looseFiles_InverseTab },
-        { BS.loose.folders, BS.looseFolders_InverseTab },
-        { BS.whitelists.files, BS.whitelistsFiles_InverseTab },
+        { BS.scanner.loose.files, BS.scannerLooseFiles_InverseTab },
+        { BS.live.loose.files, BS.liveLooseFiles_InverseTab },
+        { BS.live.whitelists.files, BS.liveWhitelistsFiles_InverseTab },
         { BS.scanner.dangerousExtensions, BS.scannerDangerousExtensions_InverseTab },
     }
 

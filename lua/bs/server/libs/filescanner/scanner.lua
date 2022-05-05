@@ -108,6 +108,7 @@ local function WaitALittle()
 		coroutine.yield()
 	end
 end
+table.insert(BS.locals, WaitALittle)
 
 -- Scan a folder
 local bsDataFolder = "data/" .. BS.folder.data .. "/"
@@ -136,7 +137,7 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 	end
 
 	-- Ignore whitelisted folders
-	if BS:Scan_Whitelist(dir, BS.whitelists.folders) then
+	if BS:Scan_Whitelist(dir, BS.scanner.whitelists.folders) then
 		return
 	end
 
@@ -147,7 +148,17 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 		end
 	end
 
-	local isLooseFolder = BS:Trace_IsLoose(dir) -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!! Parar de usar o TRACE como se isso fosse inteligente! Fazer uma lib nova
+	-- Check if the dir is a loose detection
+    local isLooseFolder = false
+
+	for _, looseFolder in ipairs(BS.scanner.loose.folders) do
+		local start = string.find(dir, looseFolder, nil, true)
+
+		if start == 1 then
+			isLooseFolder = true
+			break
+		end
+	end
 
 	-- Check files
 	for k, _file in ipairs(files) do
@@ -173,7 +184,7 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 		end
 
 		-- Ignore whitelisted files
-		if BS:Scan_Whitelist(path, BS.whitelists.files) then
+		if BS:Scan_Whitelist(path, BS.scanner.whitelists.files) then
 			continue
 		end
 
@@ -199,7 +210,7 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 		-- Check the source
 		local src = file.Read(path, "GAME")
 
-		if BS:Scan_Whitelist(src, BS.whitelists.snippets) then
+		if BS:Scan_Whitelist(src, BS.scanner.whitelists.snippets) then
 			continue
 		end
 
@@ -224,7 +235,7 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 
 		-- Build, print and stock the result
 		if #detected[1] > 0 then
-			local isLooseFile = BS:Trace_IsLoose(dir) -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!! Parar de usar o TRACE como se isso fosse inteligente! Fazer uma lib nova
+			local isLooseFile = BS.scannerLooseFiles_InverseTab[path] and true or false
 
 			-- Loose file counterweight
 			if isLooseFile then
@@ -285,7 +296,7 @@ table.insert(BS.locals, ProcessBars)
 
 -- Process the files recusively inside the aimed folders according to our white, black and suspect lists
 -- Note: Low-risk files will be reported in the logs as well, but they won't flood the console with warnings
-function BS:Files_Scan(args, extensions)
+function BS:Scanner_Start(args, extensions)
 	-- All results
 	local results = {
 		totalScanned = 0,
