@@ -18,7 +18,7 @@ local function ArgumentsFunctions_Init(BS)
 	for funcName,funcTab in pairs(BS.liveControlsBackup) do
         if istable(funcTab.filters) then
             for _,filter in ipairs(funcTab.filters) do
-                if filter == "Filters_CheckStack" and funcTab.stackBanLists then
+                if filter == "Live_ScanStack" and funcTab.stackBanLists then
                     for _,stackBanListName in ipairs(funcTab.stackBanLists) do
                         if not BS.live.blacklists.functions[stackBanListName] then
                             BS.live.blacklists.functions[stackBanListName] = {}
@@ -124,9 +124,9 @@ function BS:Initialize()
         end)
     end
 
-    -- Set live reloading
+    -- Set auto reloading
 
-    self:LiveReloading_Set()
+    self:AutoReloading_Set()
 
     -- Set live protection
 

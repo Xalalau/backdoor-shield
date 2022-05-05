@@ -193,7 +193,7 @@ function BS:Detours_Create(funcName, filters, failed, fast)
 end
 
 -- Remove our detours
--- Used only by live reloading functions
+-- Used only by auto reloading functions
 function BS:Detours_Remove()
 	for k, _ in pairs(self.live.control) do
 		self:Detours_SetFunction(k, self:Detours_GetFunction(k, _G))

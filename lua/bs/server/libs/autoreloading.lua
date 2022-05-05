@@ -3,10 +3,10 @@
     https://xalalau.com/
 --]]
 
--- Live reload the addon when a file is modified
+-- Auto reload the addon when a file is modified
 -- Note: UNSAFE! BS will be rebuilt itself exposed to the common addons environment and there may come detoured functions
-function BS:LiveReloading_Set()
-    local name = "BS_LiveReloading"
+function BS:AutoReloading_Set()
+    local name = "BS_AutoReloading"
 
     if self.devMode and not timer.Exists(name) then
         timer.Create(name, 0.2, 0, function()

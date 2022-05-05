@@ -7,7 +7,7 @@
 -- MAIN CONFIGURATIONS
 -- -----------------------------------------------------------------------------------
 
--- If true, will enable code live reloading, the command bs_tests and more time without hibernation
+-- If true, will enable code auto reloading, the command bs_tests and more time without hibernation
 --   Unsafe! Only used while developing
 BS.devMode = true
 
@@ -46,7 +46,7 @@ BS.live = {
 				failed = type                     -- Set "failed" if you've set multiple "filters" and need to return fail values other than nil
 				fast = bool                       -- Set "fast" if you've set one or none "filters" and need to run VERY fast (much less code, ignore whitelists and low-risk lists)
 
-			-- If you've set the "Filters_CheckStack" filter:
+			-- If you've set the "Live_ScanStack" filter:
 
 			stackBanLists = { string, ...}        -- You can create blacklists of functions by adding names here. "some.game.function" will be grouped with others in blacklists.functions[the selected name]
 			protectStack = { string, ...}         -- Select lists from blacklists.functions (created by the stackBanLists option) to block "some.game.function" from calling any of them
@@ -58,69 +58,69 @@ BS.live = {
 			observed
 	]]
 	control = {
-		["Ban"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["BroadcastLua"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["cam.Start3D"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
-		["ChatPrint"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
-		["ClientsideModel"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
-		["CompileFile"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, stackBanLists = { "harmful" } },
+		["Ban"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["BroadcastLua"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["cam.Start3D"] = { filters = { "Live_ScanStack" }, stackBanLists = { "doubtful" } },
+		["ChatPrint"] = { filters = { "Live_ScanStack" }, stackBanLists = { "observed" } },
+		["ClientsideModel"] = { filters = { "Live_ScanStack" }, stackBanLists = { "observed" } },
+		["CompileFile"] = { filters = { "Live_ScanStack", "Live_ScanStrCode" }, stackBanLists = { "harmful" } },
 	-- To-do: Test
-	["CompileString"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, stackBanLists = { "harmful" }, failed = "" },
-		["concommand.Add"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["debug.getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" }, stackBanLists = { "harmful" } },
-		["debug.getinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectDebugGetinfo" }, stackBanLists = { "harmful" }, failed = {} },
-		["debug.getregistry"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+	["CompileString"] = { filters = { "Live_ScanStack", "Live_ScanStrCode" }, stackBanLists = { "harmful" }, failed = "" },
+		["concommand.Add"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["debug.getfenv"] = { filters = { "Live_ScanStack", "Live_ProtectEnvironment" }, stackBanLists = { "harmful" } },
+		["debug.getinfo"] = { filters = { "Live_ScanStack", "Live_ProtectDebugGetinfo" }, stackBanLists = { "harmful" }, failed = {} },
+		["debug.getregistry"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
 		["Error"] = {},
-		["file.Delete"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
-		["file.Exists"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
+		["file.Delete"] = { filters = { "Live_ScanStack" }, stackBanLists = { "doubtful" } },
+		["file.Exists"] = { filters = { "Live_ScanStack" }, stackBanLists = { "observed" } },
 	-- To-do: needs fix for Pac3
-	--["file.Find"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
-		["file.Read"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
-		["file.Write"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
-		["game.CleanUpMap"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+	--["file.Find"] = { filters = { "Live_ScanStack" }, stackBanLists = { "observed" } },
+		["file.Read"] = { filters = { "Live_ScanStack" }, stackBanLists = { "observed" } },
+		["file.Write"] = { filters = { "Live_ScanStack" }, stackBanLists = { "doubtful" } },
+		["game.CleanUpMap"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
 	-- To-do: Scan commands
-	["game.ConsoleCommand"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["game.KickID"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["getfenv"] = { filters = { "Filters_CheckStack", "Filters_ProtectEnvironment" }, stackBanLists = { "harmful" } },
-		["hook.Add"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
-		["hook.GetTable"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
-		["hook.Remove"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
-		["HTTP"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["http.Fetch"] = { filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" }, stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
-		["http.Post"] = { filters = { "Filters_CheckStack", "Filters_CheckHttpFetchPost" }, stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
+	["game.ConsoleCommand"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["game.KickID"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["getfenv"] = { filters = { "Live_ScanStack", "Live_ProtectEnvironment" }, stackBanLists = { "harmful" } },
+		["hook.Add"] = { filters = { "Live_ScanStack" }, stackBanLists = { "doubtful" } },
+		["hook.GetTable"] = { filters = { "Live_ScanStack" }, stackBanLists = { "doubtful" } },
+		["hook.Remove"] = { filters = { "Live_ScanStack" }, stackBanLists = { "doubtful" } },
+		["HTTP"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["http.Fetch"] = { filters = { "Live_ScanStack", "Live_ScanHttpFetchPost" }, stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
+		["http.Post"] = { filters = { "Live_ScanStack", "Live_ScanHttpFetchPost" }, stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
 		["include"] = {},
-		["jit.util.funcinfo"] = { filters = { "Filters_CheckStack", "Filters_ProtectAddresses" }, stackBanLists = { "harmful" } },
-		["jit.util.funck"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["Kick"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["net.ReadHeader"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+		["jit.util.funcinfo"] = { filters = { "Live_ScanStack", "Live_ProtectAddresses" }, stackBanLists = { "harmful" } },
+		["jit.util.funck"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["Kick"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["net.ReadHeader"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
 	-- To-do: Scan text
 	["net.ReadString"] = {},
 	-- To-do: 
-	["net.Receive"] = { filters = { "Filters_CheckStack" }, protectStack = { "harmful" } },
+	["net.Receive"] = { filters = { "Live_ScanStack" }, protectStack = { "harmful" } },
 		["net.Start"] = {},
 	-- To-do: Scan text
 	["net.WriteString"] = {},
 	-- To-do: Test trace persistence
-	["pcall"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["PrintMessage"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
+	["pcall"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["PrintMessage"] = { filters = { "Live_ScanStack" }, stackBanLists = { "observed" } },
 		["require"] = {},
 	-- To-do: Scan commands
-	["RunConsoleCommand"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
-		["RunString"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "", stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
-		["RunStringEx"] = { filters = { "Filters_CheckStack", "Filters_CheckStrCode" }, failed = "", stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
-		["setfenv"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["sound.PlayURL"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
-		["surface.PlaySound"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "observed" } },
-		["timer.Create"] = { filters = "Filters_CheckTimers" },
+	["RunConsoleCommand"] = { filters = { "Live_ScanStack" }, stackBanLists = { "doubtful" } },
+		["RunString"] = { filters = { "Live_ScanStack", "Live_ScanStrCode" }, failed = "", stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
+		["RunStringEx"] = { filters = { "Live_ScanStack", "Live_ScanStrCode" }, failed = "", stackBanLists = { "harmful" }, protectStack = { "harmful", "doubtful", "observed" } },
+		["setfenv"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["sound.PlayURL"] = { filters = { "Live_ScanStack" }, stackBanLists = { "observed" } },
+		["surface.PlaySound"] = { filters = { "Live_ScanStack" }, stackBanLists = { "observed" } },
+		["timer.Create"] = { filters = "Live_ScanTimers" },
 		["timer.Destroy"] = {},
 		["timer.Exists"] = {},
-		["timer.Simple"] = { filters ="Filters_CheckTimers" },
-		--["tostring"] = { filters = "Filters_ProtectAddresses", fast = true }, -- unstable
-		["util.AddNetworkString"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["util.NetworkIDToString"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
-		["util.ScreenShake"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "doubtful" } },
+		["timer.Simple"] = { filters ="Live_ScanTimers" },
+		--["tostring"] = { filters = "Live_ProtectAddresses", fast = true }, -- unstable
+		["util.AddNetworkString"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["util.NetworkIDToString"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
+		["util.ScreenShake"] = { filters = { "Live_ScanStack" }, stackBanLists = { "doubtful" } },
 	-- To-do: Test trace persistence
-	["xpcall"] = { filters = { "Filters_CheckStack" }, stackBanLists = { "harmful" } },
+	["xpcall"] = { filters = { "Live_ScanStack" }, stackBanLists = { "harmful" } },
 	},
 
 	blacklists = {
@@ -293,7 +293,7 @@ BS.whitelists = {
 		"lua/derma/derma.lua" -- GMod
 	},
 
-	-- Whitelist for Filters_CheckStack combinations
+	-- Whitelist for Live_ScanStack combinations
 	stack = {
 		--  { "CompileString", "BroadcastLua" } -- e.g. it means that a BroadcastLua() inside a CompileString() won't generate a detection
 		{ "RunString", "RunString" },
