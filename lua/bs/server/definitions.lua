@@ -129,7 +129,6 @@ BS.live = {
 
 		-- Snippets, syntax and symbols that are usually only seen in backdoors
 		snippets = {
-			"‪", -- U+202a
 			"=_G",
 			"(_G)",
 			",_G,",
@@ -188,7 +187,7 @@ BS.scanner = {
 	-- Avoid false positives with non Lua files
 	--   Detections with these chars will be considered as not suspect (at first) for tested strings
 	--   that aren't from files with extensions listed in the dangerousExtensions table.
-	notSuspect = {
+	notSuspicious = {
 		"ÿ",
 		"" -- 000F
 	},
@@ -203,8 +202,7 @@ BS.scanner = {
 	-- Blacklisted terms and their detection weights
 	--   The blacklist can have functions, snippets, syntax and symbols as keys
 	--   The weight of each detection is summed and compared to the risk thresholds
-	blacklist_check = {
-		["‪"] = 15, -- U+202a
+	blacklist = {
 		["(_G)"] = 15,
 		[",_G,"] = 15,
 		["!true"] = 15,
@@ -217,6 +215,7 @@ BS.scanner = {
 		["http.Fetch"] = 5,
 		["http.Post"] = 5,
 		["game.ConsoleCommand"] = 5,
+		["STEAM_0:"] = 5,
 		["debug.getinfo"] = 4,
 		["setfenv"] = 4,
 		["BroadcastLua"] = 3,
@@ -234,13 +233,14 @@ BS.scanner = {
 
 	-- Weight reduction in detections
 	counterWeights = {
-		notSuspect = -15,
+		notSuspicious = -15,
 		loose = -10
 	},
 
 	-- Weight increase in detections
 	extraWeights = {
-		notLuaFile = 15,
+		invalidChar = 4, -- Do not set the weight at or above thresholds.low, this value eliminates many false positives.
+		notLuaFile = 5
 	}
 }
 

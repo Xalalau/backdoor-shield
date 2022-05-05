@@ -80,7 +80,7 @@ function BS:Trace_IsLoose(trace)
     local isLoose = false
     local luaFile = self:Trace_GetLuaFile(trace)
 
-    if self.looseFiles_Check[luaFile] then
+    if self.looseFiles_InverseTab[luaFile] then
         isLoose = true
     else
         for _,v in ipairs(self.loose.folders) do
@@ -102,7 +102,7 @@ function BS:Trace_IsWhitelisted(trace)
     local isWhitelisted = false
     local luaFile = self:Trace_GetLuaFile(trace)
 
-    if self.whitelistsFiles_check[luaFile] then
+    if self.whitelistsFiles_InverseTab[luaFile] then
         isWhitelisted = true
     else
         for _, _file in ipairs(self.whitelists.folders) do

@@ -5,126 +5,12 @@
 
 -- Note: I'm using string.find() without patterns. Due to the number of scans they get too intensive.
 
--- Find whitelisted detetections
-local function CheckWhitelist(str, whitelist)
-	local found = false
-
-	if str and #whitelist > 0 then
-		for _, allowed in ipairs(whitelist)do
-			if string.find(str, allowed, nil, true) then
-				found = true
-
-				break
-			end
-		end
-	end
-
-	return found
-end
-table.insert(BS.locals, CheckWhitelist)
-
--- Try to find Lua files with obfuscations
--- ignorePatterns is used to scan files that already has other detections
-local function CheckCharset(str, ext, list, ignorePatterns)
-	if str and ext == "lua" then
-		local lines, count = "", 0
-
-		-- Search line by line, so we have the line numbers
-		for lineNumber,lineText in ipairs(string.Explode("\n", str, false)) do
-			-- Check char by char
-			for _,_char in ipairs(string.ToTable(lineText)) do
-				-- If we find a suspect character, take a closer look
-				if utf8.force(_char) ~= _char then
-					-- Let's eliminate as many false positives as possible by searching for common backdoor patterns
-					if ignorePatterns or (
-					   string.find(lineText, "function", nil, true) or
-					   string.find(lineText, "return", nil, true) or
-					   string.find(lineText, "then", nil, true) or
-					   string.find(lineText, " _G", nil, true) or
-					   string.find(lineText, "	_G", nil, true)) then
-
-						count = count + 1
-						lines = lines .. lineNumber .. "; "
-					end
-					break
-				end
-			end
-		end
-
-		if count > 0 then
-			local plural = count > 1 and "s" or ""
-			table.insert(list, "Uncommon Charset, line" .. plural .. ": " .. lines)
-		end
-	end
-end
-table.insert(BS.locals, CheckCharset)
-
--- Process a string according to our white, black and suspect lists
-local function ProcessList(BS, str, IsSuspect, list, list2)
-	for k, listValue in pairs(list) do
-		if string.find(string.gsub(str, " ", ""), listValue, nil, true) then
-			if listValue == "=_G" or listValue == "=_R" then -- Since I'm not using patterns, I do some extra checks on _G and _R to avoid false positives.
-				local check = string.gsub(str, "%s+", " ")
-				local strStart, strEnd = string.find(check, listValue, nil, true)
-				if not strStart then
-					strStart, strEnd = string.find(check, listValue == "=_G" and "= _G" or "= _R", nil, true)
-				end
-
-				local nextChar = check[strEnd + 1] or "-"
-
-				if nextChar == " " or nextChar == "\n" or nextChar == "\r\n" then
-					if not IsSuspect then
-						return true
-					else
-						table.insert(list2, listValue)
-					end
-				end
-			else
-				if not IsSuspect then
-					return true
-				else
-					table.insert(list2, listValue)
-				end
-			end
-		end
-	end
-end
-table.insert(BS.locals, ProcessList)
-
--- Process a string passed by argument
-function BS:Scan_Argument(str, funcName, detected, warning)
-	if not isstring(str) then return end
-	if CheckWhitelist(str, self.whitelists.snippets) then return end
-
-    local IsSuspect = "true"
-
-	if detected then
-        -- Check stack blacklists
-        local protectStack = self.live.control[funcName].protectStack
-
-        if protectStack then
-            for _,stackBanListName in ipairs(protectStack) do
-                ProcessList(self, str, IsSuspect, self.live.blacklists.functions[stackBanListName], detected)
-            end
-        end
-
-        CheckCharset(str, "lua", detected, true)
-        ProcessList(self, str, IsSuspect, self.live.blacklists.snippets, detected)
-        ProcessList(self, str, IsSuspect, self.live.blacklists.cvars, detected)
-    end
-
-	if warning then
-    end
-
-	return
-end
-
 -- Check if a file isn't suspect (at first)
 -- Mainly used to remove false positives from binary files
-local function IsSuspectPath(BS, str, ext)
-	if BS.scannerDangerousExtensions_Check[ext] then return true end
+local function IsSourceSuspicious(BS, str, ext)
+	if BS.scannerDangerousExtensions_InverseTab[ext] then return true end
 
-	for k, term in ipairs(BS.scanner.notSuspect) do
+	for k, term in ipairs(BS.scanner.notSuspicious) do
 		if string.find(str, term, nil, true) then
 			return false
 		end
@@ -132,57 +18,62 @@ local function IsSuspectPath(BS, str, ext)
 
 	return true
 end
-table.insert(BS.locals, IsSuspectPath)
+table.insert(BS.locals, IsSourceSuspicious)
 
--- Process a string according to our white, black and suspect lists
-local function CheckSource(BS, path, ext, detected)
-	local src = file.Read(path, "GAME")
-
+-- Process the file contents according to the blacklists
+local function ScanSource(BS, src, ext, detected)
 	if not isstring(src) then return end
-	if CheckWhitelist(src, BS.whitelists.snippets) then return end
-
-	local IsSuspect = IsSuspectPath(BS, src, ext)
-	if not IsSuspect then
-		detected[2] = detected[2] + BS.scanner.counterWeights.notSuspect
+	
+	local IsSourceSuspicious = IsSourceSuspicious(BS, src, ext)
+	if not IsSourceSuspicious then
+		detected[2] = detected[2] + BS.scanner.counterWeights.notSuspicious
 	end
 
-	for k, term in ipairs(BS.scannerBlacklist) do
-		if string.find(string.gsub(src, " ", ""), term, nil, true) then
-			if term == "=_G" or term == "=_R" then -- Since I'm not using patterns, I do some extra checks on _G and _R to avoid false positives.
-				src = string.gsub(src, "%s+", " ")
-				local strStart, strEnd = string.find(src, term, nil, true)
+	local foundTerms = BS:Scan_Blacklist(BS, src, BS.scannerBlacklist_InverseIpairsTab)
+	for term, linesTab in pairs(foundTerms) do
+		local lineNumbers = {}
+		local totalFound = 0
 
-				if not strStart then
-					strStart, strEnd = string.find(src, term == "=_G" and "= _G" or "= _R", nil, true)
-				end
-
-				local nextChar = src[strEnd + 1] or "-"
-
-				if nextChar == " " or nextChar == "\n" or nextChar == "\r\n" then
-					table.insert(detected[1], term)
-					detected[2] = detected[2] + BS.scanner.blacklist_check[term]
-				end
-			else
-				table.insert(detected[1], term)
-				detected[2] = detected[2] + BS.scanner.blacklist_check[term]
-			end
+		for k, lineTab in ipairs(linesTab) do
+			table.insert(lineNumbers, lineTab.lineNumber)
+			totalFound = totalFound + lineTab.count
 		end
+
+		detected[2] = detected[2] + BS.scanner.blacklist[term] -- Adding multiple weights here will generate a lot of false positives
+		table.insert(detected[1], { term, lineNumbers, totalFound })
 	end
 
 	if detected[2] < BS.scanner.thresholds.low then
 		detected[2] = 1 -- The detection will be discarded
 	end
 end
-table.insert(BS.locals, CheckSource)
+table.insert(BS.locals, ScanSource)
 
 -- Build a message with the detections
 local function JoinResults(BS, detected)
 	local resultString = ""
 
 	if #detected > 0 then
-		for k, term in ipairs(detected) do
-			local weight = BS.scanner.blacklist_check[term]
+		for k, termTab in ipairs(detected) do
+			local isInvisibleCharacter = BS.UTF8InvisibleChars[termTab[1]]
+			local weight = isInvisibleCharacter and BS.scanner.extraWeights.invalidChar or BS.scanner.blacklist[termTab[1]]
 			local prefix
+			local lines
+			local indentation = "     "
+
+			if isInvisibleCharacter then
+				termTab[1] = "Invisible character " .. termTab[1] .. " (Decimal UTF-16BE)"
+			end
+
+			if termTab[2] then
+				lines = "\n\n" .. indentation .. indentation
+				for k, lineNumber in SortedPairsByValue(termTab[2]) do
+					lines = lines .. lineNumber .. " "
+				end
+				lines = lines .. "\n"
+
+				weight = weight * termTab[3]
+			end
 
 			if weight >= BS.scanner.thresholds.high then
 				prefix = "[!!]"
@@ -192,11 +83,7 @@ local function JoinResults(BS, detected)
 				prefix = "[.]"
 			end
 
-			resultString = resultString .. "\n     " .. prefix .. " " .. term
-
-			if v == "‪" then
-				resultString = resultString .. " Invisible Character"
-			end
+			resultString = resultString .. "\n" .. indentation .. prefix .. " " .. termTab[1] .. (lines or "")
 		end
 	end
 
@@ -204,10 +91,28 @@ local function JoinResults(BS, detected)
 end
 table.insert(BS.locals, JoinResults)
 
+-- Make the coroutine wait so the text can be printed to the console
+local function WaitALittle()
+	local co = coroutine.running()
+	local doLoop = true
+
+	timer.Simple(0.1, function()
+		doLoop = false
+		local succeeded, errors = coroutine.resume(co)
+		if not succeeded then
+			print(errors)
+		end
+	end)
+
+	while doLoop do
+		coroutine.yield()
+	end
+end
+
 -- Scan a folder
 local bsDataFolder = "data/" .. BS.folder.data .. "/"
 local bsLuaFolder = "lua/" .. BS.folder.lua .. "/"
-local function StartRecursiveFolderScan(BS, dir, results, addonsFolderFiles, extensions, isAddonsFolder)
+local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, extensions, isAddonsFolder)
 	-- Check for the addons folder and keep the value to the subfolders
 	if dir == "addons/" then
 		isAddonsFolder = true
@@ -231,14 +136,14 @@ local function StartRecursiveFolderScan(BS, dir, results, addonsFolderFiles, ext
 	end
 
 	-- Ignore whitelisted folders
-	if CheckWhitelist(dir, BS.whitelists.folders) then
+	if BS:Scan_Whitelist(dir, BS.whitelists.folders) then
 		return
 	end
 
 	-- Check directories
 	for _, subDir in ipairs(subDirs) do
 		if subDir ~= "/" then
-			StartRecursiveFolderScan(BS, dir .. subDir .. "/", results, addonsFolderFiles, extensions, isAddonsFolder)
+			StartRecursiveFolderRead(BS, dir .. subDir .. "/", results, addonsFolderFiles, extensions, isAddonsFolder)
 		end
 	end
 
@@ -268,7 +173,7 @@ local function StartRecursiveFolderScan(BS, dir, results, addonsFolderFiles, ext
 		end
 
 		-- Ignore whitelisted files
-		if CheckWhitelist(path, BS.whitelists.files) then
+		if BS:Scan_Whitelist(path, BS.whitelists.files) then
 			continue
 		end
 
@@ -288,10 +193,31 @@ local function StartRecursiveFolderScan(BS, dir, results, addonsFolderFiles, ext
 		if results.totalScanned == results.lastTotalPrinted + 500 then
 			MsgC(BS.colors.message, results.totalScanned .. " files scanned...\n\n")
 			results.lastTotalPrinted = results.totalScanned
+			WaitALittle()
 		end
 
-		-- Scan file
-		CheckSource(BS, path, ext, detected)
+		-- Check the source
+		local src = file.Read(path, "GAME")
+
+		if BS:Scan_Whitelist(src, BS.whitelists.snippets) then
+			continue
+		end
+
+        local foundChars = BS:Scan_Characters(BS, src, ext)
+		for invalidCharName, linesTab in pairs(foundChars) do
+			local lineNumbers = {}
+			local totalFound = 0
+
+			for k, lineTab in ipairs(linesTab) do
+				table.insert(lineNumbers, lineTab.lineNumber)
+				totalFound = totalFound + lineTab.count
+			end
+
+			detected[2] = detected[2] + BS.scanner.extraWeights.invalidChar -- Adding multiple weights here will generate a lot of false positives
+			table.insert(detected[1], { invalidCharName, lineNumbers, totalFound })
+		end
+
+		ScanSource(BS, src, ext, detected)
 
 		local resultString = ""
 		local resultsList
@@ -311,7 +237,7 @@ local function StartRecursiveFolderScan(BS, dir, results, addonsFolderFiles, ext
 				continue
 			end
 
-			-- Add extra weight to non Lua files
+			-- Non Lua files extra weight
 			if ext ~= "lua" then
 				detected[2] = detected[2] + BS.scanner.extraWeights.notLuaFile
 			end
@@ -332,14 +258,14 @@ local function StartRecursiveFolderScan(BS, dir, results, addonsFolderFiles, ext
 
 			-- Report
 			BS:Report_ScanDetection(resultString, resultsList, results)
-			coroutine.yield()
+			WaitALittle()
 
 			-- Stack result
 			table.insert(resultsList, resultString)
 		end
 	end 
 end
-table.insert(BS.locals, StartRecursiveFolderScan)
+table.insert(BS.locals, StartRecursiveFolderRead)
 
 -- Remove back slashs and slashes from ends
 local function SanitizeSlashes(folders)
@@ -357,10 +283,9 @@ local function SanitizeSlashes(folders)
 end
 table.insert(BS.locals, ProcessBars)
 
-
 -- Process the files recusively inside the aimed folders according to our white, black and suspect lists
 -- Note: Low-risk files will be reported in the logs as well, but they won't flood the console with warnings
-function BS:Scan_Folders(args, extensions)
+function BS:Files_Scan(args, extensions)
 	-- All results
 	local results = {
 		totalScanned = 0,
@@ -385,7 +310,7 @@ function BS:Scan_Folders(args, extensions)
 	end
 
 	-- Deal with bars
-	for k, folder in pairs(folders) do
+	for k, folder in ipairs(folders) do
 		folders[k] = string.gsub(folder, "\\", "/")
 		if string.sub(folders[k], 1, 1) == "/" then
 			folders[k] = folders[k]:sub(2, #folder)
@@ -420,44 +345,32 @@ function BS:Scan_Folders(args, extensions)
 
 	MsgC(self.colors.header, "\n" .. self.alert .. " Scanning GMod and all the mounted contents...\n\n\n")
 
-	-- Start scanning folders
-	--   Note: The coroutine is used so that the scanner can pause and display results in real time - Multiplayer only
+	-- Note: The coroutine is used so that the scanner can pause and display results in real time - Multiplayer only
 	local co = coroutine.create(function()
-		coroutine.yield()
+		local isThinkHibernationInitiallyOn = GetConVar("sv_hibernate_think"):GetBool()
 
+		if not isThinkHibernationInitiallyOn then
+			RunConsoleCommand("sv_hibernate_think", "1")
+		end
+
+		WaitALittle()
+
+		-- Start scanning folders
 		for _,folder in ipairs(folders) do
 			if folder == "" or file.Exists(folder .. "/", "GAME") then
-				StartRecursiveFolderScan(self, folder == "" and folder or folder .. "/", results, addonsFolderFiles, extensions)
+				StartRecursiveFolderRead(self, folder == "" and folder or folder .. "/", results, addonsFolderFiles, extensions)
 			else
 				MsgC(self.colors.message, "\n" .. self.alert .. " Folder not found: " .. folder .. "\n\n")
 			end
 		end
-	end)
 
-	local isThinkHibernationInitiallyOn = GetConVar("sv_hibernate_think"):GetBool()
-
-	if not isThinkHibernationInitiallyOn then
-		RunConsoleCommand("sv_hibernate_think", "1")
-	end
-
-	hook.Add("Think", "BSFileScanner", function()
-		if co then
-			if coroutine.status(co) == "suspended" then
-				coroutine.resume(co)
-			else
-				co = nil
-			end
+		if not isThinkHibernationInitiallyOn then
+			RunConsoleCommand("sv_hibernate_think", "0")
 		end
 
-		if not co then
-			hook.Remove("Think", "BSFileScanner")
-
-			if not isThinkHibernationInitiallyOn then
-				RunConsoleCommand("sv_hibernate_think", "0")
-			end
-
-			-- Console final log
-			self:Report_ScanResults(results)
-		end
+		-- Console final log
+		self:Report_ScanResults(results)
 	end)
+
+	coroutine.resume(co)
 end

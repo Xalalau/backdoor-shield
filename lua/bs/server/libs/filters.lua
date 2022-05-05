@@ -22,15 +22,15 @@ function BS:Filters_CheckHttpFetchPost(trace, funcName, args, isLoose)
 			end
 		end
 
-		self:Scan_Argument(url, funcName, detected, warning)
+		self:Live_ScanArgument(url, funcName, detected, warning)
 
 		for _, arg in ipairs(args2) do
 			if isstring(arg) then
-				self:Scan_Argument(arg, funcName, detected, warning)
+				self:Live_ScanArgument(arg, funcName, detected, warning)
 			elseif istable(arg) then
 				for k, v in ipairs(arg) do
-					self:Scan_Argument(k, funcName, detected, warning)
-					self:Scan_Argument(v, funcName, detected, warning)
+					self:Live_ScanArgument(k, funcName, detected, warning)
+					self:Live_ScanArgument(v, funcName, detected, warning)
 				end
 			end
 		end
@@ -93,7 +93,7 @@ function BS:Filters_CheckStrCode(trace, funcName, args, isLoose)
 	if not _G[funcName] then return "" end -- RunStringEx exists but is deprecated
 	if not isstring(code) then return "" end -- Just checking
 
-	self:Scan_Argument(code, funcName, detected, warning)
+	self:Live_ScanArgument(code, funcName, detected, warning)
 
 	local report = not isLoose and #detected > 0 and { "detected", "Execution detected!", detected } or
 	               (isLoose or #warning > 0) and { "warning", "Suspicious execution".. (isLoose and " in a low-risk location" or "") .."!" .. (isLoose and " Ignoring it..." or ""), warning }

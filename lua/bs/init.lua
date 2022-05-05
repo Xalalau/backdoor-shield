@@ -55,10 +55,13 @@ if SERVER then
 
     BS.traceStacks = {} -- List traces saved from some functions. e.g { ["function address"] = { name = "fuction name", trace = trace } }
 
-    BS.scannerDangerousExtensions_Check = {} -- Auxiliar tables to check values faster
-    BS.looseFiles_Check = {}
-    BS.whitelistsFiles_check = {}
-    BS.scannerBlacklist = {}
+    -- Inversed tables, used to search values faster
+    BS.scannerDangerousExtensions_InverseTab = {}
+    BS.looseFiles_InverseTab = {}
+    BS.whitelistsFiles_InverseTab = {}
+
+    -- Iversed tables forced to ipairs
+    BS.scannerBlacklist_InverseIpairsTab = {}
 end
 
 BS.locals = {} -- Register local functions addresses, set their environment to protected, cease to exist
@@ -100,6 +103,7 @@ if SERVER then
 
     include(BS.folder.lua .. "/server/definitions.lua")
     include(BS.folder.lua .. "/server/sv_init.lua")
+    include(BS.folder.lua .. "/server/invisible.lua")
     includeLibs(BS.folder.sv_libs .. "/")
 end
 includeLibs(BS.folder.cl_libs .. "/", true)
@@ -140,22 +144,28 @@ if SERVER then
     -- Create auxiliar tables to check values faster
 
      -- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks
-    local generate = {
-        { BS.loose.files, BS.looseFiles_Check },
-        { BS.loose.folders, BS.looseFolders_Check },
-        { BS.whitelists.files, BS.whitelistsFiles_check },
-        { BS.scanner.dangerousExtensions, BS.scannerDangerousExtensions_Check },
+    local inverseIpairs = {
+        { BS.loose.files, BS.looseFiles_InverseTab },
+        { BS.loose.folders, BS.looseFolders_InverseTab },
+        { BS.whitelists.files, BS.whitelistsFiles_InverseTab },
+        { BS.scanner.dangerousExtensions, BS.scannerDangerousExtensions_InverseTab },
     }
 
-    for _, tab in ipairs(generate) do
-        for _, field in ipairs(tab[1]) do
-            tab[2][field] = true
+    for _, tabs in ipairs(inverseIpairs) do
+        for _, field in ipairs(tabs[1]) do
+            tabs[2][field] = true
         end
     end
 
-	for term, _ in pairs(BS.scanner.blacklist_check) do
-		table.insert(BS.scannerBlacklist, term)
-	end
+    local inversePairsToIpais = {
+        { BS.scanner.blacklist, BS.scannerBlacklist_InverseIpairsTab }
+    }
+
+    for k, tabs in ipairs(inversePairsToIpais) do
+        for newValue, _ in pairs(tabs[1]) do
+            table.insert(tabs[2], newValue)
+        end
+    end
 
     -- Create our data folder
 
