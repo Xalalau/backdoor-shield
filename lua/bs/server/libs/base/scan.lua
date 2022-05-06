@@ -21,7 +21,7 @@ function BS:Scan_Whitelist(str, whitelist)
 end
 
 -- Process a string according to our white, black and suspect lists
-function BS:Scan_Blacklist(BS, str, blacklist)
+function BS:Scan_Blacklist(str, blacklist)
     local foundTerms = {}
 	local lineEnd = string.find(str, "\r\n", nil, true) and "\r\n" or "\n"
 
@@ -60,9 +60,12 @@ function BS:Scan_Blacklist(BS, str, blacklist)
 	return foundTerms
 end
 
+-- cache into the local lexical scope
+local string_byte = string.byte
+
 -- Try to find Lua files with obfuscations
 -- ignorePatterns is used to scan files that already has other detections
-function BS:Scan_Characters(BS, str, ext)
+function BS:Scan_Characters(str, ext)
 	local foundChars = {}
 
 	if str and ext == "lua" then
@@ -88,12 +91,11 @@ function BS:Scan_Characters(BS, str, ext)
 
 			local foundInLine = {}
 			for i = 1, #line, 1 do
-				local succ, ret = pcall(utf8.codepoint, line, i, i)
-				if succ and BS.UTF8InvisibleChars[ret] and not foundInLine[ret] then
-					local count = select(2, string.gsub(line, line[i], ""))
-					foundChars[ret] = foundChars[ret] or {}
-					foundInLine[ret] = true
-					table.insert(foundChars[ret], { lineNumber = lineNumber, count = count })
+				local byte = string_byte(line, i)
+				if self.UTF8InvisibleChars[byte] and not foundInLine[byte] then
+					foundInLine[byte] = true
+					foundChars[byte] = foundChars[byte] or {}
+					table.insert(foundChars[byte], { lineNumber = lineNumber, count = #line[i] })
 				end
 			end
 		end

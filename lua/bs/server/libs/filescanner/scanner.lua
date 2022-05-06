@@ -29,7 +29,7 @@ local function ScanSource(BS, src, ext, detected)
 		detected[2] = detected[2] + BS.scanner.counterWeights.notSuspicious
 	end
 
-	local foundTerms = BS:Scan_Blacklist(BS, src, BS.scannerBlacklist_InverseIpairsTab)
+	local foundTerms = BS:Scan_Blacklist(src, BS.scannerBlacklist_InverseIpairsTab)
 	for term, linesTab in pairs(foundTerms) do
 		local lineNumbers = {}
 		local totalFound = 0
@@ -216,7 +216,7 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 			continue
 		end
 
-        local foundChars = BS:Scan_Characters(BS, src, ext)
+        local foundChars = BS:Scan_Characters(src, ext)
 		for invalidCharName, linesTab in pairs(foundChars) do
 			local lineNumbers = {}
 			local totalFound = 0

@@ -14,23 +14,23 @@ function BS:Filter_ScanArgument(str, funcName, detected, warning)
 
         if protectStack then
             for _,stackBanListName in ipairs(protectStack) do
-                self:Scan_Blacklist(self, str, self.live.blacklists.functions[stackBanListName], detected)
+                self:Scan_Blacklist(str, self.live.blacklists.functions[stackBanListName], detected)
             end
         end
 
-        local foundChars = self:Scan_Characters(self, str, "lua")
+        local foundChars = self:Scan_Characters(str, "lua")
 
         for invalidCharName, linesTab in pairs(foundChars) do
             table.insert(detected, invalidCharName)
         end
 
-        local foundTerms = self:Scan_Blacklist(self, str, self.live.blacklists.snippets, detected)
+        local foundTerms = self:Scan_Blacklist(str, self.live.blacklists.snippets, detected)
 
         for k, term in ipairs(foundTerms) do
             table.insert(detected, term)
         end
 
-        local foundTerms = self:Scan_Blacklist(self, str, self.live.blacklists.cvars, detected)
+        local foundTerms = self:Scan_Blacklist(str, self.live.blacklists.cvars, detected)
 
         for k, term in ipairs(foundTerms) do
             table.insert(detected, term)
