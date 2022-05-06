@@ -2,6 +2,8 @@
     2020-2022 Xalalau Xubilozo. MIT License
     https://xalalau.com/
 
+    Backdoor Shield (BS) (Also known internally as bullshit scanner)
+
     Main structure initialization:
 
     > BS table (global vars + include code);

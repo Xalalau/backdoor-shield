@@ -67,3 +67,29 @@ function BS:Utils_ConvertAddonPath(path, forceConvertion)
 
     return corvertedPath or path
 end
+
+-- Issue: https://stackoverflow.com/questions/9356169/utf-8-continuation-bytes
+-- This function was written by Ceifa. It also replaces utf8.codepoint, which often gives errors.
+function BS:Utils_GetFullByte(str, startPos)
+    local firstbyte = string.byte(str[startPos])
+	local continuations = firstbyte >= 0xF0 and 3 or firstbyte >= 0xE0 and 2 or firstbyte >= 0xC0 and 1
+
+	if not continuations then
+		return firstbyte
+	end
+
+	local endPos = startPos + continuations
+	local otherbytes = { string.byte(str, startPos + 1, endPos) }
+
+	local codePoint = 0
+	for _, byte in ipairs(otherbytes) do
+        -- codePoint = codePoint << 6 | byte & 0x3F
+		codePoint = bit.band(bit.bor(bit.lshift(codePoint, 6), byte), 0x3F)
+        -- firstbyte = firstbyte << 1
+		firstbyte = bit.lshift(firstbyte, 1)
+	end
+
+    -- codePoint = codePoint | ((firstbyte & 0x7F) << continuations * 5)
+	codePoint = bit.bor(codePoint, bit.lshift(bit.band(firstbyte, 0x7F), continuations * 5))
+	return codePoint
+end

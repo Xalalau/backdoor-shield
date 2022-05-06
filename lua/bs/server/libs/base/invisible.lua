@@ -10,7 +10,7 @@ BS.UTF8InvisibleChars = {
 	-- About source code spoofing: https://www.unicode.org/L2/L2022/22007-avoiding-spoof.pdf
     -- Decimal UTF-16BE invisible characters list:
 
-    --  Note: To get these numbers unicode id convert them to hexadecimal and add U+ in front of the result
+    --  Note: To get these numbers unicode id convert them to hexadecimal (signed 2's complement) and add U+ in front of the result
     --        You can also use utf8.char() to get the string back
 
     --[9] = true, -- Tab

@@ -20,12 +20,12 @@ function BS:Scan_Whitelist(str, whitelist)
 	return found
 end
 
--- Process a string according to our white, black and suspect lists
+-- Process a string according to a blacklist
 function BS:Scan_Blacklist(BS, str, blacklist)
     local foundTerms = {}
-	local lineEnd = string.find(str, "\r\n", nil, true) and "\r\n" or "\n"
 
-	for lineNumber, line in ipairs(string.Explode(lineEnd, str, false)) do
+	-- Scan each line
+	for lineNumber, line in ipairs(string.Explode("\n", str, false)) do
 		local strRemovedSpaces = string.gsub(line, " ", "")
 		local foundInLine = {}
 
@@ -60,41 +60,27 @@ function BS:Scan_Blacklist(BS, str, blacklist)
 	return foundTerms
 end
 
--- Try to find Lua files with obfuscations
--- ignorePatterns is used to scan files that already has other detections
+-- Search for spoofed code
 function BS:Scan_Characters(BS, str, ext)
 	local foundChars = {}
 
+	-- Scan each line
 	if str and ext == "lua" then
-		local lineEnd = string.find(str, "\r\n", nil, true) and "\r\n" or "\n"
+		for lineNumber, line in ipairs(string.Explode("\n", str, false)) do
+            local foundInLine = {}
+            for i = 1, #line, 1 do
+                local byte = BS.Utils_GetFullByte(BS, line, i)
+                if BS.UTF8InvisibleChars[byte] then
+                    foundInLine[byte] = (foundInLine[byte] or 0) + 1
+                end
+            end
 
-		-- Scan string
-		for lineNumber, line in ipairs(string.Explode(lineEnd, str, false)) do
-			-- Check entire line
-			if utf8.force(line) == "�" then
-				-- Decrease the number of false positives
-				if string.find(line, "=", nil, true) or
-					string.find(line, "local", nil, true) or
-					string.find(line, "function", nil, true) or
-					string.find(line, "return", nil, true) or
-					string.find(line, "then", nil, true) or
-					string.find(line, " _G", nil, true) or
-					string.find(line, "\t_G", nil, true) then
-
-					foundChars["Invalid UTF-8 char"] = foundChars["Invalid UTF-8 char"] or {}
-					table.insert(foundChars["Invalid UTF-8 char"], lineNumber)
-				end
-			end
-
-			local foundInLine = {}
-			for i = 1, #line, 1 do
-				local succ, ret = pcall(utf8.codepoint, line, i, i)
-				if succ and BS.UTF8InvisibleChars[ret] and not foundInLine[ret] then
-					local count = select(2, string.gsub(line, line[i], ""))
-					foundChars[ret] = foundChars[ret] or {}
-					foundInLine[ret] = true
-					table.insert(foundChars[ret], { lineNumber = lineNumber, count = count })
-				end
+			for byte, count in pairs(foundInLine) do
+				foundChars[byte] = foundChars[byte] or {}
+				table.insert(foundChars[byte], {
+					lineNumber = lineNumber,
+					count = count
+				})
 			end
 		end
 	end

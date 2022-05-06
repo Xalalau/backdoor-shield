@@ -98,7 +98,7 @@ local function WaitALittle()
 	local co = coroutine.running()
 	local doLoop = true
 
-	timer.Simple(0.1, function()
+	timer.Simple(0.03, function()
 		doLoop = false
 		local succeeded, errors = coroutine.resume(co)
 		if not succeeded then
