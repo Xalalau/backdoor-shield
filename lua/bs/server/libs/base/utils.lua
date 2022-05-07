@@ -6,14 +6,14 @@
 -- Generate random name
 function BS:Utils_GetRandomName()
     local name = string.ToTable("qwertyuiopsdfghjklzxcvbnm1234567890QWERTYUIOPASDFGHJKLZXCVBNM")
-	local newName = ""
-	local aux, rand
+    local newName = ""
+    local aux, rand
     
-	for i = 1, #name do
-		rand = math.random(#name)
-		aux = name[i]
-		name[i] = name[rand]
-		name[rand] = aux
+    for i = 1, #name do
+        rand = math.random(#name)
+        aux = name[i]
+        name[i] = name[rand]
+        name[rand] = aux
     end
 
     for i = 1, #name do
@@ -72,24 +72,24 @@ end
 -- This function was written by Ceifa. It also replaces utf8.codepoint, which often gives errors.
 function BS:Utils_GetFullByte(str, startPos)
     local firstbyte = string.byte(str[startPos])
-	local continuations = firstbyte >= 0xF0 and 3 or firstbyte >= 0xE0 and 2 or firstbyte >= 0xC0 and 1
+    local continuations = firstbyte >= 0xF0 and 3 or firstbyte >= 0xE0 and 2 or firstbyte >= 0xC0 and 1
 
-	if not continuations then
-		return firstbyte
-	end
+    if not continuations then
+        return firstbyte
+    end
 
-	local endPos = startPos + continuations
-	local otherbytes = { string.byte(str, startPos + 1, endPos) }
+    local endPos = startPos + continuations
+    local otherbytes = { string.byte(str, startPos + 1, endPos) }
 
-	local codePoint = 0
-	for _, byte in ipairs(otherbytes) do
+    local codePoint = 0
+    for _, byte in ipairs(otherbytes) do
         -- codePoint = codePoint << 6 | byte & 0x3F
-		codePoint = bit.band(bit.bor(bit.lshift(codePoint, 6), byte), 0x3F)
+        codePoint = bit.band(bit.bor(bit.lshift(codePoint, 6), byte), 0x3F)
         -- firstbyte = firstbyte << 1
-		firstbyte = bit.lshift(firstbyte, 1)
-	end
+        firstbyte = bit.lshift(firstbyte, 1)
+    end
 
     -- codePoint = codePoint | ((firstbyte & 0x7F) << continuations * 5)
-	codePoint = bit.bor(codePoint, bit.lshift(bit.band(firstbyte, 0x7F), continuations * 5))
-	return codePoint
+    codePoint = bit.bor(codePoint, bit.lshift(bit.band(firstbyte, 0x7F), continuations * 5))
+    return codePoint
 end

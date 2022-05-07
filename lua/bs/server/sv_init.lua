@@ -5,8 +5,8 @@
 
 -- Create our protectedCalls table
 local function ProtectedCalls_Init(BS)
-	for funcName,_ in pairs(BS.live.control) do
-		if BS.live.control[funcName].protectStack then
+    for funcName,_ in pairs(BS.live.control) do
+        if BS.live.control[funcName].protectStack then
             BS.protectedCalls[funcName] = BS:Detour_GetFunction(funcName)
         end
     end
@@ -15,7 +15,7 @@ table.insert(BS.locals, ProtectedCalls_Init)
 
 -- Create our protectedCalls table
 local function ArgumentsFunctions_Init(BS)
-	for funcName,funcTab in pairs(BS.liveControlsBackup) do
+    for funcName,funcTab in pairs(BS.liveControlsBackup) do
         if istable(funcTab.filters) then
             for _,filter in ipairs(funcTab.filters) do
                 if filter == "Filter_ScanStack" and funcTab.stackBanLists then

