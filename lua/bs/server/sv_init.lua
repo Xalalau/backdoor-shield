@@ -3,34 +3,17 @@
     https://xalalau.com/
 --]]
 
--- Create our protectedCalls table
-local function ProtectedCalls_Init(BS)
-    for funcName,_ in pairs(BS.live.control) do
-        if BS.live.control[funcName].protectStack then
-            BS.protectedCalls[funcName] = BS:Detour_GetFunction(funcName)
+-- Create our liveCallerBlacklist table
+local function InitSv_SetLiveCallerBlacklist(BS)
+    for funcName, blacklistedCallers in pairs(BS.live.blacklists.stack) do
+        BS.liveCallerBlacklist[funcName] = {}
+        for k, blacklistedCallerName in ipairs(blacklistedCallers) do
+            BS.liveCallerBlacklist[funcName][tostring(BS:Detour_GetFunction(blacklistedCallerName))] = blacklistedCallerName
+            BS.liveCallerBlacklist[funcName][tostring(BS:Detour_GetFunction(blacklistedCallerName, _G))] = blacklistedCallerName
         end
     end
 end
-table.insert(BS.locals, ProtectedCalls_Init)
-
--- Create our protectedCalls table
-local function ArgumentsFunctions_Init(BS)
-    for funcName,funcTab in pairs(BS.liveControlsBackup) do
-        if istable(funcTab.filters) then
-            for _,filter in ipairs(funcTab.filters) do
-                if filter == "Filter_ScanStack" and funcTab.stackBanLists then
-                    for _,stackBanListName in ipairs(funcTab.stackBanLists) do
-                        if not BS.live.blacklists.functions[stackBanListName] then
-                            BS.live.blacklists.functions[stackBanListName] = {}
-                        end
-                        table.insert(BS.live.blacklists.functions[stackBanListName], funcName)
-                    end
-                end
-            end
-        end
-    end
-end
-table.insert(BS.locals, ArgumentsFunctions_Init)
+table.insert(BS.locals, InitSv_SetLiveCallerBlacklist)
 
 function BS:Initialize()
     -- Print logo
@@ -89,7 +72,7 @@ function BS:Initialize()
             if k == 5 then
                 print("    |-> [" .. (self.live.isOn and "x" or " ") .. "] Live detection")
                 print("    |-> [" .. (self.live.blockThreats and "x" or " ") .. "] Live blocking")
-                print("    |-> [" .. (self.live.undoDetours and "x" or " ") .. "] Anti detour")
+                print("    |-> [" .. (self.live.protectDetours and "x" or " ") .. "] Anti detour")
                 print("    |-> [" .. (self.live.alertAdmins and "x" or " ") .. "] Alerts window")
                 print("    |-> [" .. (self.devMode and "x" or " ") .. "] Dev mode")
             end 
@@ -133,9 +116,7 @@ function BS:Initialize()
     if self.live.isOn then
         self:Detour_Init()
 
-        ProtectedCalls_Init(self)
-
-        ArgumentsFunctions_Init(self)
+        InitSv_SetLiveCallerBlacklist(self)
 
         self:Detour_SetAutoCheck()
 

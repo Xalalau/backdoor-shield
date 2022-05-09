@@ -4,44 +4,49 @@
 --]]
 
 -- Process a string passed by argument
-function BS:Filter_ScanArgument(str, funcName, detected, warning)
+local function ScanArgument(BS, str, funcName, detected, warning)
     if not isstring(str) then return end
-    if self:Scan_Whitelist(str, self.live.whitelists.snippets) then return end
+    if BS:Scan_Whitelist(str, BS.live.whitelists.snippets) then return end
 
-    if detected then
-        -- Check stack blacklists
-        local protectStack = self.live.control[funcName].protectStack
-
-        if protectStack then
-            for _,stackBanListName in ipairs(protectStack) do
-                self:Scan_Blacklist(self, str, self.live.blacklists.functions[stackBanListName], detected)
-            end
-        end
-
-        local foundChars = self:Scan_Characters(self, str, "lua")
+    if istable(detected) then
+        -- Invisible characters
+        local foundChars = BS:Scan_Characters(BS, str, "lua")
 
         for invalidCharName, linesTab in pairs(foundChars) do
             table.insert(detected, invalidCharName)
         end
 
-        local foundTerms = self:Scan_Blacklist(self, str, self.live.blacklists.snippets, detected)
+        -- Blacklisted functions
+        local stackBlacklist = BS.liveBlacklistStack_FixedFormat2D[funcName]
+        if stackBlacklist then
+            local foundTerms = BS:Scan_Blacklist(BS, str, stackBlacklist, detected)
 
-        for k, term in ipairs(foundTerms) do
+            for term, linesTab in pairs(foundTerms) do
+                table.insert(detected, term)
+            end
+        end
+
+        -- Blacklisted snippets
+        local foundTerms = BS:Scan_Blacklist(BS, str, BS.live.blacklists.arguments.snippets)
+
+        for term, linesTab in pairs(foundTerms) do
             table.insert(detected, term)
         end
 
-        local foundTerms = self:Scan_Blacklist(self, str, self.live.blacklists.cvars, detected)
+        -- Blacklisted console commands and variables
+        local foundTerms = BS:Scan_Blacklist(BS, str, BS.live.blacklists.arguments.console)
 
-        for k, term in ipairs(foundTerms) do
+        for term, linesTab in pairs(foundTerms) do
             table.insert(detected, term)
         end
     end
 
-    if warning then
+    if istable(warning) then
     end
 
     return
 end
+table.insert(BS.locals, ScanArgument)
 
 -- Scan http.Fetch and http.Post contents
 -- Add persistent trace support to the called functions
@@ -60,15 +65,15 @@ function BS:Filter_ScanHttpFetchPost(trace, funcName, args, isLoose)
             end
         end
 
-        self:Filter_ScanArgument(url, funcName, detected, warning)
+        ScanArgument(self, url, funcName, detected, warning)
 
         for _, arg in ipairs(args2) do
             if isstring(arg) then
-                self:Filter_ScanArgument(arg, funcName, detected, warning)
+                ScanArgument(self, arg, funcName, detected, warning)
             elseif istable(arg) then
                 for k, v in ipairs(arg) do
-                    self:Filter_ScanArgument(k, funcName, detected, warning)
-                    self:Filter_ScanArgument(v, funcName, detected, warning)
+                    ScanArgument(self, k, funcName, detected, warning)
+                    ScanArgument(self, v, funcName, detected, warning)
                 end
             end
         end
@@ -119,7 +124,7 @@ function BS:Filter_ScanHttpFetchPost(trace, funcName, args, isLoose)
         end, args[5])
     end
 
-    return true
+    return "runOnFilter"
 end
 
 -- Check CompileString, CompileFile, RunString and RunStringEX contents
@@ -128,10 +133,7 @@ function BS:Filter_ScanStrCode(trace, funcName, args, isLoose)
     local detected = {}
     local warning = {}
 
-    if not _G[funcName] then return "" end -- RunStringEx exists but is deprecated
-    if not isstring(code) then return "" end -- Just checking
-
-    self:Filter_ScanArgument(code, funcName, detected, warning)
+    ScanArgument(self, code, funcName, detected, warning)
 
     local report = not isLoose and #detected > 0 and { "detected", "Execution detected!", detected } or
                    (isLoose or #warning > 0) and { "warning", "Suspicious execution".. (isLoose and " in a low-risk location" or "") .."!" .. (isLoose and " Ignoring it..." or ""), warning }
@@ -151,7 +153,11 @@ function BS:Filter_ScanStrCode(trace, funcName, args, isLoose)
         self:Report_LiveDetection(info)
     end
 
-    return (not self.live.blockThreats or isLoose or not report) and self:Detour_CallOriginalFunction(funcName, #args > 0 and args or {""})
+    if self.live.blockThreats and report and not isLoose then
+        return true
+    end
+
+    return false
 end
 
 -- Validate functions that can't call each other
@@ -161,7 +167,6 @@ local callersWarningCooldown = {} -- Don't flood the console with messages
 function BS:Filter_ScanStack(trace, funcName, args, isLoose)
     local protectedFuncName = self:Stack_Check(funcName)
     local detectedFuncName = funcName
-    local whitelisted
 
     if protectedFuncName then
         if not callersWarningCooldown[detectedFuncName] then
@@ -170,37 +175,26 @@ function BS:Filter_ScanStack(trace, funcName, args, isLoose)
                 callersWarningCooldown[detectedFuncName] = nil
             end)    
 
-            -- Whitelist
-            for _,combo in ipairs(self.live.whitelists.stack) do
-                if protectedFuncName == combo[1] then
-                    if detectedFuncName == combo[2] then
-                        whitelisted = true
-                    end
-                end
-            end
+            local info = {
+                type = isLoose and "warning" or "detected",
+                folder = protectedFuncName,
+                alert = isLoose and "Warning! Prohibited function call in a low-risk location! Ignoring it..." or "Detected function call!",
+                func = protectedFuncName,
+                trace = trace,
+                detected = { detectedFuncName },
+                file = self:Trace_GetLuaFile(trace)
+            }
 
-            if not whitelisted then
-                local info = {
-                    type = isLoose and "warning" or "detected",
-                    folder = protectedFuncName,
-                    alert = isLoose and "Warning! Prohibited function call in a low-risk location! Ignoring it..." or "Detected function call!",
-                    func = protectedFuncName,
-                    trace = trace,
-                    detected = { detectedFuncName },
-                    file = self:Trace_GetLuaFile(trace)
-                }
-
-                self:Report_LiveDetection(info)
-            end
+            self:Report_LiveDetection(info)
         end
 
-        if not self.live.blockThreats or isLoose or whitelisted then
-            return "true"
+        if self.live.blockThreats and not isLoose then
+            return true
         else
             return false
         end
     else
-        return "true"
+        return false
     end
 end
 
@@ -208,7 +202,7 @@ end
 function BS:Filter_ScanTimers(trace, funcName, args)
     self:Trace_Set(args[2], funcName, trace)
 
-    return self:Detour_CallOriginalFunction(funcName, args)
+    return false
 end
 
 -- Hide our detours
@@ -217,8 +211,7 @@ function BS:Filter_ProtectDebugGetinfo(trace, funcName, args)
     if isfunction(args[1]) then
         return self:Filter_ProtectAddresses(trace, funcName, args)
     else
-        local result = self:Stack_SkipBSFunctions(args)
-        return result
+        return result { self:Stack_SkipBSFunctions(args) }
     end
 end
 
@@ -233,17 +226,24 @@ function BS:Filter_ProtectAddresses(trace, funcName, args)
     end
     checking[funcName] = true
 
+    local changedArg = false
     if args[1] and isfunction(args[1]) then
-        for funcName, funcTab in pairs(self.live.control) do
-            if args[1] == funcTab.detour then
+        for funcName, detourTab in pairs(self.liveDetours) do
+            if args[1] == detourTab.detourFunc then
                 args[1] = self:Detour_GetFunction(funcName, _G)
+                changedArg = true
                 break
             end
         end
     end
 
     checking[funcName] = nil
-    return self:Detour_CallOriginalFunction(funcName, args)
+
+    if changedArg then
+        return { self:Detour_CallOriginalFunction(funcName, args) }
+    else
+        return false
+    end
 end
 
 -- Protect our custom environment
@@ -265,5 +265,5 @@ function BS:Filter_ProtectEnvironment(trace, funcName, args)
         self:Report_LiveDetection(info)
     end
 
-    return result
+    return { result }
 end

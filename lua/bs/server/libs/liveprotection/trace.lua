@@ -5,7 +5,7 @@
 
 -- Try to get a stored trace given any function address
 function BS:Trace_Get(currentTrace)
-    local stackedTraceInfo = self.traceStacks[tostring(self:Stack_GetTopFunctionAddress())]
+    local stackedTraceInfo = self.liveTraceStacks[tostring(self:Stack_GetTopFunctionAddress())]
     local stackedTrace = stackedTraceInfo and stackedTraceInfo.trace
     local newFullTrace = (stackedTrace and ("\n      (+) BS - Persistent Trace" .. stackedTrace .. "") or "\n") .. "      " .. currentTrace .. "\n"
     local newFullTraceClean
@@ -34,13 +34,13 @@ end
 
 -- Store a trace associated to a specific function that will lose it
 function BS:Trace_Set(func, name, trace)
-    local stackedTrace = self.traceStacks[tostring(self:Stack_GetTopFunctionAddress())]
+    local stackedTrace = self.liveTraceStacks[tostring(self:Stack_GetTopFunctionAddress())]
 
     if stackedTrace then
         trace = stackedTrace.trace .. trace
     end
 
-    self.traceStacks[tostring(func)] = { name = name, trace = trace }
+    self.liveTraceStacks[tostring(func)] = { name = name, trace = trace }
 end
 
 -- Get the correct detected lua file from a trace stack
@@ -80,7 +80,7 @@ function BS:Trace_IsLoose(trace)
     local isLoose = false
     local luaFile = self:Trace_GetLuaFile(trace)
 
-    if self.liveLooseFiles_InverseTab[luaFile] then
+    if self.liveLooseFiles_EZSearch[luaFile] then
         isLoose = true
     else
         for _,v in ipairs(self.live.loose.folders) do
@@ -102,7 +102,7 @@ function BS:Trace_IsWhitelisted(trace)
     local isWhitelisted = false
     local luaFile = self:Trace_GetLuaFile(trace)
 
-    if self.liveWhitelistsFiles_InverseTab[luaFile] then
+    if self.liveWhitelistsFiles_EZSearch[luaFile] then
         isWhitelisted = true
     else
         for _, _file in ipairs(self.live.whitelists.folders) do

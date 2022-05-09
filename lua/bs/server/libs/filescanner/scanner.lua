@@ -8,7 +8,7 @@
 -- Check if a file isn't suspect (at first)
 -- Mainly used to remove false positives from binary files
 local function IsSourceSuspicious(BS, str, ext)
-    if BS.scannerDangerousExtensions_InverseTab[ext] then return true end
+    if BS.scannerDangerousExtensions_EZSearch[ext] then return true end
 
     for k, term in ipairs(BS.scanner.notSuspicious) do
         if string.find(str, term, nil, true) then
@@ -26,17 +26,17 @@ local function ScanSource(BS, src, ext, detected)
     
     local IsSourceSuspicious = IsSourceSuspicious(BS, src, ext)
     if not IsSourceSuspicious then
-        detected[2] = detected[2] + BS.scanner.counterWeights.notSuspicious
+        detected[2] = detected[2] + BS.scanner.liveCounterWeights.notSuspicious
     end
 
-    local foundTerms = BS:Scan_Blacklist(BS, src, BS.scannerBlacklist_InverseIpairsTab)
+    local foundTerms = BS:Scan_Blacklist(BS, src, BS.scannerBlacklist_FixedFormat)
     for term, linesTab in pairs(foundTerms) do
         local lineNumbers = {}
         local totalFound = 0
 
         for k, lineTab in ipairs(linesTab) do
             table.insert(lineNumbers, lineTab.lineNumber)
-            totalFound = totalFound + lineTab.count
+            totalFound = totalFound + lineTab.liveCount
         end
 
         detected[2] = detected[2] + BS.scanner.blacklist[term] -- Adding multiple weights here will generate a lot of false positives
@@ -192,7 +192,7 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 
         -- Loose folder counterweight
         if isLooseFolder then
-            detected[2] = detected[2] + BS.scanner.counterWeights.loose
+            detected[2] = detected[2] + BS.scanner.liveCounterWeights.loose
         end
 
         -- Convert a addons/ path to a lua/ path and save the result to prevent a repeated scanning later
@@ -223,7 +223,7 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 
             for k, lineTab in ipairs(linesTab) do
                 table.insert(lineNumbers, lineTab.lineNumber)
-                totalFound = totalFound + lineTab.count
+                totalFound = totalFound + lineTab.liveCount
             end
 
             detected[2] = detected[2] + BS.scanner.extraWeights.invalidChar -- Adding multiple weights here will generate a lot of false positives
@@ -237,11 +237,11 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 
         -- Build, print and stock the result
         if #detected[1] > 0 then
-            local isLooseFile = BS.scannerLooseFiles_InverseTab[path] and true or false
+            local isLooseFile = BS.scannerLooseFiles_EZSearch[path] and true or false
 
             -- Loose file counterweight
             if isLooseFile then
-                detected[2] = detected[2] + BS.scanner.counterWeights.loose
+                detected[2] = detected[2] + BS.scanner.liveCounterWeights.loose
             end
 
             -- Discard result if it's from file with only BS.scanner.suspect_suspect detections

@@ -205,9 +205,9 @@ function BS:Report_LiveDetection(infoIn)
 
     -- Update counter
     if infoIn.type == "warning" then
-        self.count.warnings = self.count.warnings + 1
+        self.liveCount.warnings = self.liveCount.warnings + 1
     else
-        self.count.detections = self.count.detections + 1
+        self.liveCount.detections = self.liveCount.detections + 1
     end
 
     -- Send a GUI update
@@ -215,8 +215,8 @@ function BS:Report_LiveDetection(infoIn)
         for _,ply in pairs(player.GetHumans()) do
             if ply:IsAdmin() then
                 net.Start("BS_AddNotification")
-                net.WriteString(tostring(self.count.detections))
-                net.WriteString(tostring(self.count.warnings))
+                net.WriteString(tostring(self.liveCount.detections))
+                net.WriteString(tostring(self.liveCount.warnings))
                 net.Send(ply)
             end
         end

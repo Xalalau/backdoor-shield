@@ -2,21 +2,20 @@
     2020-2022 Xalalau Xubilozo. MIT License
     https://xalalau.com/
 
-    HACKS: For some reason these functions are EXTREMELY temperamental! I was unable to use the
-    nested code, to pass arguments and even to freely write variables or acceptable syntax. They
-    only work when it's this mess. Test each changed line if you want to touch them, or you'll
-    regret it bitterly!
+    HACKS: For some reason these functions are EXTREMELY temperamental! I was unable to use
+    nested code, to pass arguments and even to freely write variables or acceptable syntax.
+    They only work when it's a mess. If you want to improve this code, test each changed line
+    or you'll regret breathing!
 
-    Note: I can't check the stack in the wrong environment, so don't use this:
-        table.insert(BS.locals, some_function)
-    when there're _debug.getinfo or _debug.getlocal present.
+    Note: I also can't check the stack in a custom environment, so if you see  _debug.getinfo
+          or _debug.getlocal __don't use this__: table.insert(BS.locals, some_function)
 ]]
 
 -- I can't pass arguments or move the functions to our environment, so I copy my tables locally
-local BS_protectedCalls_Hack
-local BS_traceStacks_Hack
+local BS_liveCallerBlacklist_Hack
+local BS_liveTraceStacks_Hack
 
--- Protect against detouring and always get real results
+-- Protect against detouring, get real results
 local _debug = {}
 _debug.getinfo = debug.getinfo   
 _debug.getlocal = debug.getlocal
@@ -25,38 +24,39 @@ local _string = {}
 _string.Explode = string.Explode
 _string.find = string.find
 
+local _table = table
 local _tostring = tostring
 local _ipairs = ipairs
 local _pairs = pairs
 local __G = _G
 
--- Workaround to pass arguments
+-- Workarounds to pass arguments
+
+-- This works by adding the arguments to the stack, entering the function and immediately poping
+-- the entire stack inside the function.
 local argsPop = {}
-
--- Copy some tables locally (also a workaround)
-function BS:Stack_Init()
-    BS_protectedCalls_Hack = table.Copy(self.protectedCalls)
-    BS_traceStacks_Hack = self.traceStacks
-end
-
--- Insert arguments into argsPop
 local function InsertArgs(args)
-    table.insert(argsPop, args)
+    _table.insert(argsPop, args)
 end
-table.insert(BS.locals, InsertArgs)
+_table.insert(BS.locals, InsertArgs)
+-- Store some BS table addresses
+function BS:Stack_Init()
+    BS_liveCallerBlacklist_Hack = self.liveCallerBlacklist
+    BS_liveTraceStacks_Hack = self.liveTraceStacks
+end
 
 -- Check for prohibited function combinations (scanning by address)
--- If the stack is good, return false
--- If the stack is bad, return "protected func name"
+-- If the stack is ok, return false
+-- If the stack has a detection, return the "protected func name"
 local function Stack_Check()
-    local vars = { -- Note: adding new variables outside this table can break the function for some reason
+    local vars = { -- Note: adding new variables outside this table can break the function for some reason!!!! So weird
         increment = 1,
         detected = 0,
         currentFuncAddress,
         currentFuncName
     }
 
-    -- This is how I'm passing arguments
+    -- This is how I'm passing arguments, as explained above
     for k, arg in _ipairs(argsPop) do
         vars.currentFuncAddress = arg[1]
         vars.currentFuncName = arg[2]
@@ -73,17 +73,17 @@ local function Stack_Check()
 
         if value then
             -- Update the name and address using info from the trace stacks, if it's the case
-            local traceStacks = BS_traceStacks_Hack[_tostring(value.func)]
+            local liveTraceStacks = BS_liveTraceStacks_Hack[_tostring(value.func)]
 
-            if traceStacks then
+            if liveTraceStacks then
                 local func = __G
 
-                for k, funcNamePart in _ipairs(_string.Explode(".", traceStacks.name)) do
+                for k, funcNamePart in _ipairs(_string.Explode(".", liveTraceStacks.name)) do
                     func = func[funcNamePart]
                 end
 
                 value.func = func -- Use the address of the last function from the older stack, so we can keep track of what's happening
-                value.name = traceStacks.name
+                value.name = liveTraceStacks.name
             end
     
             -- Now we are going to check if it's a protected function call
@@ -97,14 +97,18 @@ local function Stack_Check()
                     value.name = vars.currentFuncName
                 else
                     -- Find a forbidden previous caller
-                    for funcName,funcAddress in _pairs(BS_protectedCalls_Hack) do -- I tried to use the function address as index but it doesn't work here
-                       if vars.detected == 1 and _tostring(value.func) == _tostring(funcAddress) then 
+                    if vars.detected == 1 then
+                        -- !!WORKAROUND!! Sometimes _tostring() returns the original function address here (lol, kill me), so
+                        -- I decided to store both the detoured and the original addresses in BS_liveCallerBlacklist_Hack.
+                        local blacklistedFuncName = BS_liveCallerBlacklist_Hack[vars.currentFuncName][_tostring(value.func)]
+
+                        if blacklistedFuncName then
                             -- Debug
                             --print("---> FOUND FORBIDDEN CALLER")
 
                             vars.detected = vars.detected + 1
-                            value.name = funcName
-                       end
+                            value.name = blacklistedFuncName
+                        end
                     end
                 end
             end
@@ -155,7 +159,7 @@ end
 
 -- Return the result debug.getinfo result skipping our functions
 local function Stack_SkipBSFunctions()
-    local vars = { -- Note: adding new variables outside this table can break the function for some reason
+    local vars = { -- Note: adding new variables outside this table can break the function for some reason!!!! So weird
         increment = 1,
         skipLevel = false, 
         foundGetinfo = false,
@@ -166,7 +170,7 @@ local function Stack_SkipBSFunctions()
         args
     }
 
-    -- This is how I'm passing arguments
+    -- This is how I'm passing arguments, as explained at the top of this file
     for k, arg in _ipairs(argsPop) do
         vars.requiredStackLevel = arg[1]
         vars.requiredFields = arg[2]
@@ -237,7 +241,7 @@ local function Stack_SkipBSFunctions()
 end
 
 function BS:Stack_SkipBSFunctions(args)
-    table.insert(args, self.folder.lua)
+    _table.insert(args, self.folder.lua)
     InsertArgs(args)
     return Stack_SkipBSFunctions()
 end

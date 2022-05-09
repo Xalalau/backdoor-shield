@@ -2,23 +2,15 @@
     2020-2022 Xalalau Xubilozo. MIT License
     https://xalalau.com/
 
-    Backdoor Shield (BS) (Also known internally as bullshit scanner)
-
-    Main structure initialization:
-
-    > BS table (global vars + include code);
-    > protect environment;
-    > create auxiliar tables;
-    > create our data folder;
-    > call other server and client init.
+    Backdoor Shield (BS) (Also known as bullshit detector)
 ]]
 
 AddCSLuaFile()
 
-BS = {}
-BS.__index = BS
+-- ------------------------------------------------
+-- Initialize pre files include variables
 
--- Global vars/controls
+BS = {}
 
 BS.version = "V. 1.8+ (GitHub)"
 
@@ -28,6 +20,8 @@ BS.folder.data = "backdoor-shield"
 BS.folder.lua = "bs"
 BS.folder.sv_libs = BS.folder.lua .. "/server/libs"
 BS.folder.cl_libs = BS.folder.lua .. "/client/libs"
+
+BS.locals = {} -- Register local functions addresses, set their environment to protected, cease to exist
 
 BS.colors = {
     header = Color(255, 0, 255),
@@ -42,44 +36,55 @@ BS.colors = {
 
 if SERVER then
     BS.reloaded = false -- Internal control: tell the older code that it's not running anymore, so we can turn off timers etc
---  self.__G.BS_reloaded -- Internal control: tell the newer code that it's from a refresh, so we can do adjustments like hide the initial screen
+--  BS.__G.BS_reloaded -- Internal control: tell the newer code that it's from a refresh, so we can do adjustments like hiding the initial screen
 
-    BS.count = { -- Counting
+    -- Counting
+    BS.liveCount = { 
         detections = 0,
         warnings = 0
     }
+    --[[
+        List of protected functions and their filters
+        { 
+            ["function name"] = {
+                filters = { function filter, ... } 
+                detour = function detour address
+            },
+            ...
+        }
+    ]]
+    BS.liveDetours = {}
+    -- List traces saved from some functions. e.g { ["function address"] = { name = "fuction name", trace = trace }, ... }
+    BS.liveTraceStacks = {} 
+    --[[
+        Blocked calls
+        {
+            ["function name"] = {
+                [detoured blocked caller address A] = blocked caller name,
+                [original blocked caller address A] = blocked caller name,
+                ...
+            },
+            ...
+        }
+    ]]
+    BS.liveCallerBlacklist = {}
 
-    BS.ignoredDetours = {} -- Ignored low-risk detour detections. e.g { ["lua/ulib/shared/hook.lua"] = true }
+    -- Lists with structures focused on quick searches
+    -- { [value] = true, ... }
+    BS.scannerDangerousExtensions_EZSearch = {} 
+    BS.scannerLooseFiles_EZSearch = {}
+    BS.liveLooseFiles_EZSearch = {}
+    BS.liveWhitelistsFiles_EZSearch = {}
 
-    BS.protectedCalls = {} -- List of functions that can't call each other. e.g. { ["function name"] = detoured function address }
+    -- More lists with structures focused on quick searches
 
-    BS.traceStacks = {} -- List traces saved from some functions. e.g { ["function address"] = { name = "fuction name", trace = trace } }
-
-    -- Inversed tables, used to search values faster
-    BS.scannerDangerousExtensions_InverseTab = {}
-    BS.scannerLooseFiles_InverseTab = {}
-    BS.liveLooseFiles_InverseTab = {}
-    BS.liveWhitelistsFiles_InverseTab = {}
-
-    -- Iversed tables forced to ipairs
-    BS.scannerBlacklist_InverseIpairsTab = {}
+    -- Adjusts the internal format of some definitions, which have been changed for readability
+    BS.scannerBlacklist_FixedFormat = {} -- { k = term, ... }
+    BS.liveBlacklistStack_FixedFormat2D = {} -- { [id] = { k = term, ... }, ... }
 end
 
-BS.locals = {} -- Register local functions addresses, set their environment to protected, cease to exist
-
-local function GetFilesCreationTimes(BS)
-    if SERVER then
-        BS.filenames = BS:Utils_GetFilesCreationTimes() -- Get the creation time of each Lua game file
-    end
-end
-
-local function SetControlsBackup(BS)
-    if SERVER then
-        BS.liveControlsBackup = table.Copy(BS.live.control) -- Create a copy of the main protection table. It contains the filter names before they turn into functions
-    end
-end
-
--- Include our stuff
+-- ------------------------------------------------
+-- Include files
 
 local function includeLibs(dir, isClientLib)
     local files, dirs = file.Find( dir .. "*", "LUA" )
@@ -110,12 +115,23 @@ if SERVER then
 end
 includeLibs(BS.folder.cl_libs .. "/", true)
 
--- Get the creation time of each Lua game file
-GetFilesCreationTimes(BS)
+-- ------------------------------------------------
+-- Initialize post files include variables
 
--- Backup the controls table
-SetControlsBackup(BS)
+if SERVER then
+    BS.filenames = BS:Utils_GetFilesCreationTimes() -- Get the creation time of each Lua game file
+end
 
+-- ------------------------------------------------
+-- Create our data folder
+
+if SERVER then
+    if not file.Exists(BS.folder.data, "DATA") then
+        file.CreateDir(BS.folder.data)
+    end
+end
+
+-- ------------------------------------------------
 -- Protect environment
 
 -- Isolate our addon functions
@@ -143,14 +159,17 @@ BS.locals = nil
 BS.__G = _G 
 
 if SERVER then
-    -- Create auxiliar tables to check values faster
+    -- ------------------------------------------------
+    -- Setup internal tables
 
-     -- e.g. { [1] = "lua/derma/derma.lua" } turns into { "lua/derma/derma.lua" = true }, which is much better to do checks
-    local inverseIpairs = {
-        { BS.scanner.loose.files, BS.scannerLooseFiles_InverseTab },
-        { BS.live.loose.files, BS.liveLooseFiles_InverseTab },
-        { BS.live.whitelists.files, BS.liveWhitelistsFiles_InverseTab },
-        { BS.scanner.dangerousExtensions, BS.scannerDangerousExtensions_InverseTab },
+    -- Create tables to check values faster
+
+    -- e.g. { [1] = "lua/derma/derma.lua" } turns into { ["lua/derma/derma.lua"] = true }
+     local inverseIpairs = {
+        { BS.scanner.loose.files, BS.scannerLooseFiles_EZSearch },
+        { BS.live.loose.files, BS.liveLooseFiles_EZSearch },
+        { BS.live.whitelists.files, BS.liveWhitelistsFiles_EZSearch },
+        { BS.scanner.dangerousExtensions, BS.scannerDangerousExtensions_EZSearch },
     }
 
     for _, tabs in ipairs(inverseIpairs) do
@@ -159,8 +178,10 @@ if SERVER then
         end
     end
 
+    -- Rearrange tables to the expected formats
+
     local inversePairsToIpais = {
-        { BS.scanner.blacklist, BS.scannerBlacklist_InverseIpairsTab }
+        { BS.scanner.blacklist, BS.scannerBlacklist_FixedFormat }
     }
 
     for k, tabs in ipairs(inversePairsToIpais) do
@@ -169,12 +190,14 @@ if SERVER then
         end
     end
 
-    -- Create our data folder
-
-    if not file.Exists(BS.folder.data, "DATA") then
-        file.CreateDir(BS.folder.data)
+    for funcName, stackBlacklistTab in pairs(BS.live.blacklists.stack) do
+        for k, blacklistedStackFuncName in pairs(stackBlacklistTab) do
+            BS.liveBlacklistStack_FixedFormat2D[blacklistedStackFuncName] = BS.liveBlacklistStack_FixedFormat2D[blacklistedStackFuncName] or {}
+            table.insert(BS.liveBlacklistStack_FixedFormat2D[blacklistedStackFuncName], funcName)
+        end
     end
 
+    -- ------------------------------------------------
     -- Call other specific initializations 
 
     BS:Initialize()

@@ -14,7 +14,7 @@ function BS:AutoReloading_Set()
                 if creationTime ~= self.filenames[fileName] then
                     MsgC(self.colors.reload, self.alert .. " Reloading...\n")
 
-                    self:Detour_Remove()
+                    self:Detour_RemoveAll()
 
                     self.reloaded = true
 
