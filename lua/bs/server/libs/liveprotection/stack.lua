@@ -39,10 +39,22 @@ local function InsertArgs(args)
     _table.insert(argsPop, args)
 end
 _table.insert(BS.locals, InsertArgs)
--- Store some BS table addresses
+
 function BS:Stack_Init()
+    -- Store some BS table addresses
     BS_liveCallerBlacklist_Hack = self.liveCallerBlacklist
     BS_liveTraceStacks_Hack = self.liveTraceStacks
+
+    -- HACK!!! The first stack check call in an init file always gives this error:
+    -- [backdoor-shield] addons/!!!backdoor-shield/lua/bs/server/libs/liveprotection/filter.lua:215: bad argument #1 to 'Stack_SkipBSFunctionss' (invalid option)
+    -- 1. Stack_SkipBSFunctionss - [C]:-1
+    --     2. filter - addons/!!!backdoor-shield/lua/bs/server/libs/liveprotection/filter.lua:215
+    --         3. getinfo - addons/!!!backdoor-shield/lua/bs/server/libs/liveprotection/detour.lua:173
+    --             4. unknown - addons/!!!backdoor-shield/lua/autorun/tests.lua:16
+    -- I "solved it" by calling the function before everyone else and throwing the error away.
+    pcall(function()
+        print(self.__G.debug.getinfo(1))
+    end)
 end
 
 -- Check for prohibited function combinations (scanning by address)
@@ -240,7 +252,7 @@ local function Stack_SkipBSFunctions()
     end
 end
 
-function BS:Stack_SkipBSFunctions(args)
+function BS:Stack_SkipBSFunctionss(args)
     args = args or {}
     _table.insert(args, self.folder.lua)
     InsertArgs(args)
