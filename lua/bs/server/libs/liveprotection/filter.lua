@@ -211,7 +211,7 @@ function BS:Filter_ProtectDebugGetinfo(trace, funcName, args)
     if isfunction(args[1]) then
         return self:Filter_ProtectAddresses(trace, funcName, args)
     else
-        return result { self:Stack_SkipBSFunctions(args) }
+        return { self:Stack_SkipBSFunctionss(args) }
     end
 end
 
