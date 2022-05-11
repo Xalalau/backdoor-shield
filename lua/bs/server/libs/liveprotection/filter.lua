@@ -98,7 +98,7 @@ function BS:Filter_ScanHttpFetchPost(trace, funcName, args, isLoose)
         end
 
         if not self.live.blockThreats or isLoose or not report then
-            self:Trace_Set(args[2], funcName, trace)
+            self:Trace_SetPersistent(args[2], funcName, trace)
 
             self:Detour_CallOriginalFunction(funcName, args)
         end
@@ -200,7 +200,7 @@ end
 
 -- Add persistent trace support to the function called by timers
 function BS:Filter_ScanTimers(trace, funcName, args)
-    self:Trace_Set(args[2], funcName, trace)
+    self:Trace_SetPersistent(args[2], funcName, trace)
 
     return false
 end

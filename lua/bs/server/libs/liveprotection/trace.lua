@@ -4,7 +4,7 @@
 --]]
 
 -- Try to get a stored trace given any function address
-function BS:Trace_Get(currentTrace)
+function BS:Trace_GetPersistent(currentTrace)
     local stackedTraceInfo = self.liveTraceStacks[tostring(self:Stack_GetTopFunctionAddress())]
     local stackedTrace = stackedTraceInfo and stackedTraceInfo.trace
     local newFullTrace = (stackedTrace and ("\n      (+) BS - Persistent Trace" .. stackedTrace .. "") or "\n") .. "      " .. currentTrace .. "\n"
@@ -33,7 +33,7 @@ function BS:Trace_Get(currentTrace)
 end
 
 -- Store a trace associated to a specific function that will lose it
-function BS:Trace_Set(func, name, trace)
+function BS:Trace_SetPersistent(func, name, trace)
     local stackedTrace = self.liveTraceStacks[tostring(self:Stack_GetTopFunctionAddress())]
 
     if stackedTrace then

@@ -5,22 +5,22 @@
 
 -- Initialize each detour with its filters
 function BS:Detour_Init()
-    for protectedFunc, settingsDetourTab in pairs(self.live.detours) do
+    for funcName, settingsDetourTab in pairs(self.live.detours) do
         local filterSetting = settingsDetourTab.filters or {}
 
         if isstring(filterSetting) then
             filterSetting = { filterSetting }
         end
 
-        self.liveDetours[protectedFunc] = {
+        self.liveDetours[funcName] = {
             filters = {}
         }
 
         for k, filterName in ipairs(filterSetting) do
-            self.liveDetours[protectedFunc].filters[k] = self[filterName]
+            self.liveDetours[funcName].filters[k] = self[filterName]
         end
 
-        self:Detour_Create(protectedFunc, self.liveDetours[protectedFunc].filters)
+        self:Detour_Create(funcName, self.liveDetours[funcName].filters)
     end
 end
 
@@ -37,7 +37,7 @@ function BS:Detour_SetAutoCheck()
                 return
             end
 
-            for funcName, detourTab in pairs(self.liveDetours) do
+            for funcName, settingsDetourTab in pairs(self.live.detours) do
                 self:Detour_Validate(funcName)
             end
         end)
@@ -56,20 +56,24 @@ end
 function BS:Detour_Validate(funcName, trace, isLoose)
     local currentAddress = self:Detour_GetFunction(funcName)
     local detourAddress = self.liveDetours[funcName].detourFunc
-    local luaFile
 
     if not trace or string.len(trace) == 4 then
         local source = debug.getinfo(currentAddress, "S").source
-        luaFile = self:Utils_ConvertAddonPath(string.sub(source, 1, 1) == "@" and string.sub(source, 2))
-    else 
-        luaFile = self:Trace_GetLuaFile()
+        local luaFile = self:Utils_ConvertAddonPath(string.sub(source, 1, 1) == "@" and string.sub(source, 2))
+        trace = [[ stack traceback:
+          ]] .. luaFile
     end
+
+    local isWhitelisted = self:Trace_IsWhitelisted(trace)
+
+    if isWhitelisted then return isWhitelisted end -- I don't return if it's loose here because it doesn't matter and it saves processing
+
+    local isLoose = self:Trace_IsLoose(trace)
 
     if detourAddress ~= currentAddress then
         local info = {
             func = funcName,
-            trace = trace or [[ stack traceback:
-              ]] .. luaFile
+            trace = trace
         }
 
         if isLoose then
@@ -85,11 +89,9 @@ function BS:Detour_Validate(funcName, trace, isLoose)
         end
 
         self:Report_LiveDetection(info)
-
-        return false
     end
 
-    return true
+    return isWhitelisted, isLoose
 end
 
 -- Call an original game function from our protected environment
@@ -142,19 +144,17 @@ function BS:Detour_Create(funcName, filters)
         running[funcName] = true
 
         -- Get and check the trace
-        local trace = self:Trace_Get(debug.traceback())
-        local isWhitelisted = self:Trace_IsWhitelisted(trace)
+        local trace = debug.traceback()
+        trace = self:Trace_GetPersistent(trace)
+
+        -- Check detour, whitelists and loose list
+        local isWhitelisted, isLoose = self:Detour_Validate(funcName, trace)
 
         if isWhitelisted then
             running[funcName] = nil
 
             return self:Detour_CallOriginalFunction(funcName, args)
         end
-
-        local isLoose = self:Trace_IsLoose(trace)
-        
-        -- Check detour
-        self:Detour_Validate(funcName, trace, isLoose)
 
         -- Run filters
         --[[
