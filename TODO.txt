@@ -2,17 +2,7 @@ Banco assassino de backdoor https://github.com/BannedGithub/Backdoor_Busting_201
 
 
 
-O trace retorna errado. Ele não sabe em qual arquivo no meio do trace aconteceu a detecção.
-
-Eu to com a impressão que a verificação de stack nem roda
-
-Rever como ficam as mensagens de log com verificação de stack
-
-Os testes automáticos estão indicando muitos erros
-
-
-
-
+Stack_SkipBSFunctions functiona bem? Testar níveis.
 
 
 
@@ -34,21 +24,6 @@ Eu devia emitir alertas quando algumas funções que alimentam tabelas assim sã
     }
 ex: quem precisa de server_ip e serverport? 
 
-logar o conteúdo de runstring etc mesmo que não seja uma detecção
-
-
-    -- Whitelist
-    stack = { -- fazer no file scanner
-    urls = { -- fazer no file scanner
-    snippets = { -- ? Checar
-    o resto funciona
-
-
-Fazer opção para os low-risk locations printarem log reduzido no console (por padrão)
-
-
-Arquivo mais cedo q achei: E:\Servidor\gmodds\garrysmod\lua\includes\extensions/coroutine.lua (ferra o gui?)
-via https://wiki.facepunch.com/gmod/Lua_Loading_Order
 
 
 
@@ -60,11 +35,7 @@ This will run code received through a network string, this is very bad. (critica
 
 
 
-Eu posso escanear o arquivo de origem de um net.Start
-é fácil de burlar mas é mais uma perturbação
-aliás, posso escanear diversos arquivos de várias funções
-faço 1 scan. Se bom = whitelist, se ruim = blacklist
-mas e se não tiver um arquivo associado?? Como pego um script assim?
+Checkar stack do net.Start?
 
 Vi um runstring com:
 SetModel, DropWeapon, SetUserGroup, me:SetRunSpeed, me:SetWalkSpeed, addMoney, GiveAmmo, GodEnable, GodDisable
@@ -91,80 +62,3 @@ ULib.ban, ULib.addBan, SetMaterial, SetModel, setDarkRPVar, storeRPName, , ,
 DarkRP.createJob, , BitcoinValue, MaxInterest, doubleChance, , ,  
 , , getip(), 
 ]]
-
-
-
-
-Use the older whitelists in the new filters
-check detours vs. whitelists
-check if the blacklist and suspect lists usage matured well
-
-idea: save persistent trace func names as "funcName - whitelisted" when they are clear to go
-
-rename whitelistTraceErrors to whitelistTraces?
-
-change detours whitelisting from low tisk locations to whitelistTraceErrors, that'd be MUCH safer!!
-
-add whitelists.files and tell not to use it?
--- Oh... Actually it's already possible by using whitelistTraceErrors with a field like gamemodes/darkrp/gamemode/libraries/simplerr.lua:
--- It wouldn't happen if I check the string for a number after the :
--- But, also, there will be no easy way to do simplerr compatible...
-
-Stack_SkipBSFunctions probably doesn't work with arguments differet from 1
-
-Run scan_fast with only bs loaded:
-[[[ HIGH RISK ]]] ---------------------------------------------------------------------------- <<<
-addons/chess/reslist.lst
-     [!] _G.
-This is ugly and bad
-
-
-
-
-
-BS.lowRisk.files
-BS.lowRisk.folders
-
-BS.whitelists.stack
-BS.whitelists.snippets
-BS.whitelistTraces
-BS.whitelists.urls
-
-------------------
-
-BS.scanner.notSuspicious
-
-
-
-
-------------------
-
-Locais:
-
-scan = texto código
-filters = args extra
-stack = checar func name
-trace = salvar func name
-detours = especial
-
-
-
-
-
-        --[[
-        "lua/derma/derma.lua",
-        "lua/derma/derma_example.lua",
-        "lua/entities/gmod_wire_target_finder.lua",
-        "lua/entities/gmod_wire_keyboard/init.lua",
-        "lua/entities/info_wiremapinterface/init.lua",
-        "lua/includes/extensions/debug.lua",
-        "lua/includes/modules/constraint.lua",
-        "lua/includes/util/javascript_util.lua",
-        "lua/includes/util.lua",
-        "lua/vgui/dhtml.lua",
-        "lua/autorun/cb-lib.lua",
-        "lua/autorun/!sh_dlib.lua",
-        "lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
-        "lua/autorun/streamradio_loader.lua", -- 3D Stream Radio
-        "gamemodes/darkrp/gamemode/libraries/simplerr.lua", -- DarkRP
-        ]]
