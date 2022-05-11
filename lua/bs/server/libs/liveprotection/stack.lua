@@ -241,6 +241,7 @@ local function Stack_SkipBSFunctions()
 end
 
 function BS:Stack_SkipBSFunctions(args)
+    args = args or {}
     _table.insert(args, self.folder.lua)
     InsertArgs(args)
     return Stack_SkipBSFunctions()
