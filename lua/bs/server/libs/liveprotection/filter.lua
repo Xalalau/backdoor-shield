@@ -67,7 +67,7 @@ function BS:Filter_ScanHttpFetchPost(trace, funcName, args, isLoose)
 
         ScanArgument(self, url, funcName, detected, warning)
 
-        for _, arg in ipairs(args2) do
+        for _, arg in pairs(args2) do
             if isstring(arg) then
                 ScanArgument(self, arg, funcName, detected, warning)
             elseif istable(arg) then
