@@ -177,32 +177,37 @@ BS.live = {
     whitelists = {
         -- Whitelisted folders
         folders = {
-            "lua/wire", -- Wiremod
-            "lua/ulx", -- ULX
-            "lua/ulib", -- Ulib
+            "lua/dlib", -- dLib
             "lua/pac3", -- Pac3
+            "lua/playx", -- PlayX
             "lua/smh", -- Stop Motion Helper
-            "lua/playx" -- PlayX
+            "lua/ulib", -- Ulib
+            "lua/ulx", -- ULX
+            "lua/wire" -- Wiremod
         },
     
         -- Whitelisted files
         files = {
             "lua/entities/gmod_wire_expression2/core/extloader.lua", -- Wiremod
             "lua/entities/info_wiremapinterface/init.lua", -- Wiremod
-            "gamemodes/base/entities/entities/lua_run.lua" -- GMod
+            "gamemodes/base/entities/entities/lua_run.lua", -- GMod
+            "lua/easychat/autoloader.lua", -- Easy Chat
+            "lua/autorun/gb-radial.lua", -- Overhauled Radial Menu
+            "lua/autorun/hat_init.lua", -- Henry's Animation Tool
+            "lua/vrmod/0/vrmod_api.lua" -- VR Mod
         },
 
         -- Whitelist http.Fetch() and http.Post() urls
         --   Don't scan the downloaded content, just run it normally to start checking again
         urls = {
-            "http://www.geoplugin.net/",
+            "http://www.geoplugin.net/"
         },
     
         -- Whitelist snippets
         --   Ignore detections containing the listed texts
         --   Be very careful to add items here! Ideally, this list should never be used
         snippets = {
-        },
+        }
     },
 
     -- Loose detections
@@ -214,6 +219,6 @@ BS.live = {
 
         -- Loose files
         files = {
-        },
-    },
+        }
+    }
 }
