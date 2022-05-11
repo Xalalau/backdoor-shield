@@ -43,7 +43,6 @@ function BS:Trace_Set(func, name, trace)
     self.liveTraceStacks[tostring(func)] = { name = name, trace = trace }
 end
 
--- Get the correct detected lua file from a trace stack
 function BS:Trace_GetLuaFile(trace)
     -- The trace is a path starting with @
     if trace and string.sub(trace, 1, 1) == "@" then
@@ -55,24 +54,24 @@ function BS:Trace_GetLuaFile(trace)
         trace = debug.traceback()
     end
 
-    local traceLines = string.Explode("\n", trace)
-    local index
-
     -- From the trace top to the bottom:
     --   Find "stack traceback:", skip our own files and get the first valid lua file
+    local traceLines = string.Explode("\n", trace)
     local foundStackStart
     for k, traceLine in ipairs(traceLines) do
         if not foundStackStart and string.Trim(traceLine) == "stack traceback:" then
             foundStackStart = true
         elseif foundStackStart then
-            if not string.find(traceLine, "/lua/" .. self.folder.lua, nil, true) and not string.find(traceLine, "main chunk", nil, true) and string.find(traceLine, ".lua", nil, true) then
-                index = k
-                break
+            if not string.find(traceLine, "/lua/" .. self.folder.lua, nil, true) and string.find(traceLine, ".lua", nil, true) then
+                traceLine = string.Trim(string.Explode(":", traceLine)[1])
+                traceLine = self:Utils_ConvertAddonPath(traceLine)
+
+                return traceLine
             end
         end
     end
 
-    return index and self:Utils_ConvertAddonPath(string.Trim(string.Explode(":",traceLines[index])[1])) or trace and string.find(trace, ".lua", nil, true) and trace or ""
+    return ""
 end
 
 -- Check if the trace is of a low-risk detection

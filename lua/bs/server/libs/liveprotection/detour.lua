@@ -68,7 +68,8 @@ function BS:Detour_Validate(funcName, trace, isLoose)
     if detourAddress ~= currentAddress then
         local info = {
             func = funcName,
-            trace = trace or luaFile
+            trace = trace or [[ stack traceback:
+              ]] .. luaFile
         }
 
         if isLoose then
