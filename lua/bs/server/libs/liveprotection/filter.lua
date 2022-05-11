@@ -78,7 +78,7 @@ function BS:Filter_ScanHttpFetchPost(trace, funcName, args, isLoose)
             end
         end
 
-        local report = not isLoose and #detected > 0 and { "detected", "Execution detected!", detected } or
+        local report = not isLoose and #detected > 0 and { "detected", "Execution blocked!", detected } or
                        (isLoose or #warning > 0) and { "warning", "Suspicious execution".. (isLoose and " in a low-risk location" or "") .."!" .. (isLoose and " Ignoring it..." or ""), warning }
 
         if report then
@@ -135,7 +135,7 @@ function BS:Filter_ScanStrCode(trace, funcName, args, isLoose)
 
     ScanArgument(self, code, funcName, detected, warning)
 
-    local report = not isLoose and #detected > 0 and { "detected", "Execution detected!", detected } or
+    local report = not isLoose and #detected > 0 and { "detected", "Execution blocked!", detected } or
                    (isLoose or #warning > 0) and { "warning", "Suspicious execution".. (isLoose and " in a low-risk location" or "") .."!" .. (isLoose and " Ignoring it..." or ""), warning }
 
     if report then
