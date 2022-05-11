@@ -194,7 +194,8 @@ BS.live = {
             "lua/easychat/autoloader.lua", -- Easy Chat
             "lua/autorun/gb-radial.lua", -- Overhauled Radial Menu
             "lua/autorun/hat_init.lua", -- Henry's Animation Tool
-            "lua/vrmod/0/vrmod_api.lua" -- VR Mod
+            "lua/vrmod/0/vrmod_api.lua", -- VR Mod
+            "lua/atmos/init.lua" -- atmos
         },
 
         -- Whitelist http.Fetch() and http.Post() urls
