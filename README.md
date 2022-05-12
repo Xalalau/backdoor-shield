@@ -2,6 +2,8 @@
 
 Protect your GMod server against backdoors! Block, find, investigate and remove them.
 
+But beware: all detections are based on prohibited function call combinations or on very suspicious terms encountered when scanning "texts". Unfortunately Lua knowledge is required to understand the what's going on.
+
 ![image](https://user-images.githubusercontent.com/5098527/167985260-d2e325c7-b310-4eee-a246-ecde898fd5d2.png)
 
 # Incompatibilities
