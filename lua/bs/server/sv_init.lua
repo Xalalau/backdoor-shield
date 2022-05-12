@@ -44,7 +44,7 @@ function BS:Initialize()
 
     Set custom options and black/whitelists in the definitions files:
         "addons/backdoor-shield/lua/bs/server/definitions/"
-            Note: the addon must be extracted.
+            Note: the addon must be extracted or downloaded from GitHub.
 
     Logs directory: "garrysmod/data/]] .. self.folder.data .. [["
     ]],
