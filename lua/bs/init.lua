@@ -12,7 +12,7 @@ AddCSLuaFile()
 
 BS = {}
 
-BS.version = "V. 1.9+ (GitHub)"
+BS.version = "V. 1.9.1"
 
 BS.alert = "[Backdoor Shield]"
 BS.folder = {}
