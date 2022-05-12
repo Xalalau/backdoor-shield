@@ -8,4 +8,4 @@
 
 -- If true, will enable code auto reloading, the command bs_tests and more time without hibernation
 --   Unsafe! Only used while developing
-BS.devMode = false
+BS.devMode = true
