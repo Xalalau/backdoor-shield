@@ -21,6 +21,32 @@ As for backdoors, in GMod very often we confront entire groups with pre-made pan
 
 Although the security of the game has increased a lot over time, these attacks are still very dangerous as they can culminate in theft of scripts, settings and personal data as well as other types of damage. E.g. someone with improper admin access can either delete all files in the data folder or slowly cause server issues until the players give up on it.
 
+# Features
+
+Backdoor Shield
+
+- Starts before all addons;
+- Has the internal code highly protected;
+- Has a custom logs system, colored;
+- Was tested against 1500+ addons, both from workshop and forums;
+- Has a files scanner, that:
+  - Can read files from any extension quickly and intelligently;
+  - Searchs for over 450 invisible utf8 characters;
+  - Has whitelists, blacklists and loose detections lists;
+  - Uses a weight system to determine which detections are important;
+  - Prints the relevant results, logs everything organized by risk.
+- Has real-time protection, that:
+  - Checks the functions parameters/arguments;
+  - Protects the stack calls checking functions by address;
+  - Undoes protected functions detouring;
+  - Searchs for over 450 invisible utf8 characters;
+  - Has whitelists, blacklists and loose detections lists;
+  - Can turn off its components individually;
+  - Is capable of producing traces even through tail calls;
+  - Has a simple extra window to warn of detections.
+
+Honestly, I don't know of a free addon that looks like this.
+
 # Install
 
 Clone or download the files inside your **addons folder**.
