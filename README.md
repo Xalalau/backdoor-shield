@@ -48,7 +48,7 @@ Backdoor Shield
   - Prints detections to the console;
   - Logs detections grouped and individually by type with contents.
 
-Honestly, I don't know of a free addon that looks like this.
+Honestly, I don't know of a free GMod addon that does all this.
 
 # Install
 
