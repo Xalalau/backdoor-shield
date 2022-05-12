@@ -40,15 +40,13 @@ function BS:Initialize()
 
     ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚═════╝      
 
-    | Real-time protection | Anti detour | Malware scanner | Detailed logs |
+    | Real-time protection | Anti detour | Files scanner | Great logs |
 
-    To set custom black and white lists, edit the definitions file:
-    addons/backdoor-shield/lua/bs/server/definitions.lua
+    Set custom options and black/whitelists in the definitions files:
+        "addons/backdoor-shield/lua/bs/server/definitions/"
+            Note: the addon must be extracted.
 
     Logs directory: "garrysmod/data/]] .. self.folder.data .. [["
-
-    Disclaimer: This addon will by no means solve all your problems, it's
-    just a tool created for self-interest research. - Xalalau
     ]],
     [4] = [[
     Commands:
@@ -58,13 +56,15 @@ function BS:Initialize()
     |
     |-> bs_scan_full FOLDER(S)  Recursively scan all files in FOLDER(S).
        
-        * If no folder is defined, it'll scan addons, lua, gamemode and
+        * If no folder is defined, it'll scan addons, lua, gamemodes and
           data folders.
 
     Enabled features:
     |]],
     [5] = [[
 
+    Disclaimer: This addon will by no means solve all your problems! it
+    is just a tool created for self-interest research.
     -------- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --------]] }
 
     if not self.__G.BS_reloaded then
