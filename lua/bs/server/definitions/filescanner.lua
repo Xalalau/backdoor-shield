@@ -67,7 +67,6 @@ BS.scanner = {
         ["!false"] = 15,
         ["=_G"] = 12, -- Used by backdoors to start hiding names or create a new environment
         ["RunString"] = 10,
-        ["RunStringEx"] = 10,
         ["CompileString"] = 8,
         ["CompileFile"] = 8,
         ["http.Fetch"] = 5,
@@ -91,6 +90,7 @@ BS.scanner = {
 
     -- Whitelists
     --      Detections that fall into this list are entirely ignored and don't generate logs.
+    --      Each row added to these tables gives backdoors a new way to hide, so customize them as needed.
     whitelists = {
         -- Whitelisted folders
         folders = {
@@ -116,6 +116,8 @@ BS.scanner = {
         --   Ignore detections containing the listed texts
         --   Be very careful to add items here! Ideally, this list should never be used
         snippets = {
+            --"RunHASHOb", -- Ignore a DRM. Note: backdoors have already been found under DRMs.
+            --"RunningDRMe", -- Ignore a DRM. Note: backdoors have already been found under DRMs.
         },
     },
 
