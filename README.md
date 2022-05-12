@@ -48,9 +48,9 @@ Backdoor Shield
   - Is capable of producing traces even through tail calls;
   - Has a simple extra window to warn of detections;
   - Prints detections to the console;
-  - Logs detections grouped and individually by type with contents.
+  - Logs detections both grouped and individually.
 
-Honestly, I don't know of a free GMod addon that does all this.
+Honestly, I don't know of a free GMod scanner addon that does all this.
 
 # Install
 
