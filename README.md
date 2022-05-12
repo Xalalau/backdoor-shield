@@ -346,7 +346,7 @@ end)
 
 ## Decoding
 
-We can keep going to see whats going on. I won't explain how I deobfuscated the code but I'll show the result.
+Let's continue to see what's going on. I won't explain how I deobfuscated the code but I'll show the results and leave this link here https://www.dcode.fr/ascii-code.
 
 <details><summary>1) Here is the active backdoor decoded</summary>
 <p>
