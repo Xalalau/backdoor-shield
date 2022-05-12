@@ -79,11 +79,11 @@ As shown in the screenshot above:
 
 Be aware that it's better to run these commands on a dedicated server or in lan mode, as in singleplayer the game will practically freeze until the scan finishes.
 
-It's worth noting that it's a good idea to focus searches. Instead of scanning the your entire addons library, scan only some selected folders like this:
+It's also worth noting that focusing searches is much faster than scanning entire addons libraries, so prefer:
 
     bs_scan_full addons/myAddonA addons/myAddonB
 
-And an interesting thing to do here is to isolate suspicious files in subfolders within the addons folder (like addons/isolation/suspiciousAddon). That way, the game will mount all the content but it won't be executed. Now we can run the command:
+Another interesting thing to do here is to isolate suspicious files in subfolders within the addons folder (like addons/isolation/suspiciousAddon). That way, the game will mount all the contents but they won't be executed. Obviously the it'll look like this:
 
     bs_scan_full addons/isolation/suspiciousAddon
 
