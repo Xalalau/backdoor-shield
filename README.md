@@ -34,7 +34,8 @@ Backdoor Shield
   - Searchs for over 450 invisible utf8 characters;
   - Has whitelists, blacklists and loose detections lists;
   - Uses a weight system to determine which detections are important;
-  - Prints the relevant results, logs everything organized by risk.
+  - Prints the relevant results;
+  - Logs detections organized by risk.
 - Has real-time protection, that:
   - Checks the functions parameters/arguments;
   - Protects the stack calls checking functions by address;
@@ -43,7 +44,9 @@ Backdoor Shield
   - Has whitelists, blacklists and loose detections lists;
   - Can turn off its components individually;
   - Is capable of producing traces even through tail calls;
-  - Has a simple extra window to warn of detections.
+  - Has a simple extra window to warn of detections;
+  - Prints detections to the console;
+  - Logs detections grouped and individually by type with contents.
 
 Honestly, I don't know of a free addon that looks like this.
 
