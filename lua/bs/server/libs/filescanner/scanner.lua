@@ -26,7 +26,7 @@ local function ScanSource(BS, src, ext, detected)
     
     local IsSourceSuspicious = IsSourceSuspicious(BS, src, ext)
     if not IsSourceSuspicious then
-        detected[2] = detected[2] + BS.scanner.liveCounterWeights.notSuspicious
+        detected[2] = detected[2] + BS.scanner.counterWeights.notSuspicious
     end
 
     local foundTerms = BS:Scan_Blacklist(BS, src, BS.scannerBlacklist_FixedFormat)
@@ -36,7 +36,7 @@ local function ScanSource(BS, src, ext, detected)
 
         for k, lineTab in ipairs(linesTab) do
             table.insert(lineNumbers, lineTab.lineNumber)
-            totalFound = totalFound + lineTab.liveCount
+            totalFound = totalFound + lineTab.count
         end
 
         detected[2] = detected[2] + BS.scanner.blacklist[term] -- Adding multiple weights here will generate a lot of false positives
@@ -192,7 +192,7 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 
         -- Loose folder counterweight
         if isLooseFolder then
-            detected[2] = detected[2] + BS.scanner.liveCounterWeights.loose
+            detected[2] = detected[2] + BS.scanner.counterWeights.loose
         end
 
         -- Convert a addons/ path to a lua/ path and save the result to prevent a repeated scanning later
@@ -223,7 +223,7 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 
             for k, lineTab in ipairs(linesTab) do
                 table.insert(lineNumbers, lineTab.lineNumber)
-                totalFound = totalFound + lineTab.liveCount
+                totalFound = totalFound + lineTab.count
             end
 
             detected[2] = detected[2] + BS.scanner.extraWeights.invalidChar -- Adding multiple weights here will generate a lot of false positives
@@ -241,7 +241,7 @@ local function StartRecursiveFolderRead(BS, dir, results, addonsFolderFiles, ext
 
             -- Loose file counterweight
             if isLooseFile then
-                detected[2] = detected[2] + BS.scanner.liveCounterWeights.loose
+                detected[2] = detected[2] + BS.scanner.counterWeights.loose
             end
 
             -- Discard result if it's from file with only BS.scanner.suspect_suspect detections
