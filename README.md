@@ -4,8 +4,6 @@ Protect your GMod server against backdoors! Block, find, investigate and remove 
 
 ![image](https://user-images.githubusercontent.com/5098527/167985260-d2e325c7-b310-4eee-a246-ecde898fd5d2.png)
 
-<br/>
-
 # Incompatibilities
 
 > DO-NOT-USE this addon on servers with paid mods!!!! Many of them have complex DRMs, which in most cases get detected and blocked. This can lead to serious authentication problems and even license loss! If you suspect that your addons are infected, run them along Backdoor Shield in a clean server/GMod instance!
@@ -13,22 +11,15 @@ Protect your GMod server against backdoors! Block, find, investigate and remove 
 > Avoid addons that set their own environment because they can break, like:
 > - gmDoom - https://steamcommunity.com/sharedfiles/filedetails/?id=133300986
 
-> Also, consider Backdoor Shield as W.I.P. and know that I don't intend to make this addon user friendly or exaggerate its features, this project is a hobbyist experiment.
-
-<br/>
-
+Also, consider Backdoor Shield as W.I.P! Know that I don't intend to add fancy features or even make this addon user friendly, this project is a hobbyist experiment.
 
 # What is a backdoor?
 
-    "a backdoor refers to any method by which authorized and unauthorized users are able to get around normal security measures and gain high level user access (aka root access) on a computer system, network, or software application. Once they're in, cybercriminals can use a backdoor to steal personal and financial data, install additional malware, and hijack devices."
-    --- Malwarebytes
+> "a backdoor refers to any method by which authorized and unauthorized users are able to get around normal security measures and gain high level user access (aka root access) on a computer system, network, or software application. Once they're in, cybercriminals can use a backdoor to steal personal and financial data, install additional malware, and hijack devices." - Malwarebytes
 
 As for backdoors, in GMod very often we confront entire groups with pre-made panels using complex functions, there's a market for that.
 
 Although the security of the game has increased a lot over time, these attacks are still very dangerous as they can culminate in theft of scripts, settings and personal data as well as other types of damage. E.g. someone with improper admin access can either delete all files in the data folder or slowly cause server issues until the players give up on it.
-
-<br/>
-
 
 # Install
 
@@ -36,16 +27,12 @@ Clone or download the files inside your **addons folder**.
 
 You can also subscribe to BS in the Workshop, but that way you won't be able to change the addon settings later: https://steamcommunity.com/sharedfiles/filedetails/?id=2215013575
 
-<br/>
-
 # Configure
 
 All settings are in three files in this folder:
 - **lua/bs/server/definitions/**
 
 There's one for the file scanner, one for real-time protection, and one for internal behaviour. Everything is documented at each location.
-
-<br/>
 
 # Commands
 
@@ -71,8 +58,6 @@ And an interesting thing to do here is to isolate suspicious files in subfolders
 
 
 Note: there's also the ``bs_tests`` command to aid in development. It's enabled when dev mode is turned on.
-
-<br/>
 
 # Logs
 
@@ -110,13 +95,9 @@ In the second, each detection is placed inside subfolders with the name of the d
 </p>
 </details>
 
-<br/>
-
 # Real-time protection example
 
 The example below was made in an older version of the addon but it's ok, the idea is still very similar to the current one.
-
-<br/>
 
 ## Detection
 
@@ -333,8 +314,6 @@ end)
 
 </p>
 </details>
-
-<br/>
 
 ## Decoding
 
