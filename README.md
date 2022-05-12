@@ -106,6 +106,9 @@ Logs from the file scanner are are organized by date and time. Within them, the 
 
 <details><summary>Real-time</summary>
 <p>
+
+<img src="https://i.imgur.com/BDk6TJk.png"/>
+
 <img src="https://user-images.githubusercontent.com/5098527/167990081-4d8a0a56-6235-43bd-b08d-da32c3bfd6e4.png"/>
 
 As for the real-time detections, they are in subfolders named by date and are organized in two different ways.
