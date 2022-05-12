@@ -53,7 +53,7 @@ function BS:Stack_Init()
     --             4. unknown - addons/!!!backdoor-shield/lua/autorun/tests.lua:16
     -- I "solved it" by calling the function before everyone else and throwing the error away.
     pcall(function()
-        print(self.__G.debug.getinfo(1))
+        self.__G.debug.getinfo(1)
     end)
 end
 
