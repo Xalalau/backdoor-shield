@@ -60,7 +60,7 @@ BS.live = {
         ["HTTP"]                   = { filters =   "Filter_ScanStack" },
         ["http.Fetch"]             = { filters = { "Filter_ScanStack", "Filter_ScanHttpFetchPost" } },
         ["http.Post"]              = { filters = { "Filter_ScanStack", "Filter_ScanHttpFetchPost" } },
-        ["include"]                = {},
+        ["include"]                = { multiplayerOnly = true }, -- Breaks footstep sounds on singleplayer
         ["jit.util.funcinfo"]      = { filters = { "Filter_ScanStack", "Filter_ProtectAddresses" }, retunOnDetection = {} },
         ["jit.util.funck"]         = { filters =   "Filter_ScanStack" },
         ["Kick"]                   = { filters =   "Filter_ScanStack" },
