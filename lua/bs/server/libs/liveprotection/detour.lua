@@ -20,7 +20,9 @@ function BS:Detour_Init()
             self.liveDetours[funcName].filters[k] = self[filterName]
         end
 
-        self:Detour_Create(funcName, self.liveDetours[funcName].filters)
+        if not (game.SinglePlayer() and settingsDetourTab.multiplayerOnly) then
+            self:Detour_Create(funcName, self.liveDetours[funcName].filters)
+        end
     end
 end
 
@@ -38,7 +40,9 @@ function BS:Detour_SetAutoCheck()
             end
 
             for funcName, settingsDetourTab in pairs(self.live.detours) do
-                self:Detour_Validate(funcName)
+                if not (game.SinglePlayer() and settingsDetourTab.multiplayerOnly) then
+                    self:Detour_Validate(funcName)
+                end
             end
         end)
     end

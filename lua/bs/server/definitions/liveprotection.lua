@@ -29,6 +29,7 @@ BS.live = {
             detour = function                     -- Our detoured function address (Automatically managed)
             filters = string or { string, ... }   -- Internal functions to execute any extra security checks we want (following the declared order)
             retunOnDetection = some result        -- Return a value other than nil if the filters detected a threat and stop the execution
+            multiplayerOnly = boolean             -- If the protection is only usefull on multiplayer
         },
     ]]
     detours = {
