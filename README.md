@@ -1,69 +1,69 @@
 # Garry's Mod - Backdoor Shield
 
-Protect your GMod server against backdoors! Block, find, investigate and remove them.
+Protect your GMod server from backdoors! This tool helps you block, detect, investigate, and remove them.
 
-But beware: all detections are based on prohibited function call combinations or on very suspicious terms encountered when scanning "texts". Unfortunately Lua knowledge is required to understand the what's going on.
+However, keep in mind that all detections are based on either prohibited function call combinations or highly suspicious terms found during string scans. Unfortunately, some knowledge of Lua is required to fully understand the results.
 
 ![image](https://user-images.githubusercontent.com/5098527/167985260-d2e325c7-b310-4eee-a246-ecde898fd5d2.png)
 
 # Incompatibilities
 
-> DO-NOT-USE this addon on servers with paid mods!!!! Many of them have complex DRMs, which in most cases get detected and blocked. This can lead to serious authentication problems and even license loss! If you suspect that your addons are infected, run them along Backdoor Shield in a clean server/GMod instance!
+> DO NOT USE this addon on servers running paid mods! Many paid mods use complex DRMs, which may be detected and blocked by Backdoor Shield. This could lead to serious authentication problems and even loss of licenses! If you suspect your addons are infected, run them on a clean server/GMod instance alongside Backdoor Shield.
 
-> Avoid addons that set their own environment because they can break, like:
+> Avoid addons that create their own environment, as they may break, such as:
 > - gmDoom - https://steamcommunity.com/sharedfiles/filedetails/?id=133300986
 
-Also, consider Backdoor Shield as W.I.P! Know that I don't intend to add fancy features or even make this addon user friendly, this project is a hobbyist experiment.
+Also, please consider Backdoor Shield a work in progress (W.I.P.). I do not plan to add fancy features or make the addon user-friendly (this is purely a hobbyist project).
 
 # What is a backdoor?
 
 > "a backdoor refers to any method by which authorized and unauthorized users are able to get around normal security measures and gain high level user access (aka root access) on a computer system, network, or software application. Once they're in, cybercriminals can use a backdoor to steal personal and financial data, install additional malware, and hijack devices." - Malwarebytes
 
-As for backdoors, in GMod very often we confront entire groups with pre-made panels using complex functions, there's a market for that.
+In GMod, backdoors often involve entire groups of bad actors using pre-made panels with complex functions — there's even a market for them.
 
-Although the security of the game has increased a lot over time, these attacks are still very dangerous as they can culminate in theft of scripts, settings and personal data as well as other types of damage. E.g. someone with improper admin access can either delete all files in the data folder or slowly cause server issues until the players give up on it.
+While the game's security has improved significantly over time, these attacks remain highly dangerous. They can lead to the theft of scripts, settings, and personal data, along with other damages. For instance, someone with unauthorized admin access could delete all files in the data folder or gradually cause server issues until players abandon it.
 
 # Features
 
 Backdoor Shield
 
-- Starts before all addons;
-- Has the internal code highly protected;
-- Has a custom logs system, colored;
-- Was tested against 1500+ addons, both from workshop and forums;
-- Has a files scanner, that:
-  - Can read files from any extension quickly and intelligently;
-  - Searchs for over 450 invisible utf8 characters;
-  - Has whitelists, blacklists and loose detections lists;
-  - Uses a weight system to determine which detections are important;
-  - Prints the relevant results;
-  - Logs detections organized by risk.
-- Has real-time protection, that:
-  - Checks the functions parameters/arguments;
-  - Protects the stack calls checking functions by address;
-  - Undoes protected functions detouring;
-  - Searchs for over 450 invisible utf8 characters;
-  - Has whitelists, blacklists and loose detections lists;
-  - Can turn off its components individually;
-  - Is capable of producing traces even through tail calls;
-  - Has a simple extra window to warn of detections;
-  - Prints detections to the console;
-  - Logs detections both grouped and individually.
+- Starts before all addons.
+- Has highly protected internal code.
+- Features a custom, colored logging system.
+- Tested against 1500+ addons from both the workshop and forums.
+- Includes a file scanner that:
+  - Quickly and intelligently reads files of any extension.
+  - Searches for over 450 invisible UTF-8 characters.
+  - Supports whitelists, blacklists, and loose detection lists.
+  - Uses a weight system to prioritize important detections.
+  - Displays relevant results.
+  - Logs detections categorized by risk.
+- Provides real-time protection that:
+  - Checks function parameters/arguments.
+  - Protects stack calls by checking function addresses.
+  - Undoes detoured protected functions.
+  - Searches for over 450 invisible UTF-8 characters.
+  - Supports whitelists, blacklists, and loose detection lists.
+  - Allows individual components to be disabled.
+  - Can generate traces even through tail calls.
+  - Features a simple window to notify users of detections.
+  - Prints detections to the console.
+  - Logs detections both individually and in groups.
 
-Honestly, I don't know of a free GMod scanner that does all this.
+Honestly, I’m not aware of any free GMod scanner that offers all these features.
 
 # Install
 
-Clone or download the files inside your **addons folder**.
+Clone or download the files into your **addons folder**.
 
-You can also subscribe to BS in the Workshop, but that way you won't be able to change the addon settings later: https://steamcommunity.com/sharedfiles/filedetails/?id=2215013575
+You can also subscribe to Backdoor Shield on the Workshop, but this will prevent you from changing the addon's settings later: https://steamcommunity.com/sharedfiles/filedetails/?id=2215013575
 
 # Configure
 
-All settings are in three files in this folder:
+All settings are located in three files within this folder:
 - **lua/bs/server/definitions/**
-
-There's one for the file scanner, one for real-time protection, and one for internal behaviour. Everything is documented at each location.
+ 
+There’s one file for the scanner, one for real-time protection, and one for internal behavior. Everything is documented in each file.
 
 # Commands
 
@@ -79,18 +79,17 @@ As shown in the screenshot above:
         * If no folder is defined, it'll scan addons, lua, gamemodes and
           data folders.
 
-Be aware that it's better to run these commands on a dedicated server or in lan mode, as in singleplayer the game will practically freeze until the scan finishes.
+Be aware that it's best to run these commands on a dedicated server or in LAN mode, as in singleplayer the game will likely freeze until the scan is complete.
 
-It's also worth noting that focusing searches is much faster than scanning entire addons libraries, so prefer:
+It’s also worth noting that focused searches are much faster than scanning entire addon libraries. So it's better to use:
 
     bs_scan_full addons/myAddonA addons/myAddonB
 
-Another interesting thing to do here is to isolate suspicious files in subfolders within the addons folder (like addons/isolation/suspiciousAddon). That way, the game will mount all the contents but they won't be executed. Obviously the it'll look like this:
+Another useful tip is to isolate suspicious files in subfolders within the addons folder (e.g., addons/isolation/suspiciousAddon). This way, the game will mount all the contents, but they won’t be executed. It would look like this:
 
     bs_scan_full addons/isolation/suspiciousAddon
 
-
-Note: there's also the ``bs_tests`` command to aid in development. It's enabled when dev mode is turned on.
+Note: There's also the ``bs_tests`` command to assist with development. It’s enabled when dev mode is turned on.
 
 # Logs
 
@@ -110,20 +109,19 @@ Logs from the file scanner are are organized by date and time. Within them, the 
 
 <details><summary>Real-time</summary>
 <p>
-
 <img src="https://i.imgur.com/BDk6TJk.png"/>
 
 <img src="https://user-images.githubusercontent.com/5098527/167990081-4d8a0a56-6235-43bd-b08d-da32c3bfd6e4.png"/>
 
-As for the real-time detections, they are in subfolders named by date and are organized in two different ways.
+As for real-time detections, they are stored in subfolders named by date and organized in two different ways.
 
 <img src="https://user-images.githubusercontent.com/5098527/167988995-2b2443dc-037f-47c8-91f0-597504ea04ba.png"/>
 
-In the first one, items are grouped by "detections", "warnings" and "detours", as shown above. Within these files the entries are placed in order of occurrence:
+In the first method, items are grouped by "detections", "warnings", and "detours", as shown above. Within these files, the entries are listed in the order they occurred.
 
 <img src="https://user-images.githubusercontent.com/5098527/167989406-cdac9556-a728-424f-9f58-d1198f04cde9.png"/>
 
-In the second, each detection is placed inside subfolders with the name of the detected function and relevant items such as pieces of malicious code.
+In the second method, each detection is placed inside subfolders named after the detected function, along with relevant items such as pieces of malicious code.
 
 <img src="https://user-images.githubusercontent.com/5098527/167989468-366ef03a-b663-42cb-907b-8cafb25c8e4c.png"/>
 
@@ -133,7 +131,7 @@ In the second, each detection is placed inside subfolders with the name of the d
 
 # Real-time protection example
 
-The example below was made in an older version of the addon but it's ok, the idea is still very similar to the current one.
+The example below was created using an older version of the addon, but the concept remains very similar to the current one.
 
 ## Detection
 
