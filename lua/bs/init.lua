@@ -1,5 +1,5 @@
 --[[
-    2020-2022 Xalalau Xubilozo. MIT License
+    Copyright (C) 2020 Xalalau Xubilozo. MIT License
     https://xalalau.com/
 
     Backdoor Shield (BS) (Also known as bullshit detector)
